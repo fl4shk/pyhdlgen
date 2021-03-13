@@ -1,0 +1,5 @@
+*.sw[pox]
+tags
+*.taghl
+*.ignore
+__pycache__
