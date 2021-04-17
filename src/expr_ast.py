@@ -3,6 +3,7 @@
 #--------
 from misc_util import *
 from misc_ast import *
+from type_ast import *
 #--------
 class Expr(Base):
 	#--------
@@ -12,7 +13,29 @@ class Expr(Base):
 	def visit(self, visitor):
 		visitor.visitExpr(self)
 	#--------
+	def is_lhs(self):
+		return False
+	#--------
+	@staticmethod
+	def is_const(other):
+		return (isinstance(other, Const) 
+			or isinstance(other, int) or hasattr(other, "__str__"))
+	@staticmethod
+	def check_const(other):
+		assert Expr.is_const(other), \
+			str(type(other))
+
+	@staticmethod
+	def is_valid(other):
+		return (isinstance(other, Expr) or isinstance(other, int)
+			or hasattr(other, "__str__"))
+	@staticmethod
+	def check_valid(other):
+		assert Expr.is_valid(other), \
+			str(type(other))
+	#--------
 	def eq(self, other):
+		assert self.is_lhs()
 		return Binop("assign", self, other)
 
 	def __abs__(self):
@@ -80,7 +103,11 @@ class Const(Expr):
 		#--------
 		super().__init__()
 		#--------
-		assert hasattr(val, "__str__")
+		Expr.check_const(val)
+
+		if isinstance(val, Expr):
+			assert val.is_lhs()
+
 		self.__val = val
 		#--------
 	#--------
@@ -89,6 +116,9 @@ class Const(Expr):
 	#--------
 	def visit(self, visitor):
 		visitor.visitConst(self)
+	#--------
+	def is_lhs(self):
+		return True
 	#--------
 	def __str__(self):
 		return str(self.val())
@@ -103,9 +133,9 @@ class Unop(Expr):
 
 		STR_KIND_MAP \
 			= {
-				"abs": Kind.Abs,
-				"-": Kind.Neg,
-				"~": Kind.Not,
+				"abs": Unop.Kind.Abs,
+				"-": Unop.Kind.Neg,
+				"~": Unop.Kind.Not,
 			}
 	#--------
 	def __init__(self, kind, val):
@@ -121,6 +151,8 @@ class Unop(Expr):
 			self.__kind = kind
 		else: # if isinstance(kind, str):
 			self.__kind = Kind.STR_KIND_MAP[kind]
+
+		Expr.check_valid(val)
 		self.__val = val
 		#--------
 	#--------
@@ -131,6 +163,9 @@ class Unop(Expr):
 	#--------
 	def visit(self, visitor):
 		visitor.visitUnop(self)
+	#--------
+	def is_lhs(self):
+		return self.val().is_lhs()
 	#--------
 class Binop(Expr):
 	#--------
@@ -168,36 +203,36 @@ class Binop(Expr):
 
 		STR_KIND_MAP \
 			= {
-				"assign": Kind.Assign,
+				"assign": Binop.Kind.Assign,
 
-				"+": Kind.Add.
-				"-": Kind.Sub,
+				"+": Binop.Kind.Add.
+				"-": Binop.Kind.Sub,
 
-				"*": Kind.Mul,
-				"//": Kind.Div,
-				"%": Kind.Mod,
-				"rem": Kind.Rem,
+				"*": Binop.Kind.Mul,
+				"//": Binop.Kind.Div,
+				"%": Binop.Kind.Mod,
+				"rem": Binop.Kind.Rem,
 
-				"**": Kind.Pow,
+				"**": Binop.Kind.Pow,
 
-				"<<": Kind.Lshift,
-				">>": Kind.Rshift,
-				"rol": Kind.Rol,
-				"ror": Kind.Ror,
+				"<<": Binop.Kind.Lshift,
+				">>": Binop.Kind.Rshift,
+				"rol": Binop.Kind.Rol,
+				"ror": Binop.Kind.Ror,
 
-				"&": Kind.And,
-				"nand": Kind.Nand,
-				"|": Kind.Or,
-				"nor": Kind.Nor,
-				"^": Kind.Xor,
-				"xnor": Kind.Xnor,
+				"&": Binop.Kind.And,
+				"nand": Binop.Kind.Nand,
+				"|": Binop.Kind.Or,
+				"nor": Binop.Kind.Nor,
+				"^": Binop.Kind.Xor,
+				"xnor": Binop.Kind.Xnor,
 
-				"<": Kind.Lt,
-				">": Kind,Gt,
-				"<=": Kind.Le,
-				">=": Kind.Ge,
-				"==": Kind.Eq,
-				"!=": Kind.Ne,
+				"<": Binop.Kind.Lt,
+				">": Binop.Kind,Gt,
+				"<=": Binop.Kind.Le,
+				">=": Binop.Kind.Ge,
+				"==": Binop.Kind.Eq,
+				"!=": Binop.Kind.Ne,
 			}
 	#--------
 	def __init__(self, kind, left, right):
@@ -214,7 +249,12 @@ class Binop(Expr):
 		else: # if isinstance(kind, str):
 			self.__kind = Kind.STR_KIND_MAP[kind]
 
+		assert isinstance(left, Expr), \
+			str(type(left))
 		self.__left = left
+
+		assert isinstance(right, Expr), \
+			str(type(right))
 		self.__right = right
 		#--------
 	#--------
@@ -226,35 +266,50 @@ class Binop(Expr):
 		return self.__right
 	#--------
 	def visit(self, visitor):
-		visitor.visitBinopBase(self)
+		visitor.visitBinop(self)
+	#--------
+	def is_lhs(self):
+		return (self.left().is_lhs() and self.right().is_lhs())
 	#--------
 #--------
 class PartSel(Expr):
 	#--------
-	def __init__(self, to_ps, ind_rang):
+	def __init__(self, val, ind_rang):
 		#--------
 		super().__init__()
 		#--------
+		#assert isinstance(val, Expr), \
+		#	str(type(val))
+
 		# Object to part-select
-		self.__to_ps = to_ps
+		Expr.check_valid(val)
+
+		self.__val = val
 
 		# Index or range
+		assert (Expr.is_valid(ind_rang) or isinstance(ind_rang, Range)), \
+			str(type(ind_rang))
 		self.__ind_rang = ind_rang
 		#--------
 	#--------
-	def to_ps(self):
-		return self.__to_ps
+	def val(self):
+		return self.__val
 	def ind_rang(self):
 		return self.__ind_rang
 	#--------
 	def visit(self, visitor):
 		visitor.visitPartSel(self)
 	#--------
+	def is_lhs(self):
+		return self.val().is_lhs()
+	#--------
 #--------
 class Cat(Expr):
 	#--------
 	def __init__(self, *args):
 		super().__init__()
+
+		for arg in 
 		self.__args = args
 	#--------
 	def args(self):
@@ -262,5 +317,10 @@ class Cat(Expr):
 	#--------
 	def visit(self, visitor):
 		visitor.visitCat(self)
+	#--------
+	def is_lhs(self):
+		for arg in self.args():
+			if arg.is_lhs
+		return True
 	#--------
 #--------

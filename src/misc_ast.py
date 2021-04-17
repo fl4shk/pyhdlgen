@@ -95,42 +95,12 @@ class Entity(Base):
 				str(len(item))
 			self[val[0]] = val[1]
 	#--------
-class Architecture(Base):
-	#--------
-	def __init__(self, decls=NameDict(), stms_ul=[], stmts_l=NameDict()):
-		#--------
-		super().__init__()
-		#--------
-		# Declarations
-		self.__decls = decls
-
-		# Unlabelled statements
-		self.__stms_ul = stms_ul
-
-		# Labelled statements
-		self.__stmts_l = stmts_l
-		#--------
-	#--------
-	def decls(self):
-		return self.__decls
-	def stms_ul(self):
-		return self.__stms_ul
-	def stmts_l(self):
-		return self.__stmts_l
-	#--------
-	def visit(self, visitor):
-		visitor.visitArchitecture(self)
-	#--------
-	def __getattr__(self, key):
-		return self[key]
-	def __getitem__(self, key):
-		return self.stmts_l
-	#--------
 class Generic(Base):
 	#--------
 	class Kind(enum.Enum):
 		Null = auto()
 		Constant = auto()
+		Type = auto()
 		Function = auto()
 		Procedure = auto()
 	#--------
@@ -168,3 +138,34 @@ class Port(Base):
 		visitor.visitPort(self)
 	#--------
 #--------
+class Architecture(Base):
+	#--------
+	def __init__(self, decls=NameDict(), stms_ul=[], stmts_l=NameDict()):
+		#--------
+		super().__init__()
+		#--------
+		# Declarations
+		self.__decls = decls
+
+		# Unlabelled statements
+		self.__stms_ul = stms_ul
+
+		# Labelled statements
+		self.__stmts_l = stmts_l
+		#--------
+	#--------
+	def decls(self):
+		return self.__decls
+	def stms_ul(self):
+		return self.__stms_ul
+	def stmts_l(self):
+		return self.__stmts_l
+	#--------
+	def visit(self, visitor):
+		visitor.visitArchitecture(self)
+	#--------
+	def __getattr__(self, key):
+		return self[key]
+	def __getitem__(self, key):
+		return self.stmts_l
+	#--------

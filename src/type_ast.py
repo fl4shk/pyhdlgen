@@ -126,8 +126,12 @@ class Range(Base):
 		#--------
 		super().__init__()
 		#--------
+		Expr.check_const(width)
 		self.__width = width
-		self.__low = low
+
+		Expr.check_const(low)
+		self.__low = Const(low)
+
 		self.__is_downto = is_downto
 		#self.__is_natural = is_natural
 		#--------
@@ -156,14 +160,18 @@ class UnconstrRange(Base):
 		visitor.visitUnconstrRange(self)
 #--------
 class Record(Base):
+	#--------
 	def __init__(self, layout):
 		super().__init__()
 
 		# `layout` is expected to be a `dict` mapping element names to
 		# types, where types can be 
 		self.__layout = layout
+	#--------
 	def layout(self):
 		return self.__layout
+	#--------
 	def visit(self, visitor):
 		visitor.visitRecord(self)
+	#--------
 #--------
