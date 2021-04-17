@@ -135,7 +135,7 @@ class Range(Base):
 	def width(self):
 		return
 	def high(self):
-		return (Expr(self.low()) + (Expr(self.width()) - Expr(1)))
+		return (Const(self.low()) + (Const(self.width()) - Const(1)))
 	def low(self):
 		return self.__low
 	def is_downto(self):

@@ -52,7 +52,11 @@ class Entity(Base):
 		#--------
 		self.__generics = generics
 		self.__ports = ports
+
+		# Declarations
 		self.__decls = decls
+
+		# Architectures
 		self.__archs = archs
 		#--------
 	#--------
@@ -65,13 +69,70 @@ class Entity(Base):
 	def archs(self):
 		return self.__archs
 	#--------
-	def __setattr__(self, name, key):
-		self.decls()[name] = key
-	def __getattr__(self, name):
-		return self.decls()[name]
-	#--------
 	def visit(self, visitor):
 		visitor.visitEntity(self)
+	#--------
+	def __getattr__(self, key):
+		return self[key]
+	def __getitem__(self, key):
+		return self.decls()[key]
+
+	def __setattr__(self, key, val):
+		self[key] = val
+	def __setitem__(self, key, val):
+		self.decls()[key] = val
+
+	def __iadd__(self, val):
+		assert (isinstance(val, list) or isinstance(val, tuple)), \
+			str(type(val))
+
+		if isinstance(val, list):
+			for item in val:
+				assert isinstance(item, tuple) and (len(item) == 2)
+				self[item[0]] = item[1]
+		else: # if isinstance(val, tuple)
+			assert (len(item) == 2), \
+				str(len(item))
+			self[val[0]] = val[1]
+	#--------
+class Architecture(Base):
+	#--------
+	def __init__(self, decls=NameDict(), stms_ul=[], stmts_l=NameDict()):
+		#--------
+		super().__init__()
+		#--------
+		# Declarations
+		self.__decls = decls
+
+		# Unlabelled statements
+		self.__stms_ul = stms_ul
+
+		# Labelled statements
+		self.__stmts_l = stmts_l
+		#--------
+	#--------
+	def decls(self):
+		return self.__decls
+	def stms_ul(self):
+		return self.__stms_ul
+	def stmts_l(self):
+		return self.__stmts_l
+	#--------
+	def visit(self, visitor):
+		visitor.visitArchitecture(self)
+	#--------
+	def __getattr__(self, key):
+		return self[key]
+	def __getitem__(self, key):
+		return self.stmts_l
+	#--------
+class Generic(Base):
+	#--------
+	class Kind(enum.Enum):
+		Null = auto()
+		Constant = auto()
+		Function = auto()
+		Procedure = auto()
 	#--------
 class Port(Base):
 	#--------
@@ -81,8 +142,8 @@ class Port(Base):
 		Inout = auto()
 	class Kind(enum.Enum):
 		Null = auto()
-		Sig = auto()
-		Var = auto()
+		Signal = auto()
+		Variable = auto()
 	#--------
 	def __init__(self, kind, direction, typ, def_val=None):
 		#--------
@@ -105,9 +166,5 @@ class Port(Base):
 	#--------
 	def visit(self, visitor):
 		visitor.visitPort(self)
-	#--------
-class Architecture(Base):
-	#--------
-	def __init__(self, 
 	#--------
 #--------

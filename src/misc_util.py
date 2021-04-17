@@ -32,24 +32,37 @@ class NameDict:
 	def dct(self):
 		return self.__dct
 	#--------
-	def __getattr__(self, name):
-		return self[name]
-	def __getitem__(self, name):
-		if self.__name_goes_in_dct(name):
-			return self.__dct[name]
-		else: # if not self.__name_goes_in_dct(name)
-			return self.__dict__[name]
+	def __getattr__(self, key):
+		return self[key]
+	def __getitem__(self, key):
+		if self.__key_goes_in_dct(key):
+			return self.__dct[key]
+		else: # if not self.__key_goes_in_dct(key)
+			return self.__dict__[key]
 
-	def __setattr__(self, name, val):
-		self[name] = val
-	def __setitem__(self, name, val):
-		if self.__name_goes_in_dct(name):
-			self.__dct[name] = val
-		else: # if not self.__name_goes_in_dct(name)
-			self.__dict__[name] = val
+	def __setattr__(self, key, val):
+		self[key] = val
+	def __setitem__(self, key, val):
+		if self.__key_goes_in_dct(key):
+			self.__dct[key] = val
+		else: # if not self.__key_goes_in_dct(key)
+			self.__dict__[key] = val
+
+	def __iadd__(self, val):
+		assert (isinstance(val, list) or isinstance(val, tuple)), \
+			str(type(val))
+
+		if isinstance(val, list):
+			for item in val:
+				assert isinstance(item, tuple) and (len(item) == 2)
+				self[item[0]] = item[1]
+		else: # if isinstance(val, tuple)
+			assert (len(item) == 2), \
+				str(len(item))
+			self[val[0]] = val[1]
 	#--------
-	def __name_goes_in_dct(self, name):
-		return (isinstance(name, str) and (len(name) > 0) 
-			and name[0].isalpha())
+	def __key_goes_in_dct(self, key):
+		return (isinstance(key, str) and (len(key) > 0) 
+			and key[0].isalpha())
 	#--------
 #--------
