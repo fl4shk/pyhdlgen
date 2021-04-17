@@ -105,8 +105,8 @@ class NaturalVector(VectorBase):
 	def visit(self, visitor):
 		visitor.visitNaturalVector(self)
 class NaturalVectorR(NaturalVector):
-	def __init__(self, high, low=0, is_downto=True):
-		super().__init__(Range(high, low, is_downto))
+	def __init__(self, width, low=0, is_downto=True):
+		super().__init__(Range(width, low, is_downto))
 
 class Array(VectorBase):
 	def __init__(self, rang, elem_t):
@@ -126,11 +126,11 @@ class Range(Base):
 		#--------
 		super().__init__()
 		#--------
-		Expr.check_const(width)
-		self.__width = width
+		Expr.assert_const(width)
+		self.__width = Literal.cast_maybe(width)
 
-		Expr.check_const(low)
-		self.__low = Const(low)
+		Expr.assert_const(low)
+		self.__low = Literal.cast_maybe(low)
 
 		self.__is_downto = is_downto
 		#self.__is_natural = is_natural
@@ -139,7 +139,7 @@ class Range(Base):
 	def width(self):
 		return
 	def high(self):
-		return (Const(self.low()) + (Const(self.width()) - Const(1)))
+		return (self.low() + (self.width() - Literal(1)))
 	def low(self):
 		return self.__low
 	def is_downto(self):

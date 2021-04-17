@@ -16,21 +16,30 @@ class Expr(Base):
 	def is_lhs(self):
 		return False
 	#--------
-	@staticmethod
-	def is_const(other):
-		return (isinstance(other, Const) 
+	@classmethod
+	def is_literal(other):
+		return (isinstance(other, Literal) 
 			or isinstance(other, int) or hasattr(other, "__str__"))
-	@staticmethod
-	def check_const(other):
+	@classmethod
+	def assert_literal(other):
+		assert Expr.is_literal(other), \
+			str(type(other))
+
+	@classmethod
+	def is_const(other):
+		return (isinstance(other, Constant) or Expr.is_literal(other))
+	@classmethod
+	def assert_const(other):
 		assert Expr.is_const(other), \
 			str(type(other))
 
-	@staticmethod
+	# check to see if this is a valid `Expr` (or convertable to one)
+	@classmethod
 	def is_valid(other):
 		return (isinstance(other, Expr) or isinstance(other, int)
 			or hasattr(other, "__str__"))
-	@staticmethod
-	def check_valid(other):
+	@classmethod
+	def assert_valid(other):
 		assert Expr.is_valid(other), \
 			str(type(other))
 	#--------
@@ -97,13 +106,13 @@ class Expr(Base):
 		return Binop("!=", self, other)
 	#--------
 #--------
-class Const(Expr):
+class Literal(Expr):
 	#--------
 	def __init__(self, val):
 		#--------
 		super().__init__()
 		#--------
-		Expr.check_const(val)
+		Expr.assert_literal(val)
 
 		if isinstance(val, Expr):
 			assert val.is_lhs()
@@ -119,6 +128,12 @@ class Const(Expr):
 	#--------
 	def is_lhs(self):
 		return True
+
+	@classmethod
+	def cast_maybe(other):
+		return Literal(other) \
+			if Expr.is_literal(other) \
+			else other
 	#--------
 	def __str__(self):
 		return str(self.val())
@@ -152,7 +167,7 @@ class Unop(Expr):
 		else: # if isinstance(kind, str):
 			self.__kind = Kind.STR_KIND_MAP[kind]
 
-		Expr.check_valid(val)
+		Expr.assert_valid(val)
 		self.__val = val
 		#--------
 	#--------
@@ -249,13 +264,11 @@ class Binop(Expr):
 		else: # if isinstance(kind, str):
 			self.__kind = Kind.STR_KIND_MAP[kind]
 
-		assert isinstance(left, Expr), \
-			str(type(left))
-		self.__left = left
+		Expr.assert_valid(left)
+		self.__left = Literal.cast_maybe(left)
 
-		assert isinstance(right, Expr), \
-			str(type(right))
-		self.__right = right
+		Expr.assert_valid(right)
+		self.__right = Literal.cast_maybe(right)
 		#--------
 	#--------
 	def kind(self):
@@ -278,12 +291,10 @@ class PartSel(Expr):
 		#--------
 		super().__init__()
 		#--------
-		#assert isinstance(val, Expr), \
-		#	str(type(val))
-
-		# Object to part-select
-		Expr.check_valid(val)
-
+		# Object to part-select.  It has to be a `Signal`, `Variable`, or
+		# `Constant`
+		assert isinstance(val, NamedValue), \
+			str(type(val))
 		self.__val = val
 
 		# Index or range
