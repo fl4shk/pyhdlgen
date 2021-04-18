@@ -4,6 +4,8 @@
 from misc_util import *
 from misc_ast import *
 from type_ast import *
+
+from enum import Enum, auto
 #--------
 class Expr(Base):
 	#--------
@@ -141,17 +143,11 @@ class Literal(Expr):
 #--------
 class Unop(Expr):
 	#--------
-	class Kind(enum.Enum):
+	class Kind(Enum):
 		Abs = auto()
 		Neg = auto()
 		Not = auto()
 
-		STR_KIND_MAP \
-			= {
-				"abs": Unop.Kind.Abs,
-				"-": Unop.Kind.Neg,
-				"~": Unop.Kind.Not,
-			}
 	#--------
 	def __init__(self, kind, val):
 		#--------
@@ -165,7 +161,16 @@ class Unop(Expr):
 		if isinstance(kind, Kind):
 			self.__kind = kind
 		else: # if isinstance(kind, str):
-			self.__kind = Kind.STR_KIND_MAP[kind]
+			STR_KIND_MAP \
+				= {
+					"abs": Kind.Abs,
+					"-": Kind.Neg,
+					"~": Kind.Not,
+				}
+
+			assert (kind in STR_KIND_MAP), \
+				kind
+			self.__kind = STR_KIND_MAP[kind]
 
 		Expr.assert_valid(val)
 		self.__val = val
@@ -184,7 +189,7 @@ class Unop(Expr):
 	#--------
 class Binop(Expr):
 	#--------
-	class Kind(enum.Enum):
+	class Kind(Enum):
 		Assign = auto()
 
 		Add = auto()
@@ -216,39 +221,6 @@ class Binop(Expr):
 		Eq = auto()
 		Ne = auto()
 
-		STR_KIND_MAP \
-			= {
-				"assign": Binop.Kind.Assign,
-
-				"+": Binop.Kind.Add.
-				"-": Binop.Kind.Sub,
-
-				"*": Binop.Kind.Mul,
-				"//": Binop.Kind.Div,
-				"%": Binop.Kind.Mod,
-				"rem": Binop.Kind.Rem,
-
-				"**": Binop.Kind.Pow,
-
-				"<<": Binop.Kind.Lshift,
-				">>": Binop.Kind.Rshift,
-				"rol": Binop.Kind.Rol,
-				"ror": Binop.Kind.Ror,
-
-				"&": Binop.Kind.And,
-				"nand": Binop.Kind.Nand,
-				"|": Binop.Kind.Or,
-				"nor": Binop.Kind.Nor,
-				"^": Binop.Kind.Xor,
-				"xnor": Binop.Kind.Xnor,
-
-				"<": Binop.Kind.Lt,
-				">": Binop.Kind,Gt,
-				"<=": Binop.Kind.Le,
-				">=": Binop.Kind.Ge,
-				"==": Binop.Kind.Eq,
-				"!=": Binop.Kind.Ne,
-			}
 	#--------
 	def __init__(self, kind, left, right):
 		#--------
@@ -262,7 +234,44 @@ class Binop(Expr):
 		if isinstance(kind, Kind):
 			self.__kind = kind
 		else: # if isinstance(kind, str):
-			self.__kind = Kind.STR_KIND_MAP[kind]
+			STR_KIND_MAP \
+				= {
+					"assign": Kind.Assign,
+
+					"+": Kind.Add,
+					"-": Kind.Sub,
+
+					"*": Kind.Mul,
+					"//": Kind.Div,
+					"%": Kind.Mod,
+					"rem": Kind.Rem,
+
+					"**": Kind.Pow,
+
+					"<<": Kind.Lshift,
+					">>": Kind.Rshift,
+					"rol": Kind.Rol,
+					"ror": Kind.Ror,
+
+					"&": Kind.And,
+					"nand": Kind.Nand,
+					"|": Kind.Or,
+					"nor": Kind.Nor,
+					"^": Kind.Xor,
+					"xnor": Kind.Xnor,
+
+					"<": Kind.Lt,
+					">": Kind.Gt,
+					"<=": Kind.Le,
+					">=": Kind.Ge,
+					"==": Kind.Eq,
+					"!=": Kind.Ne,
+				}
+
+			assert (kind in STR_KIND_MAP), \
+				kind
+
+			self.__kind = STR_KIND_MAP[kind]
 
 		Expr.assert_valid(left)
 		self.__left = Literal.cast_maybe(left)
@@ -320,8 +329,11 @@ class Cat(Expr):
 	def __init__(self, *args):
 		super().__init__()
 
-		for arg in 
-		self.__args = args
+		self.__args = []
+
+		for arg in arg:
+			Expr.assert_valid(arg)
+			self.__args.append(Literal.cast_maybe(arg))
 	#--------
 	def args(self):
 		return self.__args
@@ -331,7 +343,8 @@ class Cat(Expr):
 	#--------
 	def is_lhs(self):
 		for arg in self.args():
-			if arg.is_lhs
+			if not arg.is_lhs():
+				return False
 		return True
 	#--------
 #--------

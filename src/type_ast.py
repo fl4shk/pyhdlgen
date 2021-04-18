@@ -4,6 +4,8 @@
 from misc_util import *
 from misc_ast import *
 from expr_ast import *
+
+from enum import Enum, auto
 #--------
 class Bit(Base):
 	def __init__(self):

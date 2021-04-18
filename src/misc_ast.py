@@ -97,7 +97,7 @@ class Entity(Base):
 	#--------
 class Generic(Base):
 	#--------
-	class Kind(enum.Enum):
+	class Kind(Enum):
 		Null = auto()
 		Constant = auto()
 		Type = auto()
@@ -106,11 +106,11 @@ class Generic(Base):
 	#--------
 class Port(Base):
 	#--------
-	class Direction(enum.Enum):
+	class Direction(Enum):
 		In = auto()
 		Out = auto()
 		Inout = auto()
-	class Kind(enum.Enum):
+	class Kind(Enum):
 		Null = auto()
 		Signal = auto()
 		Variable = auto()
