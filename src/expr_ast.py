@@ -10,8 +10,8 @@ from enum import Enum, auto
 #--------
 class Expr(Base):
 	#--------
-	def __init__(self):
-		super().__init__()
+	def __init__(self, *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
 	#--------
 	def visit(self, visitor):
 		visitor.visitExpr(self)
@@ -111,9 +111,9 @@ class Expr(Base):
 #--------
 class Literal(Expr):
 	#--------
-	def __init__(self, val):
+	def __init__(self, val, *, src_loc_at=1):
 		#--------
-		super().__init__()
+		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		Expr.assert_literal(val)
 
@@ -150,9 +150,9 @@ class Unop(Expr):
 		Not = auto()
 
 	#--------
-	def __init__(self, kind, val):
+	def __init__(self, kind, val, *, src_loc_at=1):
 		#--------
-		super().__init__()
+		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		Kind = Unop.Kind
 
@@ -223,9 +223,9 @@ class Binop(Expr):
 		Ne = auto()
 
 	#--------
-	def __init__(self, kind, left, right):
+	def __init__(self, kind, left, right, *, src_loc_at=1):
 		#--------
-		super().__init__()
+		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		Kind = Binop.Kind
 
@@ -297,9 +297,9 @@ class Binop(Expr):
 #--------
 class PartSel(Expr):
 	#--------
-	def __init__(self, val, ind_rang):
+	def __init__(self, val, ind_rang, *, src_loc_at=1):
 		#--------
-		super().__init__()
+		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		# Object to part-select.  It has to be a `Signal`, `Variable`, or
 		# `Constant`
@@ -327,7 +327,7 @@ class PartSel(Expr):
 #--------
 class Cat(Expr):
 	#--------
-	def __init__(self, *args):
+	def __init__(self, *args, src_loc_at=1):
 		super().__init__()
 
 		self.__args = []

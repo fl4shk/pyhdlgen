@@ -15,9 +15,9 @@ class Generic(Base):
 		Function = auto()
 		Procedure = auto()
 	#--------
-	def __init__(self, kind, typ, def_val=None):
+	def __init__(self, kind, typ, def_val=None, *, src_loc_at=1):
 		#--------
-		super().__init__()
+		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(kind, Generic.Kind), \
 			type(kind)
@@ -48,9 +48,10 @@ class Port(Base):
 		Out = auto()
 		Inout = auto()
 	#--------
-	def __init__(self, kind, direction, typ, def_val=None):
+	def __init__(self, kind, direction, typ, def_val=None, *,
+		src_loc_at=1):
 		#--------
-		super().__init__()
+		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(kind, Port.Kind), \
 			type(kind)
