@@ -2,9 +2,9 @@
 
 #--------
 from misc_util import *
-from misc_ast import *
-from type_ast import *
-from named_value_ast import *
+from vhdl_misc_ast import *
+from vhdl_type_ast import *
+from vhdl_named_value_ast import *
 
 from enum import Enum, auto
 #--------
@@ -303,12 +303,13 @@ class PartSel(Expr):
 		#--------
 		# Object to part-select.  It has to be a `Signal`, `Variable`, or
 		# `Constant`
-		assert isinstance(val, NamedValue), \
+		assert isinstance(val, NamedValueBase), \
 			type(val)
 		self.__val = val
 
 		# Index or range
-		assert (Expr.is_valid(ind_rang) or isinstance(ind_rang, Range)), \
+		assert (Expr.is_valid(ind_rang)
+			or isinstance(ind_rang, ConRangeBase)), \
 			type(ind_rang)
 		self.__ind_rang = ind_rang
 		#--------
@@ -343,9 +344,10 @@ class Cat(Expr):
 		visitor.visitCat(self)
 	#--------
 	def is_lhs(self):
-		for arg in self.args():
-			if not arg.is_lhs():
-				return False
-		return True
+		#for arg in self.args():
+		#	if not arg.is_lhs():
+		#		return False
+		#return True
+		return False
 	#--------
 #--------

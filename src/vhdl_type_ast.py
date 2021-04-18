@@ -2,11 +2,12 @@
 
 #--------
 from misc_util import *
-from misc_ast import *
-from expr_ast import *
+from vhdl_misc_ast import *
+from vhdl_expr_ast import *
 
 from enum import Enum, auto
 #--------
+# To make `isinstance(obj, TypeBase)` work
 class TypeBase(Base):
 	#--------
 	def __init__(self, *, src_loc_at=1):
@@ -22,15 +23,24 @@ class TypeBase(Base):
 	#	return False
 	##--------
 #--------
-# type whatever_t is array(0 to 42) of asdf_t;
-class DeclType(TypeBase):
-	#--------
-	def __init__(self, typ, *, src_loc_at=1):
-		#--------
+# For `isinstance(obj, NamedTypeBase)`
+class NamedTypeBase(TypeBase):
+	def __init__(self, name, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
+		self.__name = name
+	def name(self):
+		return self.__name
+	def visit(self, visitor):
+		visitor.visitNamedTypeBase(self)
+# `type whatever_t is array(0 to 42) of asdf_t;`
+class DeclType(NamedTypeBase):
+	#--------
+	def __init__(self, name, typ, *, src_loc_at=1):
+		#--------
+		super().__init__(name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert (isinstance(typ, Array) or isinstance(typ, Record)
-			or isinstance(typ, Range)), \
+			or isinstance(typ, ConRangeBase)), \
 			type(typ)
 		self.__typ = typ
 		#--------
@@ -41,12 +51,12 @@ class DeclType(TypeBase):
 	def visit(self, visitor):
 		visitor.visitDeclType(self)
 	#--------
-# subtype whatever_t is unsigned(42 downto 0);
-class DeclSubtype(TypeBase):
+# `subtype whatever_t is unsigned(42 downto 0);`
+class DeclSubtype(NamedTypeBase):
 	#--------
-	def __init__(self, typ, layout, *, src_loc_at=1):
+	def __init__(self, name, typ, layout, *, src_loc_at=1):
 		#--------
-		super().__init__(src_loc_at=src_loc_at + 1)
+		super().__init__(name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(typ, TypeBase), \
 			type(typ)
@@ -239,7 +249,15 @@ class Record(TypeBase):
 		visitor.visitRecord(self)
 	#--------
 
-class Range(TypeBase):
+# Base class for a constrained range, used for 
+# `isinstance(obj, ConRangeBase)`
+class ConRangeBase(TypeBase):
+	def __init__(self, *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitConRangeBase(self)
+	
+class Range(ConRangeBase):
 	#--------
 	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
 		#--------
@@ -266,7 +284,24 @@ class Range(TypeBase):
 	def visit(self, visitor):
 		visitor.visitRange(self)
 	#--------
-# An unconstrained range
+# `mynamedval'range` or `mytype'range`
+class TickRange(ConRangeBase):
+	def __init__(self, obj, *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
+
+		# This isn't a perfect check since `DeclType` might be
+		# unconstrained
+		assert (isinstance(obj, NamedValueBase) 
+			or isinstance(obj, DeclType)
+			or isinstance(obj, DeclSubtype)) \
+			type(obj)
+		self.__obj = obj
+	def obj(self):
+		return self.__obj
+	def visit(self, visitor):
+		visitor.visitTickRange(self)
+
+# An unconstrained range, such as `natural range <>`
 class UnconRange(Base):
 	def __init__(self, is_natural=True, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)

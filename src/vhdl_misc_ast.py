@@ -2,19 +2,19 @@
 
 #--------
 from misc_util import *
-from tracer import *
 
 from enum import Enum, auto
-#import inspect
+import inspect
 #--------
 class Base:
 	#--------
 	def __init__(self, *, src_loc_at=1):
 		frame = inspect.stack()[src_loc_at].frame
+
 		getframeinfo_ret = inspect.getframeinfo(frame)
+
 		self.__filename = getframeinfo_ret.filename
 		self.__lineno = getframeinfo_ret.lineno
-		pass
 	#--------
 	def filename(self):
 		return self.__filename

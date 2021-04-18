@@ -2,22 +2,25 @@
 
 #--------
 from misc_util import *
-from misc_ast import *
-from generic_port_ast import *
+from vhdl_misc_ast import *
+from vhdl_generic_port_ast import *
 
 from enum import Enum, auto
 #--------
 class DeclComponent(Base):
 	#--------
-	def __init__(self, generics=NameDict(), ports=NameDict(), *,
+	def __init__(self, name, generics=NameDict(), ports=NameDict(), *,
 		src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
+		self.__name = name
 		self.__generics = generics
 		self.__ports = ports
 		#--------
 	#--------
+	def name(self):
+		return self.__name
 	def generics(self):
 		return self.__generics
 	def ports(self):
@@ -29,10 +32,10 @@ class DeclComponent(Base):
 #--------
 class DeclEntity(DeclComponent):
 	#--------
-	def __init__(self, generics=NameDict(), ports=NameDict(),
+	def __init__(self, name, generics=NameDict(), ports=NameDict(),
 		decls=NameDict(), archs=NameDict(), *, src_loc_at=1):
 		#--------
-		super().__init__(generics, ports, src_loc_at=src_loc_at + 1)
+		super().__init__(name, generics, ports, src_loc_at=src_loc_at + 1)
 		#--------
 		# Declarations
 		self.__decls = decls
@@ -52,10 +55,10 @@ class DeclEntity(DeclComponent):
 #--------
 class DeclArchitecture(Base):
 	#--------
-	def __init__(self, decls=NameDict(), stms_ul=[], stmts_l=NameDict(),
-		*, src_loc_at=1):
+	def __init__(self, name, decls=NameDict(), stms_ul=[],
+		stmts_l=NameDict(), *, src_loc_at=1):
 		#--------
-		super().__init__(src_loc_at=src_loc_at + 1)
+		super().__init__(name, src_loc_at=src_loc_at + 1)
 		#--------
 		# Declarations
 		self.__decls = decls
