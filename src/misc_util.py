@@ -50,7 +50,7 @@ class NameDict:
 
 	def __iadd__(self, val):
 		assert (isinstance(val, list) or isinstance(val, tuple)), \
-			str(type(val))
+			type(val)
 
 		if isinstance(val, list):
 			for item in val:

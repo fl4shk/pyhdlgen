@@ -4,6 +4,7 @@
 from misc_util import *
 from misc_ast import *
 from type_ast import *
+from named_value_ast import *
 
 from enum import Enum, auto
 #--------
@@ -25,7 +26,7 @@ class Expr(Base):
 	@classmethod
 	def assert_literal(other):
 		assert Expr.is_literal(other), \
-			str(type(other))
+			type(other)
 
 	@classmethod
 	def is_const(other):
@@ -33,7 +34,7 @@ class Expr(Base):
 	@classmethod
 	def assert_const(other):
 		assert Expr.is_const(other), \
-			str(type(other))
+			type(other)
 
 	# check to see if this is a valid `Expr` (or convertable to one)
 	@classmethod
@@ -43,7 +44,7 @@ class Expr(Base):
 	@classmethod
 	def assert_valid(other):
 		assert Expr.is_valid(other), \
-			str(type(other))
+			type(other)
 	#--------
 	def eq(self, other):
 		assert self.is_lhs()
@@ -156,7 +157,7 @@ class Unop(Expr):
 		Kind = Unop.Kind
 
 		assert (isinstance(kind, Kind) or isinstance(kind, str)), \
-			str(type(kind))
+			type(kind)
 
 		if isinstance(kind, Kind):
 			self.__kind = kind
@@ -229,7 +230,7 @@ class Binop(Expr):
 		Kind = Binop.Kind
 
 		assert (isinstance(kind, Kind) or isinstance(kind, str)), \
-			str(type(kind))
+			type(kind)
 
 		if isinstance(kind, Kind):
 			self.__kind = kind
@@ -303,12 +304,12 @@ class PartSel(Expr):
 		# Object to part-select.  It has to be a `Signal`, `Variable`, or
 		# `Constant`
 		assert isinstance(val, NamedValue), \
-			str(type(val))
+			type(val)
 		self.__val = val
 
 		# Index or range
 		assert (Expr.is_valid(ind_rang) or isinstance(ind_rang, Range)), \
-			str(type(ind_rang))
+			type(ind_rang)
 		self.__ind_rang = ind_rang
 		#--------
 	#--------
