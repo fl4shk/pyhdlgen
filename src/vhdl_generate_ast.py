@@ -19,20 +19,29 @@ class GenerateStmt(Base):
 	#--------
 class ForGenerateStmt(GenerateStmt):
 	#--------
-	def __init__(self, label, name, rang, *, src_loc_at=1):
+	def __init__(self, label, var_name, rang, body=[], *, src_loc_at=1):
 		#--------
 		super().__init__(label, src_loc_at=src_loc_at + 1)
 		#--------
-		self.__name = name
+		self.__var_name = var_name
 		self.__rang = rang
+		self.__body = body
 		#--------
 	#--------
-	def name(self):
-		return self.__name
+	def var_name(self):
+		return self.__var_name
 	def rang(self):
 		return self.__rang
+	def body(self):
+		return self.__body
 	#--------
 	def visit(self, visitor):
 		visitor.visitForGenerateStmt(self)
 	#--------
+class IfGenerateStmt(GenerateStmt):
+	def __init__(self, label, nodes=[], *, src_loc_at=1):
+		super().__init__(label, src_loc_at=src_loc_at + 1)
+		self.__nodes = nodes
+	def nodes(self):
+		return self.__nodes
 #--------

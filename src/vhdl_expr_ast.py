@@ -4,7 +4,8 @@
 from misc_util import *
 from vhdl_misc_ast import *
 from vhdl_type_ast import *
-from vhdl_named_value_ast import *
+from vhdl_behav_ast import *
+#from vhdl_named_value_ast import *
 
 from enum import Enum, auto
 #--------
@@ -18,23 +19,20 @@ class Expr(Base):
 	#--------
 	def is_lhs(self):
 		return False
-	#--------
+
 	@classmethod
 	def is_literal(other):
-		return (isinstance(other, Literal) 
-			or isinstance(other, int) or hasattr(other, "__str__"))
+		return (isinstance(other, Literal) or hasattr(other, "__str__"))
 	@classmethod
 	def assert_literal(other):
 		assert Expr.is_literal(other), \
 			type(other)
 
-	@classmethod
-	def is_const(other):
-		return (isinstance(other, Constant) or Expr.is_literal(other))
-	@classmethod
-	def assert_const(other):
-		assert Expr.is_const(other), \
-			type(other)
+	def is_const(self):
+		return False 
+	def assert_const(self):
+		assert self.is_const(), \
+			type(self)
 
 	# check to see if this is a valid `Expr` (or convertable to one)
 	@classmethod
@@ -47,8 +45,15 @@ class Expr(Base):
 			type(other)
 	#--------
 	def eq(self, other):
-		assert self.is_lhs()
-		return Binop("assign", self, other)
+		#assert self.is_lhs()
+		return AssignStmt(self, other)
+		#return Binop("assign", self, other)
+
+	def __getitem__(self, key):
+		#if isinstance(key, slice):
+		#	assert (key.step == None), \
+		#		key.step
+		return PartSel(self, key)
 
 	def __abs__(self):
 		return Unop("abs", self)
@@ -117,10 +122,9 @@ class Literal(Expr):
 		#--------
 		Expr.assert_literal(val)
 
-		if isinstance(val, Expr):
-			assert val.is_lhs()
-
-		self.__val = val
+		self.__val = val.val() \
+			if isinstance(val, Literal) \
+			else val
 		#--------
 	#--------
 	def val(self):
@@ -130,6 +134,8 @@ class Literal(Expr):
 		visitor.visitConst(self)
 	#--------
 	def is_lhs(self):
+		return False
+	def is_const(self):
 		return True
 
 	@classmethod
@@ -141,6 +147,22 @@ class Literal(Expr):
 	def __str__(self):
 		return str(self.val())
 	#--------
+# A VHDL literal character
+class LitChar(Literal):
+	def __init__(self, val, *, src_loc_at=1):
+		assert hasattr(val, "__str__"), \
+			type(val)
+		super().__init__(str(val), src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitLitChar(self)
+# A VHDL literal string
+class LitStr(Literal):
+	def __init__(self, val, *, src_loc_at=1):
+		assert hasattr(val, "__str__"), \
+			type(val)
+		super().__init__(str(val), src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitLitStr(self)
 #--------
 class Unop(Expr):
 	#--------
@@ -186,12 +208,15 @@ class Unop(Expr):
 		visitor.visitUnop(self)
 	#--------
 	def is_lhs(self):
-		return self.val().is_lhs()
+		#return self.val().is_lhs()
+		return False
+	def is_const(self):
+		return True
 	#--------
 class Binop(Expr):
 	#--------
 	class Kind(Enum):
-		Assign = auto()
+		#Assign = auto()
 
 		Add = auto()
 		Sub = auto()
@@ -237,7 +262,7 @@ class Binop(Expr):
 		else: # if isinstance(kind, str):
 			STR_KIND_MAP \
 				= {
-					"assign": Kind.Assign,
+					#"assign": Kind.Assign,
 
 					"+": Kind.Add,
 					"-": Kind.Sub,
@@ -292,7 +317,10 @@ class Binop(Expr):
 		visitor.visitBinop(self)
 	#--------
 	def is_lhs(self):
-		return (self.left().is_lhs() and self.right().is_lhs())
+		#return (self.left().is_lhs() and self.right().is_lhs())
+		return False
+	def is_const(self):
+		return True
 	#--------
 #--------
 class PartSel(Expr):
@@ -301,17 +329,46 @@ class PartSel(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		# Object to part-select.  It has to be a `Signal`, `Variable`, or
-		# `Constant`
-		assert isinstance(val, NamedValueBase), \
+		# Object to part-select
+		assert (isinstance(val, NamedValBase)
+			or isinstance(val, PartSel)), \
 			type(val)
 		self.__val = val
 
-		# Index or range
+		# Index, range, or slice
 		assert (Expr.is_valid(ind_rang)
-			or isinstance(ind_rang, ConRangeBase)), \
+			or isinstance(ind_rang, ConRangeBase)
+			or isinstance(ind_rang, slice)), \
 			type(ind_rang)
-		self.__ind_rang = ind_rang
+
+		if not isinstance(ind_rang, slice):
+			self.__ind_rang = Literal.cast_maybe(ind_rang)
+		else: # isinstance(ind_rang, slice):
+			# Convert the slice to a `Range`
+			width = Literal.cast_maybe(ind_rang.stop) \
+				- Literal.cast_maybe(ind_rang.start)
+
+			low = Literal.cast_maybe(ind_rang.start)
+
+			# This abuses the `step` field...
+			cond_0 = ind_rang.step == None
+			cond_1 = isinstance(ind_rang, str) \
+				and ((ind_rang.step.lower() == "downto")
+					or (ind_rang.step.lower() == "dt")
+					or (ind_rang.step.lower() == "to"))
+			assert cond_0 or cond_1, \
+				ind_rang.step
+
+			cond_2 = isinstance(ind_rang.step, str) \
+				and ((ind_rang.step.lower() == "downto")
+					or (ind_rang.step.lower() == "dt"))
+
+			if (ind_rang.step == None) or cond_2:
+				is_downto = True
+			else: # if ind_rang.step.lower() == "to":
+				is_downto = False
+
+			self.__ind_rang = Range(width, low, is_downto)
 		#--------
 	#--------
 	def val(self):
@@ -324,6 +381,8 @@ class PartSel(Expr):
 	#--------
 	def is_lhs(self):
 		return self.val().is_lhs()
+	def is_const(self):
+		return self.val().is_const()
 	#--------
 #--------
 class Cat(Expr):
@@ -344,10 +403,8 @@ class Cat(Expr):
 		visitor.visitCat(self)
 	#--------
 	def is_lhs(self):
-		#for arg in self.args():
-		#	if not arg.is_lhs():
-		#		return False
-		#return True
 		return False
+	def is_const(self):
+		return True
 	#--------
 #--------

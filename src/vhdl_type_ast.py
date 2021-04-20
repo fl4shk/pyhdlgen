@@ -16,15 +16,23 @@ class TypeBase(Base):
 	def visit(self, visitor):
 		visitor.visitTypeBase(self)
 	#--------
-	## Whether or not we can instantiate a `NamedValue` of this type
+	## Whether or not we can instantiate a `NamedValBase` of this type
 	#def is_instable(self):
 	#	return False
 	#def is_unconstrained(self):
 	#	return False
-	##--------
+	#--------
+#--------
+# Base class for a type that can be instantiated directly (i.e. not a
+# `Record` or `Array`)
+class InstableTypeBase(TypeBase):
+	def __init__(self, *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitInstableTypeBase(self)
 #--------
 # For `isinstance(obj, NamedTypeBase)`
-class NamedTypeBase(TypeBase):
+class NamedTypeBase(InstableTypeBase):
 	def __init__(self, name, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		self.__name = name
@@ -32,6 +40,7 @@ class NamedTypeBase(TypeBase):
 		return self.__name
 	def visit(self, visitor):
 		visitor.visitNamedTypeBase(self)
+
 # `type whatever_t is array(0 to 42) of asdf_t;`
 class DeclType(NamedTypeBase):
 	#--------
@@ -40,7 +49,7 @@ class DeclType(NamedTypeBase):
 		super().__init__(name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert (isinstance(typ, Array) or isinstance(typ, Record)
-			or isinstance(typ, ConRangeBase)), \
+			or isinstance(typ, Range)), \
 			type(typ)
 		self.__typ = typ
 		#--------
@@ -75,39 +84,39 @@ class DeclSubtype(NamedTypeBase):
 		return self.__layout
 	#--------
 	def visit(self, visitor):
-		visitor.visitDeclSubtype(self)
+		visitor.visitDeclDeclSubtype(self)
 	#--------
 #--------
-class Bit(TypeBase):
+class Bit(InstableTypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitBit(self)
 
-class StdLogic(TypeBase):
+class StdLogic(InstableTypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitStdLogic(self)
 
-class Boolean(TypeBase):
+class Boolean(InstableTypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitBoolean(self)
 
-class Integer(TypeBase):
+class Integer(InstableTypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitInteger(self)
-class Natural(TypeBase):
+class Natural(InstableTypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitNatural(self)
 #--------
-class VectorBase(TypeBase):
+class VectorBase(InstableTypeBase):
 	def __init__(self, rang, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
@@ -127,7 +136,7 @@ class BitVectorR(BitVector):
 	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
 		super().__init__ \
 		(
-			rang=Range(width, low, is_downto, src_loc_at=src_loc_at),
+			rang=Range(width, low, is_downto),
 			src_loc_at=src_loc_at + 1,
 		)
 
@@ -140,7 +149,7 @@ class SlvR(Slv):
 	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
 		super().__init__ \
 		(
-			rang=Range(width, low, is_downto, src_loc_at=src_loc_at),
+			rang=Range(width, low, is_downto),
 			src_loc_at=src_loc_at + 1,
 		)
 
@@ -153,7 +162,7 @@ class UnsignedR(Unsigned):
 	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
 		super().__init__ \
 		(
-			rang=Range(width, low, is_downto, src_loc_at=src_loc_at),
+			rang=Range(width, low, is_downto),
 			src_loc_at=src_loc_at + 1,
 		)
 	
@@ -166,7 +175,7 @@ class SignedR(Signed):
 	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
 		super().__init__ \
 		(
-			rang=Range(width, low, is_downto, src_loc_at=src_loc_at),
+			rang=Range(width, low, is_downto),
 			src_loc_at=src_loc_at + 1,
 		)
 
@@ -179,7 +188,7 @@ class BooleanVectorR(BooleanVector):
 	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
 		super().__init__ \
 		(
-			rang=Range(width, low, is_downto, src_loc_at=src_loc_at),
+			rang=Range(width, low, is_downto),
 			src_loc_at=src_loc_at + 1,
 		)
 
@@ -192,7 +201,7 @@ class IntegerVectorR(IntegerVector):
 	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
 		super().__init__ \
 		(
-			rang=Range(width, low, is_downto, src_loc_at=src_loc_at),
+			rang=Range(width, low, is_downto),
 			src_loc_at=src_loc_at + 1,
 		)
 
@@ -205,27 +214,37 @@ class NaturalVectorR(NaturalVector):
 	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
 		super().__init__ \
 		(
-			rang=Range(width, low, is_downto, src_loc_at=src_loc_at),
+			rang=Range(width, low, is_downto),
 			src_loc_at=src_loc_at + 1,
 		)
 
-class Array(VectorBase):
+class Array(TypeBase):
+	#--------
 	def __init__(self, rang, ElemT, *, src_loc_at=1):
-		super().__init__(rang, src_loc_at=src_loc_at + 1)
+		#--------
+		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
+		self.__rang = rang
 
 		# `ElemT` can be a preexisting type, a `DeclType`, or a
 		# `DeclSubtype`.
 		self.__ElemT = ElemT
+		#--------
+	#--------
+	def rang(self):
+		return self.__rang
 	def ElemT(self):
 		return self.__ElemT
+	#--------
 	def visit(self, visitor):
 		visitor.visitArray(self)
+	#--------
 class ArrayR(Array):
 	def __init__(self, width, ElemT, low=0, is_downto=False, *,
 		src_loc_at=1):
 		super().__init__
 		(
-			rang=Range(width, low, is_downto, src_loc_at=src_loc_at),
+			rang=Range(width, low, is_downto),
 			ElemT=ElemT,
 			src_loc_at=src_loc_at + 1
 		)
@@ -248,6 +267,9 @@ class Record(TypeBase):
 	def visit(self, visitor):
 		visitor.visitRecord(self)
 	#--------
+	#def is_unconstrained(self):
+	#	pass
+	#--------
 
 # Base class for a constrained range, used for 
 # `isinstance(obj, ConRangeBase)`
@@ -263,11 +285,11 @@ class Range(ConRangeBase):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		Expr.assert_const(width)
 		self.__width = Literal.cast_maybe(width)
+		self.width().assert_const()
 
-		Expr.assert_const(low)
 		self.__low = Literal.cast_maybe(low)
+		self.low().assert_const(low)
 
 		self.__is_downto = is_downto
 		#--------
@@ -291,9 +313,8 @@ class TickRange(ConRangeBase):
 
 		# This isn't a perfect check since `DeclType` might be
 		# unconstrained
-		assert (isinstance(obj, NamedValueBase) 
-			or isinstance(obj, DeclType)
-			or isinstance(obj, DeclSubtype)) \
+		assert (isinstance(obj, NamedValBase) 
+			or isinstance(obj, NamedTypeBase)), \
 			type(obj)
 		self.__obj = obj
 	def obj(self):

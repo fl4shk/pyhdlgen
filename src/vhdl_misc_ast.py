@@ -2,6 +2,7 @@
 
 #--------
 from misc_util import *
+from vhdl_expr_ast import *
 
 from enum import Enum, auto
 import inspect
