@@ -2,7 +2,10 @@
 
 #--------
 from misc_util import *
-from vhdl_expr_ast import *
+#from vhdl_expr_ast import *
+#import vhdl_expr_ast as expr_ast
+#import vhdl_type_ast as type_ast
+#from vhdl_expr_ast import *
 
 from enum import Enum, auto
 import inspect
@@ -44,4 +47,5 @@ class Com(Base):
 	def visit(self, visitor):
 		visitor.visitCom(self)
 	#--------
+
 #--------

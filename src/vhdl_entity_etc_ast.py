@@ -2,8 +2,8 @@
 
 #--------
 from misc_util import *
-from vhdl_misc_ast import *
-from vhdl_generic_port_ast import *
+#from vhdl_misc_ast import *
+#from vhdl_generic_port_ast import *
 
 from enum import Enum, auto
 #--------
