@@ -58,6 +58,8 @@ class Expr(Base):
 	#--------
 	def eq(self, other):
 		return AssignStmt(self, other)
+	def concur_eq(self, other):
+		return ConcurAssignStmt(self, other)
 
 	def __getitem__(self, key):
 		return PartSel(self, key)
@@ -211,7 +213,7 @@ class BasicLiteral(Expr):
 
 		if isinstance(base, Base):
 			self.__base = base
-		else: # if isisntance(base, str):
+		else: # if isinstance(base, str):
 			STR_BASE_MAP \
 				= {
 					"bin": Base.Bin,

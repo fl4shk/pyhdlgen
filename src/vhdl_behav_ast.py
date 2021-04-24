@@ -37,6 +37,35 @@ class AssignStmt(BehavStmt):
 	def visit(self, visitor):
 		visitor.visitAssignStmt(self)
 	#--------
+class SelAssignStmt(ConcurStmtBase):
+	#--------
+	def __init__(self, expr, left, sel_waves, *, src_loc_at=1):
+		#--------
+		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
+		assert Expr.is_valid(expr), \
+			type(expr)
+		self.__expr = BasicLiteral.cast_opt(expr)
+
+		assert isinstance(left, Expr), \
+			type(left)
+		assert left.is_lvalue(), \
+			type(left)
+		self.__left = left
+
+		self.__sel_waves = sel_waves
+		#--------
+	#--------
+	def expr(self):
+		return self.__expr
+	def left(self):
+		return self.__left
+	def sel_waves(self):
+		return self.__sel_waves
+	#--------
+	def visit(self, visitor):
+		visitor.visitSelAssignStmt(self)
+	#--------
 #--------
 class ForStmt(BehavStmt):
 	#--------
