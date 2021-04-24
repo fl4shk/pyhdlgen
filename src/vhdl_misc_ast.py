@@ -47,5 +47,32 @@ class Com(Base):
 	def visit(self, visitor):
 		visitor.visitCom(self)
 	#--------
+#--------
+class NamedObjDict(Base):
+	#--------
+	def __init__(self, dct=NameDict(), *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
 
+		self.__dct = dct
+	#--------
+	def dct(self):
+		return self.__dct
+	#--------
+	def __getattr__(self, key):
+		return self[key]
+	def __getitem__(self, key):
+		return self.dct()[key]
+
+	def __setattr__(self, key, val):
+		self[key] = val
+	def __setitem__(self, key, val):
+		self.dct()[key] = val
+
+		assert hasattr(self.dct()[key], "_set_name")
+
+		self.dct()[key]._set_name(key)
+
+	def __iadd__(self, val):
+		self.dct() += val
+	#--------
 #--------

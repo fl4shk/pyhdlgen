@@ -3,6 +3,7 @@
 #--------
 from misc_util import *
 from vhdl_misc_ast import *
+from vhdl_named_obj_ast import *
 from vhdl_expr_ast import *
 from vhdl_type_ast import *
 

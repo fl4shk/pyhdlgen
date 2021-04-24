@@ -239,7 +239,7 @@ class BasicLiteral(Expr):
 	def is_const(self):
 		return True
 
-	@classmethod
+	@staticmethod
 	def cast_maybe(other):
 		if Expr.is_basic_literal(other):
 			if isinstance(other, BasicLiteral):
@@ -254,13 +254,13 @@ class BasicLiteral(Expr):
 		else: # if not Expr.is_basic_literal(other):
 			return other
 	#--------
-class LitInt(BasicLiteral):
+class IntLiteral(BasicLiteral):
 	def __init__(self, val, base="dec", *, src_loc_at=1):
 		super().__init__("int", val, base, src_loc_at=src_loc_at + 1)
-class LitChar(BasicLiteral):
+class CharLiteral(BasicLiteral):
 	def __init__(self, val, base="bin", *, src_loc_at=1):
 		super().__init__("char", val, base, src_loc_at=src_loc_at + 1)
-class LitStr(BasicLiteral):
+class StrLiteral(BasicLiteral):
 	def __init__(self, val, base="bin", *, src_loc_at=1):
 		super().__init__("str", val, base, src_loc_at=src_loc_at + 1)
 #--------

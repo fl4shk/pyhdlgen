@@ -9,22 +9,26 @@ from enum import Enum, auto
 #--------
 class DeclComponent(Base):
 	#--------
-	def __init__(self, name, generics=NameDict(), ports=NameDict(), *,
-		src_loc_at=1):
+	def __init__(self, generics=NamedObjDict(), ports=NamedObjDict(), *,
+		name="", src_loc_at=1):
 		#--------
-		super().__init__(src_loc_at=src_loc_at + 1)
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		self.__name = name
 		self.__generics = generics
 		self.__ports = ports
+		self._set_name(name)
 		#--------
 	#--------
-	def name(self):
-		return self.__name
 	def generics(self):
 		return self.__generics
 	def ports(self):
 		return self.__ports
+	def _set_name(self, n_name):
+		assert isinstance(n_name, str), \
+			type(n_name)
+		self.__name = n_name
+	def n_name(self):
+		return self.__name
 	#--------
 	def visit(self, visitor):
 		visitor.visitDeclComponent(self)
@@ -32,10 +36,12 @@ class DeclComponent(Base):
 #--------
 class DeclEntity(DeclComponent):
 	#--------
-	def __init__(self, name, generics=NameDict(), ports=NameDict(),
-		decls=NameDict(), archs=NameDict(), *, src_loc_at=1):
+	def __init__(self, generics=NamedObjDict(), ports=NamedObjDict(),
+		decls=NamedObjDict(), archs=NamedObjDict(), *, name="",
+		src_loc_at=1):
 		#--------
-		super().__init__(name, generics, ports, src_loc_at=src_loc_at + 1)
+		super().__init__(generics, ports, name=name,
+			src_loc_at=src_loc_at + 1)
 		#--------
 		# Declarations
 		self.__decls = decls
@@ -55,10 +61,10 @@ class DeclEntity(DeclComponent):
 #--------
 class DeclArchitecture(Base):
 	#--------
-	def __init__(self, name, decls=NameDict(), stms_ul=[],
-		stmts_l=NameDict(), *, src_loc_at=1):
+	def __init__(self, decls=NamedObjDict(), stms_ul=[],
+		stmts_l=NamedObjDict(), *, name="", src_loc_at=1):
 		#--------
-		super().__init__(name, src_loc_at=src_loc_at + 1)
+		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		# Declarations
 		self.__decls = decls
@@ -68,6 +74,8 @@ class DeclArchitecture(Base):
 
 		# Labelled statements
 		self.__stmts_l = stmts_l
+
+		self._set_name(name)
 		#--------
 	#--------
 	def decls(self):
@@ -76,9 +84,12 @@ class DeclArchitecture(Base):
 		return self.__stms_ul
 	def stmts_l(self):
 		return self.__stmts_l
+	def _set_name(self, n_name):
+		assert isinstance(n_name, str), \
+			type(n_name)
+		self.__name = n_name
 	#--------
 	def visit(self, visitor):
 		visitor.visitDeclArchitecture(self)
 	#--------
-#--------
 #--------
