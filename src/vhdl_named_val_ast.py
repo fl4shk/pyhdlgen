@@ -76,23 +76,15 @@ class PortBase(NamedValBase):
 		#--------
 		Direction = PortBase.Direction
 
-		assert (isinstance(direction, Direction)
-			or isinstance(direction, str)), \
-			type(direction)
+		STR_DIRECTION_MAP \
+			= {
+				"in": Direction.In,
+				"out": Direction.Out,
+				"inout": Direction.Inout,
+			}
 
-		if isinstance(direction, Direction):
-			self.__direction = direction
-		else: # if isinstance(direction, str):
-			STR_DIRECTION_MAP \
-				= {
-					"in": Direction.In,
-					"out": Direction.Out,
-					"inout": Direction.Inout,
-				}
-
-			assert (direction in STR_DIRECTION_MAP), \
-				direction
-			self.__direction = STR_DIRECTION_MAP[direction]
+		self.__direction = convert_str_to_enum_opt(direction, Direction,
+			STR_DIRECTION_MAP)
 		#--------
 	#--------
 	def direction(self):
@@ -101,13 +93,13 @@ class PortBase(NamedValBase):
 	def visit(self, visitor):
 		visitor.visitPortBase(self)
 	#--------
-class RegPort(PortBase)
+class Port(PortBase)
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):
 		super().__init__(direction, typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
-		visitor.visitRegPort(self)
+		visitor.visitPort(self)
 class SigPort(PortBase)
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):

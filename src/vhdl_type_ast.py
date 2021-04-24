@@ -339,10 +339,10 @@ class Range(ConRangeBase):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		self.__high = expr_ast.BasicLiteral.cast_maybe(high)
+		self.__high = expr_ast.BasicLiteral.cast_opt(high)
 		self.high().assert_const()
 
-		self.__low = expr_ast.BasicLiteral.cast_maybe(low)
+		self.__low = expr_ast.BasicLiteral.cast_opt(low)
 		self.low().assert_const(low)
 
 		self.__is_downto = is_downto
@@ -367,7 +367,7 @@ class RangeW(Range):
 	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
 		super().__init__ \
 		(
-			high=expr_ast.BasicLiteral.cast_maybe(width) - 1,
+			high=expr_ast.BasicLiteral.cast_opt(width) - 1,
 			low=low,
 			is_downto=is_downto,
 			src_loc_at=src_loc_at + 1,

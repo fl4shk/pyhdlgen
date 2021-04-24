@@ -61,18 +61,25 @@ class NamedObjDict(Base):
 	def __getattr__(self, key):
 		return self[key]
 	def __getitem__(self, key):
-		return self.dct()[key]
+		if NameDict.key_goes_in_dct(key):
+			return self.dct()[key]
+		else: # if not NameDict.key_goes_in_dct(keys):
+			return self.__dict__[key]
 
 	def __setattr__(self, key, val):
 		self[key] = val
 	def __setitem__(self, key, val):
-		self.dct()[key] = val
+		if NameDict.key_goes_in_dct(key):
+			self.dct()[key] = val
 
-		assert hasattr(self.dct()[key], "_set_name")
+			assert hasattr(self.dct()[key], "_set_name")
 
-		self.dct()[key]._set_name(key)
+			self.dct()[key]._set_name(key)
+		else: # if not NameDict.key_goes_in_dct(key):
+			self.__dict__[key] = val
 
 	def __iadd__(self, val):
-		self.dct() += val
+		dct = self.dct()
+		dct += val
 	#--------
 #--------

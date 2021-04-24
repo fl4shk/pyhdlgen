@@ -240,7 +240,7 @@ class BasicLiteral(Expr):
 		return True
 
 	@staticmethod
-	def cast_maybe(other):
+	def cast_opt(other):
 		if Expr.is_basic_literal(other):
 			if isinstance(other, BasicLiteral):
 				return other
@@ -348,7 +348,7 @@ class Unop(Expr):
 			self.__kind = STR_KIND_MAP[kind]
 
 		Expr.assert_valid(val)
-		self.__val = BasicLiteral.cast_maybe(val)
+		self.__val = BasicLiteral.cast_opt(val)
 		#--------
 	#--------
 	def kind(self):
@@ -450,10 +450,10 @@ class Binop(Expr):
 			self.__kind = STR_KIND_MAP[kind]
 
 		Expr.assert_valid(left)
-		self.__left = BasicLiteral.cast_maybe(left)
+		self.__left = BasicLiteral.cast_opt(left)
 
 		Expr.assert_valid(right)
-		self.__right = BasicLiteral.cast_maybe(right)
+		self.__right = BasicLiteral.cast_opt(right)
 		#--------
 	#--------
 	def kind(self):
@@ -492,13 +492,13 @@ class PartSel(Expr):
 			type(ind_rang)
 
 		if not isinstance(ind_rang, slice):
-			self.__ind_rang = BasicLiteral.cast_maybe(ind_rang)
+			self.__ind_rang = BasicLiteral.cast_opt(ind_rang)
 		else: # isinstance(ind_rang, slice):
 			# Convert the slice to a `Range`
-			width = BasicLiteral.cast_maybe(ind_rang.stop) \
-				- BasicLiteral.cast_maybe(ind_rang.start)
+			width = BasicLiteral.cast_opt(ind_rang.stop) \
+				- BasicLiteral.cast_opt(ind_rang.start)
 
-			low = BasicLiteral.cast_maybe(ind_rang.start)
+			low = BasicLiteral.cast_opt(ind_rang.start)
 
 			# This abuses the `step` field...
 			cond_0 = ind_rang.step == None
@@ -567,7 +567,7 @@ class Cat(Expr):
 
 		for arg in arg:
 			Expr.assert_valid(arg)
-			self.__args.append(BasicLiteral.cast_maybe(arg))
+			self.__args.append(BasicLiteral.cast_opt(arg))
 	#--------
 	def args(self):
 		return self.__args
