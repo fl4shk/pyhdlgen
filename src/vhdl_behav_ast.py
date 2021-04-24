@@ -7,6 +7,7 @@ from vhdl_expr_ast import *
 
 from enum import Enum, auto
 #--------
+# for `isinstance`
 class BehavStmt(Base):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
@@ -153,7 +154,7 @@ class CaseStmt(BehavStmt):
 	def visit(self, visitor):
 		visitor.visitCaseStmt(self)
 
-def NodeCaseWhen(Base):
+class NodeCaseWhen(Base):
 	#--------
 	def __init__(self, choices, body=[], *, src_loc_at=1):
 		#--------
@@ -171,5 +172,35 @@ def NodeCaseWhen(Base):
 	#--------
 	def visit(self, visitor):
 		visitor.visitNodeCaseWhen(self)
+	#--------
+#--------
+class ReportStmt(BehavStmt):
+	#--------
+	def __init__(self, expr, severity_expr, *, name="", src_loc_at=1):
+		#--------
+		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
+		Expr.assert_valid(expr)
+		self.__expr = BasicLiteral.cast_opt(expr)
+
+		Expr.assert_valid(severity_expr)
+		self.__severity_expr = BasicLiteral.cast_opt(severity_expr)
+
+		self._set_name(name)
+		#--------
+	#--------
+	def expr(self):
+		return self.__expr
+	def severity_expr(self):
+		return self.__severity_expr
+	def _set_name(self, n_name):
+		assert isinstance(n_name, str), \
+			type(n_name)
+		self.__name = n_name
+	def name(self):
+		return self.__name
+	#--------
+	def visit(self, visitor):
+		visitor.visitReportStmt(self)
 	#--------
 #--------

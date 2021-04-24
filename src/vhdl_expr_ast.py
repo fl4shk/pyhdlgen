@@ -58,8 +58,13 @@ class Expr(Base):
 	#--------
 	def eq(self, other):
 		return AssignStmt(self, other)
-	def concur_eq(self, other):
-		return ConcurAssignStmt(self, other)
+	def seleq(self, expr, sel_waves):
+		return SelAssignStmt(expr, self, sel_waves)
+
+	def concur_eq(self, other, *, name=""):
+		return ConcurAssignStmt(self, other, name="")
+	def concur_seleq(self, expr, sel_waves, *, name=""):
+		return ConcurSelAssignStmt(expr, self, sel_waves, name=name)
 
 	def __getitem__(self, key):
 		return PartSel(self, key)
@@ -304,19 +309,33 @@ class Agg(Expr):
 		return True
 	#--------
 
-# Typed aggregate:
-# my_record_t'(my_natural => 0, my_slv => (others => '0'))
-class TypedAgg(Expr):
-	def __init__(self, typ, layout, *, src_loc_at=1):
-		super().__init__(layout, src_loc_at=src_loc_at + 1)
-
+# Example:  my_record_t'(my_natural => 0, my_slv => (others => '0'))
+class Qualified(Expr):
+	#--------
+	def __init__(self, typ, expr, *, src_loc_at=1):
+		#--------
+		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
 		assert isinstance(typ, NamedTypeBase), \
 			type(typ)
 		self.__typ = typ
+
+		Expr.assert_valid(expr)
+		self.__expr = BasicLiteral.cast_opt(expr)
+		#--------
+	#--------
 	def typ(self):
 		return self.__typ
+	def expr(self):
+		return self.__expr
+	#--------
 	def visit(self, visitor):
-		visitor.visitTypedAgg(self)
+		visitor.visitQualified(self)
+	#--------
+	def is_const(self):
+		return self.expr().is_const()
+	#--------
+
 #--------
 class Unop(Expr):
 	#--------
@@ -361,9 +380,6 @@ class Unop(Expr):
 	def visit(self, visitor):
 		visitor.visitUnop(self)
 	#--------
-	def is_lvalue(self):
-		#return self.val().is_lvalue()
-		return False
 	def is_const(self):
 		return self.val().is_const()
 	#--------
@@ -468,8 +484,6 @@ class Binop(Expr):
 	def visit(self, visitor):
 		visitor.visitBinop(self)
 	#--------
-	def is_lvalue(self):
-		return False
 	def is_const(self):
 		return (self.left().is_const() or self.right().is_const())
 	#--------
@@ -577,8 +591,6 @@ class Cat(Expr):
 	def visit(self, visitor):
 		visitor.visitCat(self)
 	#--------
-	def is_lvalue(self):
-		return False
 	def is_const(self):
 		for arg in self.args():
 			if not arg.is_const():
