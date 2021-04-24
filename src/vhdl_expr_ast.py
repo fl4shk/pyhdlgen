@@ -316,7 +316,7 @@ class Qualified(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(typ, NamedTypeBase), \
+		assert isinstance(typ, InstableTypeBase), \
 			type(typ)
 		self.__typ = typ
 
