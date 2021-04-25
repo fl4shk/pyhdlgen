@@ -7,7 +7,7 @@ from vhdl_expr_ast import *
 
 from enum import Enum, auto
 #--------
-# For `isinstance`
+# For `isinstance()`
 class ConcurStmtBase(Base):
 	#--------
 	def __init__(self, *, name="", src_loc_at=1):
@@ -126,4 +126,25 @@ class CaseGenerateStmt(GenerateStmt):
 		visitor.visitCaseGenerateStmt(self)
 #--------
 class BlockStmt(ConcurStmtBase):
+	#--------
+	def __init__(self, generics=NamedObjDict(), ports=NamedObjDict(),
+		body=[], *, name="", src_loc_at=1):
+		#--------
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		#--------
+		self.__generics = generics
+		self.__ports = ports
+		self.__body = body
+		#--------
+	#--------
+	def generics(self):
+		return self.__generics
+	def ports(self):
+		return self.__ports
+	def body(self):
+		return self.__body
+	#--------
+	def visit(self, visitor):
+		visitor.visitBlockStmt(self)
+	#--------
 #--------

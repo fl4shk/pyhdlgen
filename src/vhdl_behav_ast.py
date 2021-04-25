@@ -9,16 +9,30 @@ from enum import Enum, auto
 #--------
 # for `isinstance`
 class BehavStmt(Base):
-	def __init__(self, *, src_loc_at=1):
+	#--------
+	def __init__(self, *, name="", src_loc_at=1):
+		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
+		self._set_name(name)
+		#--------
+	#--------
+	def _set_name(self, n_name):
+		assert isinstance(n_name, str), \
+			type(n_name)
+		self.__name = n_name
+	def name(self):
+		return self.__name
+	#--------
 	def visit(self, visitor):
 		visitor.visitBehavStmt(self)
+	#--------
 #--------
 class AssignStmt(BehavStmt):
 	#--------
-	def __init__(self, left, right, *, src_loc_at=1):
+	def __init__(self, left, right, *, name="", src_loc_at=1):
 		#--------
-		super().__init__(src_loc_at=src_loc_at + 1)
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(left, Expr), \
 			type(left)
@@ -40,9 +54,9 @@ class AssignStmt(BehavStmt):
 	#--------
 class SelAssignStmt(ConcurStmtBase):
 	#--------
-	def __init__(self, expr, left, sel_waves, *, src_loc_at=1):
+	def __init__(self, expr, left, sel_waves, *, name="", src_loc_at=1):
 		#--------
-		super().__init__(src_loc_at=src_loc_at + 1)
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert Expr.is_valid(expr), \
 			type(expr)
@@ -68,11 +82,52 @@ class SelAssignStmt(ConcurStmtBase):
 		visitor.visitSelAssignStmt(self)
 	#--------
 #--------
+class ProcedureCallStmt(BehavStmt):
+	#--------
+	def __init__(self, procedure, assoc_list, *, name="", src_loc_at=1):
+		#--------
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		#--------
+		self.__procedure = procedure
+
+		assert (isinstance(assoc_list, list)
+			or isinstance(assoc_list, dict)), \
+			type(assoc_list)
+		self.__assoc_list = assoc_list
+		#--------
+	#--------
+	def procedure(self):
+		return self.__procedure
+	def assoc_list(self):
+		return self.__assoc_list
+	#--------
+	def visit(self, visitor):
+		visitor.visitProcedureCallStmt(self)
+	#--------
+#--------
+class WhileStmt(BehavStmt):
+	#--------
+	def __init__(self, expr, body=[], *, name="", src_loc_at=1):
+		#--------
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		#--------
+		self.__expr = expr
+		self.__body = body
+		#--------
+	#--------
+	def expr(self):
+		return self.__expr
+	def body(self):
+		return self.__body
+	#--------
+	def visit(self, visitor):
+		visitor.visitWhileStmt(self)
+	#--------
 class ForStmt(BehavStmt):
 	#--------
-	def __init__(self, var_name, rang, body=[], *, src_loc_at=1):
+	def __init__(self, var_name, rang, body=[], *, name="", src_loc_at=1):
 		#--------
-		super().__init__(src_loc_at=src_loc_at + 1)
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		self.__var_name = var_name
 		self.__rang = rang
@@ -91,8 +146,8 @@ class ForStmt(BehavStmt):
 	#--------
 #--------
 class IfStmt(BehavStmt):
-	def __init__(self, nodes=[], *, src_loc_at=1):
-		super().__init__(src_loc_at=src_loc_at + 1)
+	def __init__(self, nodes=[], *, name="", src_loc_at=1):
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		self.__nodes = nodes
 	def nodes(self):
 		return self.__nodes
@@ -146,13 +201,23 @@ class NodeElse(Base):
 		visitor.visitNodeElse(self)
 #--------
 class CaseStmt(BehavStmt):
-	def __init__(self, nodes=[], *, src_loc_at=1):
-		super().__init__(src_loc_at=src_loc_at + 1)
+	#--------
+	def __init__(self, is_qmark=False, nodes=[], *, name="", src_loc_at=1):
+		#--------
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		#--------
+		self.__is_qmark = is_qmark
 		self.__nodes = nodes
+		#--------
+	#--------
+	def is_qmark(self):
+		return self.__is_qmark
 	def nodes(self):
 		return self.__nodes
+	#--------
 	def visit(self, visitor):
 		visitor.visitCaseStmt(self)
+	#--------
 
 class NodeCaseWhen(Base):
 	#--------
@@ -178,7 +243,7 @@ class ReportStmt(BehavStmt):
 	#--------
 	def __init__(self, expr, severity_expr, *, name="", src_loc_at=1):
 		#--------
-		super().__init__(src_loc_at=src_loc_at + 1)
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		Expr.assert_valid(expr)
 		self.__expr = BasicLiteral.cast_opt(expr)
@@ -202,5 +267,10 @@ class ReportStmt(BehavStmt):
 	#--------
 	def visit(self, visitor):
 		visitor.visitReportStmt(self)
+	#--------
+#--------
+class ReturnStmt(BehavStmt):
+	#--------
+	def __init__(self, expr, *, name="", src_loc_at=src_loc_at + 1):
 	#--------
 #--------

@@ -188,23 +188,14 @@ class BasicLiteral(Expr):
 		#--------
 		Kind = BasicLiteral.Kind
 
-		assert (isinstance(kind, Kind) or isinstance(kind, str)), \
-			type(kind)
+		STR_KIND_MAP \
+			= {
+				"int": Kind.Int,
+				"char": Kind.Char,
+				"str": Kind.Str,
+			}
 
-		if isinstance(kind, Kind):
-			self.__kind = kind
-		else: # if isinstance(kind, str):
-			STR_KIND_MAP \
-				= {
-					"int": Kind.Int,
-					"char": Kind.Char,
-					"str": Kind.Str,
-				}
-
-			assert (kind in STR_KIND_MAP), \
-				kind
-
-			self.__kind = STR_KIND_MAP[kind]
+		self.__kind = convert_str_to_enum_opt(kind, Kind, STR_KIND_MAP)
 		#--------
 		Expr.assert_basic_literal(val)
 		self.__val = val.val() \
@@ -213,24 +204,15 @@ class BasicLiteral(Expr):
 		#--------
 		Base = BasicLiteral.Base
 
-		assert (isinstance(base, Base) or isinstance(base, str)), \
-			type(base)
+		STR_BASE_MAP \
+			= {
+				"bin": Base.Bin,
+				"oct": Base.Oct,
+				"dec": Base.Dec,
+				"hex": Base.Hex,
+			}
 
-		if isinstance(base, Base):
-			self.__base = base
-		else: # if isinstance(base, str):
-			STR_BASE_MAP \
-				= {
-					"bin": Base.Bin,
-					"oct": Base.Oct,
-					"dec": Base.Dec,
-					"hex": Base.Hex,
-				}
-
-			assert (base in STR_BASE_MAP), \
-				base
-
-			self.__base = STR_BASE_MAP[base]
+		self.__base = convert_str_to_enum_opt(base, Base, STR_BASE_MAP)
 		#--------
 	#--------
 	def kind(self):
@@ -351,22 +333,14 @@ class Unop(Expr):
 		#--------
 		Kind = Unop.Kind
 
-		assert (isinstance(kind, Kind) or isinstance(kind, str)), \
-			type(kind)
+		STR_KIND_MAP \
+			= {
+				"abs": Kind.Abs,
+				"-": Kind.Neg,
+				"~": Kind.Not,
+			}
 
-		if isinstance(kind, Kind):
-			self.__kind = kind
-		else: # if isinstance(kind, str):
-			STR_KIND_MAP \
-				= {
-					"abs": Kind.Abs,
-					"-": Kind.Neg,
-					"~": Kind.Not,
-				}
-
-			assert (kind in STR_KIND_MAP), \
-				kind
-			self.__kind = STR_KIND_MAP[kind]
+		self.__kind = convert_str_to_enum_opt(kind, Kind, STR_KIND_MAP)
 
 		Expr.assert_valid(val)
 		self.__val = BasicLiteral.cast_opt(val)
@@ -424,48 +398,38 @@ class Binop(Expr):
 		#--------
 		Kind = Binop.Kind
 
-		assert (isinstance(kind, Kind) or isinstance(kind, str)), \
-			type(kind)
+		STR_KIND_MAP \
+			= {
+				"+": Kind.Add,
+				"-": Kind.Sub,
 
-		if isinstance(kind, Kind):
-			self.__kind = kind
-		else: # if isinstance(kind, str):
-			STR_KIND_MAP \
-				= {
-					"+": Kind.Add,
-					"-": Kind.Sub,
+				"*": Kind.Mul,
+				"//": Kind.Div,
+				"%": Kind.Mod,
+				"rem": Kind.Rem,
 
-					"*": Kind.Mul,
-					"//": Kind.Div,
-					"%": Kind.Mod,
-					"rem": Kind.Rem,
+				"**": Kind.Pow,
 
-					"**": Kind.Pow,
+				"<<": Kind.Lshift,
+				">>": Kind.Rshift,
+				"rol": Kind.Rol,
+				"ror": Kind.Ror,
 
-					"<<": Kind.Lshift,
-					">>": Kind.Rshift,
-					"rol": Kind.Rol,
-					"ror": Kind.Ror,
+				"&": Kind.And,
+				"nand": Kind.Nand,
+				"|": Kind.Or,
+				"nor": Kind.Nor,
+				"^": Kind.Xor,
+				"xnor": Kind.Xnor,
 
-					"&": Kind.And,
-					"nand": Kind.Nand,
-					"|": Kind.Or,
-					"nor": Kind.Nor,
-					"^": Kind.Xor,
-					"xnor": Kind.Xnor,
-
-					"<": Kind.Lt,
-					">": Kind.Gt,
-					"<=": Kind.Le,
-					">=": Kind.Ge,
-					"==": Kind.Eq,
-					"!=": Kind.Ne,
-				}
-
-			assert (kind in STR_KIND_MAP), \
-				kind
-
-			self.__kind = STR_KIND_MAP[kind]
+				"<": Kind.Lt,
+				">": Kind.Gt,
+				"<=": Kind.Le,
+				">=": Kind.Ge,
+				"==": Kind.Eq,
+				"!=": Kind.Ne,
+			}
+		self.__kind = convert_str_to_enum_opt(kind, Kind, STR_KIND_MAP)
 
 		Expr.assert_valid(left)
 		self.__left = BasicLiteral.cast_opt(left)
@@ -511,8 +475,9 @@ class PartSel(Expr):
 			self.__ind_rang = BasicLiteral.cast_opt(ind_rang)
 		else: # isinstance(ind_rang, slice):
 			# Convert the slice to a `Range`
-			width = BasicLiteral.cast_opt(ind_rang.stop) \
-				- BasicLiteral.cast_opt(ind_rang.start)
+			#width = BasicLiteral.cast_opt(ind_rang.stop) \
+			#	- BasicLiteral.cast_opt(ind_rang.start)
+			high = BasicLiteral.cast_opt(ind_rang.stop) - 1
 
 			low = BasicLiteral.cast_opt(ind_rang.start)
 
@@ -531,7 +496,7 @@ class PartSel(Expr):
 			else: # if ind_rang.step == 1:
 				is_downto = False
 
-			self.__ind_rang = Range(width, low, is_downto)
+			self.__ind_rang = Range(high, low, is_downto)
 		#--------
 	#--------
 	def val(self):
@@ -596,5 +561,29 @@ class Cat(Expr):
 			if not arg.is_const():
 				return False
 		return True
+	#--------
+#--------
+# Function call
+class FunctionCall(Expr):
+	#--------
+	def __init__(self, function, assoc_list, *, src_loc_at=1):
+		#--------
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		#--------
+		self.__function = function
+
+		assert (isinstance(assoc_list, list)
+			or isinstance(assoc_list, dict)), \
+			type(assoc_list)
+		self.__assoc_list = assoc_list
+		#--------
+	#--------
+	def function(self):
+		return self.__function
+	def assoc_list(self):
+		return self.__assoc_list
+	#--------
+	def visit(self, visitor):
+		visitor.visitFunctionCall(self)
 	#--------
 #--------

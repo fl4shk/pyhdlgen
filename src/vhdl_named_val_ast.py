@@ -61,6 +61,27 @@ class Constant(NamedValBase):
 	def visit(self, visitor):
 		visitor.visitConstant(self)
 #--------
+class GenericValBase(NamedValBase):
+	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
+		super().__init__(typ, def_val, name=name,
+			src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitGenericValBase(self)
+# Not a `constant` generic, but basically equivalent to one
+class RegularGeneric(GenericValBase):
+	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
+		super().__init__(typ, def_val, name=name,
+			src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitRegularGeneric(self)
+# A `constant` generic
+class ConstantGeneric(GenericValBase):
+	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
+		super().__init__(typ, def_val, name=name,
+			src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitConstantGeneric(self)
+#--------
 class PortBase(NamedValBase):
 	#--------
 	class Direction(Enum):

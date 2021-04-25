@@ -19,11 +19,19 @@ class Base:
 
 		self.__filename = getframeinfo_ret.filename
 		self.__lineno = getframeinfo_ret.lineno
+
+		self.__parent = None
 	#--------
 	def filename(self):
 		return self.__filename
 	def lineno(self):
 		return self.__lineno
+	def set_parent(self, n_parent):
+		assert isinstance(n_parent, Base), \
+			type(n_parent)
+		self.__parent = n_parent
+	def parent(self):
+		return self.__parent
 	#--------
 	def visit(self, visitor):
 		visitor.visitBase(self)
@@ -53,7 +61,12 @@ class NamedObjDict(Base):
 	def __init__(self, dct=NameDict(), *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		self.__dct = dct
+		assert (isinstance(dct, dict) or isinstance(dct, NameDict)), \
+			type(dct)
+		if isinstance(dct, dict):
+			self.__dct = NameDict(dct)
+		else: # if isinstance(dct, NameDict):
+			self.__dct = dct
 	#--------
 	def dct(self):
 		return self.__dct
@@ -70,6 +83,9 @@ class NamedObjDict(Base):
 		self[key] = val
 	def __setitem__(self, key, val):
 		if NameDict.key_goes_in_dct(key):
+			assert isinstance(val, Base), \
+				type(val)
+
 			self.dct()[key] = val
 
 			assert hasattr(self.dct()[key], "_set_name")
