@@ -10,7 +10,7 @@ from enum import Enum, auto
 #--------
 class DeclComponent(Base):
 	#--------
-	def __init__(self, generics={}, ports={}, *,
+	def __init__(self, generics=NamedObjDict(), ports=NamedObjDict(), *,
 		name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
@@ -37,8 +37,9 @@ class DeclComponent(Base):
 #--------
 class DeclEntity(Base):
 	#--------
-	def __init__(self, generics={}, ports={}, decls={}, archs={}, *,
-		name="", src_loc_at=1):
+	def __init__(self, generics=NamedObjDict(), ports=NamedObjDict(),
+		decls=NamedObjDict(), archs=NamedObjDict(), *, name="",
+		src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
@@ -51,12 +52,26 @@ class DeclEntity(Base):
 
 		# Architectures
 		self.__archs = archs
+
+		self._set_name(name)
 		#--------
 	#--------
+	def generics(self):
+		return self.__generics
+	def g(self):
+		return self.generics()
+	def ports(self):
+		return self.__ports
 	def decls(self):
 		return self.__decls
 	def archs(self):
 		return self.__archs
+	def _set_name(self, n_name):
+		assert isinstance(n_name, str), \
+			type(n_name)
+		self.__name = n_name
+	def name(self):
+		return self.__name
 	#--------
 	def visit(self, visitor):
 		visitor.visitDeclEntity(self)
@@ -64,8 +79,8 @@ class DeclEntity(Base):
 #--------
 class DeclArchitecture(Base):
 	#--------
-	def __init__(self, decls={}, body_ul=[], body_l={}, *, name="",
-		src_loc_at=1):
+	def __init__(self, decls=NamedObjDict(), body=[],
+		body_l=NamedObjDict(), *, name="", src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
@@ -73,7 +88,7 @@ class DeclArchitecture(Base):
 		self.__decls = decls
 
 		# Unlabelled statements body
-		self.__body_ul = body_ul
+		self.__body = body
 
 		# Labelled statements body
 		self.__body_l = body_l
@@ -83,19 +98,49 @@ class DeclArchitecture(Base):
 	#--------
 	def decls(self):
 		return self.__decls
-	def body_ul(self):
-		return self.__body_ul
+	def body(self):
+		return self.__body
 	def body_l(self):
 		return self.__body_l
 	def _set_name(self, n_name):
 		assert isinstance(n_name, str), \
 			type(n_name)
 		self.__name = n_name
+	def name(self):
+		return self.__name
 	#--------
 	def visit(self, visitor):
 		visitor.visitDeclArchitecture(self)
 	#--------
 #--------
-class Package(Base):
+class DeclPackage(Base):
+	#--------
+	def __init__(self, generics=NamedObjDict(), decls=NamedObjDict(), *,
+		name="", src_loc_at=1):
+		#--------
+		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
+		self.__generics = generics
+		self.__decls = decls
+		self._set_name(name)
+		#--------
+	#--------
+	def generics(self):
+		return self.__generics
+	def decls(self):
+		return self.__decls
+	def _set_name(self, n_name):
+		assert isinstance(n_name, str), \
+			type(n_name)
+		self.__name = n_name
+	def name(self):
+		return self.__name
+	#--------
+	def visit(self, visitor):
+		visitor.visitDeclPackage(self)
+	#--------
+class DeclPackageBody(Base):
+	#--------
 	pass
+	#--------
 #--------

@@ -26,7 +26,7 @@ class Base:
 		return self.__filename
 	def lineno(self):
 		return self.__lineno
-	def set_parent(self, n_parent):
+	def _set_parent(self, n_parent):
 		assert isinstance(n_parent, Base), \
 			type(n_parent)
 		self.__parent = n_parent
@@ -55,6 +55,11 @@ class Com(Base):
 	def visit(self, visitor):
 		visitor.visitCom(self)
 	#--------
+class Others(Base):
+	def __init__(self, *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitOthers(self)
 #--------
 class NamedObjDict(Base):
 	#--------

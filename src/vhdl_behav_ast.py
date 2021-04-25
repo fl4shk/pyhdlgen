@@ -4,6 +4,7 @@
 from misc_util import *
 from vhdl_misc_ast import *
 from vhdl_expr_ast import *
+from vhdl_generic_port_map_ast import *
 
 from enum import Enum, auto
 #--------
@@ -84,14 +85,17 @@ class SelAssignStmt(ConcurStmtBase):
 #--------
 class ProcedureCallStmt(BehavStmt):
 	#--------
-	def __init__(self, procedure, assoc_list, *, name="", src_loc_at=1):
+	def __init__(self, procedure, assoc_list, *, name="",
+		src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		self.__procedure = procedure
 
-		assert (isinstance(assoc_list, list)
-			or isinstance(assoc_list, dict)), \
+		#assert (assoc_list is None or isinstance(assoc_list, list)
+		#	or isinstance(assoc_list, dict)), \
+		#	type(assoc_list)
+		assert isinstance(assoc_list, AssocList), \
 			type(assoc_list)
 		self.__assoc_list = assoc_list
 		#--------
@@ -143,6 +147,54 @@ class ForStmt(BehavStmt):
 	#--------
 	def visit(self, visitor):
 		visitor.visitForStmt(self)
+	#--------
+class NextStmt(BehavStmt):
+	#--------
+	def __init__(self, loop_label=None, cond=None, *, name="",
+		src_loc_at=1):
+		#--------
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		#--------
+		self.__loop_label = loop_label
+
+		if cond is not None:
+			Expr.assert_valid(cond)
+			self.__cond = BasicLiteral.cast_opt(cond)
+		else:
+			self.__cond = cond
+		#--------
+	#--------
+	def loop_label(self):
+		return self.__loop_label
+	def cond(self):
+		return self.__cond
+	#--------
+	def visit(self, visitor):
+		visitor.visitNextStmt(self)
+	#--------
+class ExitStmt(BehavStmt):
+	#--------
+	def __init__(self, loop_label=None, cond=None, *, name="",
+		src_loc_at=1):
+		#--------
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		#--------
+		self.__loop_label = loop_label
+
+		if cond is not None:
+			Expr.assert_valid(cond)
+			self.__cond = BasicLiteral.cast_opt(cond)
+		else:
+			self.__cond = cond
+		#--------
+	#--------
+	def loop_label(self):
+		return self.__loop_label
+	def cond(self):
+		return self.__cond
+	#--------
+	def visit(self, visitor):
+		visitor.visitExitStmt(self)
 	#--------
 #--------
 class IfStmt(BehavStmt):
@@ -225,7 +277,7 @@ class NodeCaseWhen(Base):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		# One of the choices can be "others".
+		# One of the choices can be `Others`.
 		self.__choices = choices
 		self.__body = body
 		#--------
@@ -238,6 +290,23 @@ class NodeCaseWhen(Base):
 	def visit(self, visitor):
 		visitor.visitNodeCaseWhen(self)
 	#--------
+#--------
+class ReturnStmt(BehavStmt):
+	def __init__(self, expr, *, name="", src_loc_at=1):
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+
+		Expr.assert_valid(expr)
+		self.__expr = BasicLiteral.cast_opt(expr)
+	def expr(self):
+		return self.__expr
+	def visit(self):
+		visitor.visitReturnStmt(self)
+#--------
+class NullStmt(BehavStmt):
+	def __init__(self, *, name="", src_loc_at=1):
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitNullStmt(self)
 #--------
 class ReportStmt(BehavStmt):
 	#--------
@@ -267,10 +336,5 @@ class ReportStmt(BehavStmt):
 	#--------
 	def visit(self, visitor):
 		visitor.visitReportStmt(self)
-	#--------
-#--------
-class ReturnStmt(BehavStmt):
-	#--------
-	def __init__(self, expr, *, name="", src_loc_at=src_loc_at + 1):
 	#--------
 #--------

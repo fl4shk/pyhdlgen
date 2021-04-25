@@ -34,17 +34,29 @@ class InstableTypeBase(TypeBase):
 #--------
 # For `isinstance(obj, NamedTypeBase)`
 class NamedTypeBase(InstableTypeBase):
+	#--------
 	def __init__(self, *, name="", src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		self._set_name(name)
+	#--------
 	def _set_name(self, n_name):
 		assert isinstance(n_name, str), \
 			type(n_name)
 		self.__name = name
 	def name(self):
 		return self.__name
+	#--------
 	def visit(self, visitor):
 		visitor.visitNamedTypeBase(self)
+	#--------
+	## Create a `Qualified` expression
+	#def qual_expr(self, expr):
+	#	return Qualified(self, expr)
+
+	## Create a `Cast` expression
+	#def cast_expr(self, expr):
+	#	return Cast(self, expr)
+	#--------
 
 # `type whatever_t is array(0 to 42) of asdf_t;`
 class DeclType(NamedTypeBase):

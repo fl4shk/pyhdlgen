@@ -4,6 +4,7 @@
 from misc_util import *
 
 from vhdl_misc_ast import *
+from vhdl_generic_port_map_ast import *
 
 from enum import Enum, auto
 #--------
@@ -176,13 +177,13 @@ class BasicLiteral(Expr):
 		Int = auto()
 		Char = auto()
 		Str = auto()
-	class Base(Enum):
+	class NumBase(Enum):
 		Bin = auto()
 		Oct = auto()
 		Dec = auto()
 		Hex = auto()
 	#--------
-	def __init__(self, kind, val, base="bin", *, src_loc_at=1):
+	def __init__(self, kind, val, num_base="bin", *, src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
@@ -202,25 +203,26 @@ class BasicLiteral(Expr):
 			if isinstance(val, BasicLiteral) \
 			else val
 		#--------
-		Base = BasicLiteral.Base
+		NumBase = BasicLiteral.NumBase
 
-		STR_BASE_MAP \
+		STR_NUM_BASE_MAP \
 			= {
-				"bin": Base.Bin,
-				"oct": Base.Oct,
-				"dec": Base.Dec,
-				"hex": Base.Hex,
+				"bin": NumBase.Bin,
+				"oct": NumBase.Oct,
+				"dec": NumBase.Dec,
+				"hex": NumBase.Hex,
 			}
 
-		self.__base = convert_str_to_enum_opt(base, Base, STR_BASE_MAP)
+		self.__num_base = convert_str_to_enum_opt(num_base, NumBase,
+			STR_NUM_BASE_MAP)
 		#--------
 	#--------
 	def kind(self):
 		return self.__kind
 	def val(self):
 		return self.__val
-	def base(self):
-		return self.__base
+	def num_base(self):
+		return self.__num_base
 	#--------
 	def visit(self, visitor):
 		visitor.visitLiteral(self)
@@ -236,7 +238,12 @@ class BasicLiteral(Expr):
 			elif isinstance(other, int):
 				return BasicLiteral("int", other)
 			else: # if isinstance(other, str):
-				# This is a heuristic
+				# This is a heuristic that should work for the common case
+				# of writing VHDL.  It is still possible to make a
+				# single-character string, but it has to be done manually
+				# by creating an instance of the `StrLiteral` class.
+				# Unlike VHDL, Python doesn't have a separation between
+				# strings and single characters.
 				return BasicLiteral("char", other) \
 					if len(other) == 1 \
 					else BasicLiteral("str", other)
@@ -253,7 +260,7 @@ class StrLiteral(BasicLiteral):
 	def __init__(self, val, base="bin", *, src_loc_at=1):
 		super().__init__("str", val, base, src_loc_at=src_loc_at + 1)
 #--------
-# Untyped aggregate:  (0 => '1', others => '0')
+# Untyped (if not `Qualified`) aggregate:  (0 => '1', others => '0')
 class Agg(Expr):
 	#--------
 	def __init__(self, layout, *, src_loc_at=1):
@@ -316,6 +323,25 @@ class Qualified(Expr):
 	#--------
 	def is_const(self):
 		return self.expr().is_const()
+	#--------
+# unsigned(my_slv)
+class Cast(Expr):
+	#--------
+	def __init__(self, typ, expr, *, src_loc_at=1):
+		#--------
+		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
+		self.__typ = typ
+		self.__expr = expr
+		#--------
+	#--------
+	def typ(self):
+		return self.__typ
+	def expr(self):
+		return self.__expr
+	#--------
+	def visit(self, visitor):
+		visitor.visitCast(self)
 	#--------
 
 #--------
@@ -572,8 +598,10 @@ class FunctionCall(Expr):
 		#--------
 		self.__function = function
 
-		assert (isinstance(assoc_list, list)
-			or isinstance(assoc_list, dict)), \
+		#assert (assoc_list is None or isinstance(assoc_list, list)
+		#	or isinstance(assoc_list, dict)), \
+		#	type(assoc_list)
+		assert isinstance(assoc_list, AssocList), \
 			type(assoc_list)
 		self.__assoc_list = assoc_list
 		#--------
