@@ -85,12 +85,14 @@ class SelAssignStmt(ConcurStmtBase):
 #--------
 class ProcedureCallStmt(BehavStmt):
 	#--------
-	def __init__(self, procedure, assoc_list, *, name="",
+	def __init__(self, proc_name, assoc_list, *, name="",
 		src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		self.__procedure = procedure
+		assert isinstance(proc_name, str), \
+			type(proc_name)
+		self.__proc_name = proc_name
 
 		#assert (assoc_list is None or isinstance(assoc_list, list)
 		#	or isinstance(assoc_list, dict)), \
@@ -100,8 +102,8 @@ class ProcedureCallStmt(BehavStmt):
 		self.__assoc_list = assoc_list
 		#--------
 	#--------
-	def procedure(self):
-		return self.__procedure
+	def proc_name(self):
+		return self.__proc_name
 	def assoc_list(self):
 		return self.__assoc_list
 	#--------

@@ -57,13 +57,13 @@ class Expr(Base):
 		assert Expr.is_valid(other), \
 			type(other)
 	#--------
-	def eq(self, other):
-		return AssignStmt(self, other)
-	def seleq(self, expr, sel_waves):
-		return SelAssignStmt(expr, self, sel_waves)
+	def eq(self, other, *, name=""):
+		return AssignStmt(self, other, name=name)
+	def seleq(self, expr, sel_waves, *, name=""):
+		return SelAssignStmt(expr, self, sel_waves, name=name)
 
 	def concur_eq(self, other, *, name=""):
-		return ConcurAssignStmt(self, other, name="")
+		return ConcurAssignStmt(self, other, name=name)
 	def concur_seleq(self, expr, sel_waves, *, name=""):
 		return ConcurSelAssignStmt(expr, self, sel_waves, name=name)
 
@@ -589,14 +589,15 @@ class Cat(Expr):
 		return True
 	#--------
 #--------
-# Function call
 class FunctionCall(Expr):
 	#--------
-	def __init__(self, function, assoc_list, *, src_loc_at=1):
+	def __init__(self, func_name, assoc_list, *, src_loc_at=1):
 		#--------
-		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		self.__function = function
+		assert isinstance(func_name, str), \
+			type(func_name)
+		self.__func_name = func_name
 
 		#assert (assoc_list is None or isinstance(assoc_list, list)
 		#	or isinstance(assoc_list, dict)), \
@@ -606,8 +607,8 @@ class FunctionCall(Expr):
 		self.__assoc_list = assoc_list
 		#--------
 	#--------
-	def function(self):
-		return self.__function
+	def func_name(self):
+		return self.__func_name
 	def assoc_list(self):
 		return self.__assoc_list
 	#--------
