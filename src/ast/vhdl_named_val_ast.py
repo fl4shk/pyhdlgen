@@ -3,7 +3,6 @@
 #--------
 from misc_util import *
 from vhdl_misc_ast import *
-from vhdl_named_obj_ast import *
 from vhdl_expr_ast import *
 from vhdl_type_ast import *
 
@@ -43,30 +42,62 @@ class NamedValBase(Expr):
 	#--------
 #--------
 class Signal(NamedValBase):
+	#--------
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name, 
 			src_loc_at=src_loc_at + 1)
+	#--------
 	def visit(self, visitor):
 		visitor.visitSignal(self)
+	#--------
+	def is_lvalue(self):
+		return True
+	#--------
 class Variable(NamedValBase):
-	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
+	#--------
+	def __init__(self, typ, def_val=None, is_shared=False, *, name="",
+		src_loc_at=1):
 		super().__init__(typ, def_val, name=name, 
 			src_loc_at=src_loc_at + 1)
+
+		assert isinstance(is_shared, bool), \
+			type(is_shared)
+		self.__is_shared = is_shared
+	#--------
+	def is_shared(self):
+		return self.__is_shared
+	#--------
 	def visit(self, visitor):
 		visitor.visitSignal(self)
+	#--------
+	def is_lvalue(self):
+		return True
+	#--------
 class Constant(NamedValBase):
+	#--------
 	def __init__(self, typ, def_val, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
+	#--------
 	def visit(self, visitor):
 		visitor.visitConstant(self)
+	#--------
+	def is_const(self):
+		return True
+	#--------
 #--------
 class GenericValBase(NamedValBase):
+	#--------
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
+	#--------
 	def visit(self, visitor):
 		visitor.visitGenericValBase(self)
+	#--------
+	def is_const(self):
+		return True
+	#--------
 # Not a `constant` generic, but basically equivalent to one
 class RegularGeneric(GenericValBase):
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
@@ -113,6 +144,9 @@ class PortBase(NamedValBase):
 	#--------
 	def visit(self, visitor):
 		visitor.visitPortBase(self)
+	#--------
+	def is_lvalue(self):
+		return (self.direction() == PortBase.Direction.Out)
 	#--------
 class Port(PortBase)
 	def __init__(self, direction, typ, def_val=None, *, name="",

@@ -3,7 +3,6 @@
 #--------
 from misc_util import *
 #from vhdl_misc_ast import *
-#from vhdl_generic_port_ast import *
 from vhdl_misc_ast import *
 
 from enum import Enum, auto
@@ -38,7 +37,7 @@ class DeclComponent(Base):
 class DeclEntity(Base):
 	#--------
 	def __init__(self, generics=NamedObjDict(), ports=NamedObjDict(),
-		decls=NamedObjDict(), archs=NamedObjDict(), *, name="",
+		decls=DeclsNod(), archs=NamedObjDict(), *, name="",
 		src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
@@ -115,7 +114,7 @@ class DeclArchitecture(Base):
 #--------
 class DeclPackage(Base):
 	#--------
-	def __init__(self, generics=NamedObjDict(), decls=NamedObjDict(), *,
+	def __init__(self, generics=NamedObjDict(), decls=DeclsNod(), *,
 		name="", src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
@@ -141,6 +140,26 @@ class DeclPackage(Base):
 	#--------
 class DeclPackageBody(Base):
 	#--------
-	pass
+	def __init__(self, decls=DeclsNod(), *, name="", src_loc_at=1):
+		#--------
+		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
+		assert isinstance(decls, DeclsNod), \
+			type(decls)
+		self.__decls = decls
+		self._set_name(name)
+		#--------
+	#--------
+	def decls(self):
+		return self.__decls
+	def _set_name(self, n_name):
+		assert isinstance(n_name, str), \
+			type(n_name)
+		self.__name = n_name
+	def name(self):
+		return self.__name
+	#--------
+	def visit(self, visitor):
+		visitor.visitDeclPackageBody(self)
 	#--------
 #--------

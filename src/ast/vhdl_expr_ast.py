@@ -58,14 +58,14 @@ class Expr(Base):
 			type(other)
 	#--------
 	def eq(self, other, *, name=""):
-		return AssignStmt(self, other, name=name)
+		return Assign(self, other, name=name)
 	def seleq(self, expr, sel_waves, *, name=""):
-		return SelAssignStmt(expr, self, sel_waves, name=name)
+		return SelAssign(expr, self, sel_waves, name=name)
 
 	def concur_eq(self, other, *, name=""):
-		return ConcurAssignStmt(self, other, name=name)
+		return ConcurAssign(self, other, name=name)
 	def concur_seleq(self, expr, sel_waves, *, name=""):
-		return ConcurSelAssignStmt(expr, self, sel_waves, name=name)
+		return ConcurSelAssign(expr, self, sel_waves, name=name)
 
 	def __getitem__(self, key):
 		return PartSel(self, key)

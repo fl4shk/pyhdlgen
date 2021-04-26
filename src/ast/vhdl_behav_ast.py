@@ -26,10 +26,10 @@ class BehavStmt(Base):
 		return self.__name
 	#--------
 	def visit(self, visitor):
-		visitor.visitBehavStmt(self)
+		visitor.visitBehav(self)
 	#--------
 #--------
-class AssignStmt(BehavStmt):
+class Assign(BehavStmt):
 	#--------
 	def __init__(self, left, right, *, name="", src_loc_at=1):
 		#--------
@@ -51,9 +51,9 @@ class AssignStmt(BehavStmt):
 		return self.__right
 	#--------
 	def visit(self, visitor):
-		visitor.visitAssignStmt(self)
+		visitor.visitAssign(self)
 	#--------
-class SelAssignStmt(ConcurStmtBase):
+class SelAssign(ConcurBase):
 	#--------
 	def __init__(self, expr, left, sel_waves, *, name="", src_loc_at=1):
 		#--------
@@ -80,10 +80,10 @@ class SelAssignStmt(ConcurStmtBase):
 		return self.__sel_waves
 	#--------
 	def visit(self, visitor):
-		visitor.visitSelAssignStmt(self)
+		visitor.visitSelAssign(self)
 	#--------
 #--------
-class ProcedureCallStmt(BehavStmt):
+class ProcedureCall(BehavStmt):
 	#--------
 	def __init__(self, proc_name, assoc_list, *, name="",
 		src_loc_at=1):
@@ -108,10 +108,10 @@ class ProcedureCallStmt(BehavStmt):
 		return self.__assoc_list
 	#--------
 	def visit(self, visitor):
-		visitor.visitProcedureCallStmt(self)
+		visitor.visitProcedureCall(self)
 	#--------
 #--------
-class WhileStmt(BehavStmt):
+class While(BehavStmt):
 	#--------
 	def __init__(self, expr, body=[], *, name="", src_loc_at=1):
 		#--------
@@ -127,9 +127,9 @@ class WhileStmt(BehavStmt):
 		return self.__body
 	#--------
 	def visit(self, visitor):
-		visitor.visitWhileStmt(self)
+		visitor.visitWhile(self)
 	#--------
-class ForStmt(BehavStmt):
+class For(BehavStmt):
 	#--------
 	def __init__(self, var_name, rang, body=[], *, name="", src_loc_at=1):
 		#--------
@@ -148,33 +148,9 @@ class ForStmt(BehavStmt):
 		return self.__body
 	#--------
 	def visit(self, visitor):
-		visitor.visitForStmt(self)
+		visitor.visitFor(self)
 	#--------
-class NextStmt(BehavStmt):
-	#--------
-	def __init__(self, loop_label=None, cond=None, *, name="",
-		src_loc_at=1):
-		#--------
-		super().__init__(name=name, src_loc_at=src_loc_at + 1)
-		#--------
-		self.__loop_label = loop_label
-
-		if cond is not None:
-			Expr.assert_valid(cond)
-			self.__cond = BasicLiteral.cast_opt(cond)
-		else:
-			self.__cond = cond
-		#--------
-	#--------
-	def loop_label(self):
-		return self.__loop_label
-	def cond(self):
-		return self.__cond
-	#--------
-	def visit(self, visitor):
-		visitor.visitNextStmt(self)
-	#--------
-class ExitStmt(BehavStmt):
+class Next(BehavStmt):
 	#--------
 	def __init__(self, loop_label=None, cond=None, *, name="",
 		src_loc_at=1):
@@ -196,17 +172,41 @@ class ExitStmt(BehavStmt):
 		return self.__cond
 	#--------
 	def visit(self, visitor):
-		visitor.visitExitStmt(self)
+		visitor.visitNext(self)
+	#--------
+class Exit(BehavStmt):
+	#--------
+	def __init__(self, loop_label=None, cond=None, *, name="",
+		src_loc_at=1):
+		#--------
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		#--------
+		self.__loop_label = loop_label
+
+		if cond is not None:
+			Expr.assert_valid(cond)
+			self.__cond = BasicLiteral.cast_opt(cond)
+		else:
+			self.__cond = cond
+		#--------
+	#--------
+	def loop_label(self):
+		return self.__loop_label
+	def cond(self):
+		return self.__cond
+	#--------
+	def visit(self, visitor):
+		visitor.visitExit(self)
 	#--------
 #--------
-class IfStmt(BehavStmt):
+class If(BehavStmt):
 	def __init__(self, nodes=[], *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		self.__nodes = nodes
 	def nodes(self):
 		return self.__nodes
 	def visit(self, visitor):
-		return visitor.visitIfStmt(self)
+		return visitor.visitIf(self)
 
 # This is for both `if` and `if ... generate`.
 class NodeIf(Base):
@@ -254,7 +254,7 @@ class NodeElse(Base):
 	def visit(self, visitor):
 		visitor.visitNodeElse(self)
 #--------
-class CaseStmt(BehavStmt):
+class Case(BehavStmt):
 	#--------
 	def __init__(self, is_qmark=False, nodes=[], *, name="", src_loc_at=1):
 		#--------
@@ -270,7 +270,7 @@ class CaseStmt(BehavStmt):
 		return self.__nodes
 	#--------
 	def visit(self, visitor):
-		visitor.visitCaseStmt(self)
+		visitor.visitCase(self)
 	#--------
 
 class NodeCaseWhen(Base):
@@ -293,7 +293,7 @@ class NodeCaseWhen(Base):
 		visitor.visitNodeCaseWhen(self)
 	#--------
 #--------
-class ReturnStmt(BehavStmt):
+class Return(BehavStmt):
 	def __init__(self, expr, *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 
@@ -302,15 +302,15 @@ class ReturnStmt(BehavStmt):
 	def expr(self):
 		return self.__expr
 	def visit(self):
-		visitor.visitReturnStmt(self)
+		visitor.visitReturn(self)
 #--------
-class NullStmt(BehavStmt):
+class Null(BehavStmt):
 	def __init__(self, *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
-		visitor.visitNullStmt(self)
+		visitor.visitNull(self)
 #--------
-class ReportStmt(BehavStmt):
+class Report(BehavStmt):
 	#--------
 	def __init__(self, expr, severity_expr, *, name="", src_loc_at=1):
 		#--------
@@ -337,6 +337,6 @@ class ReportStmt(BehavStmt):
 		return self.__name
 	#--------
 	def visit(self, visitor):
-		visitor.visitReportStmt(self)
+		visitor.visitReport(self)
 	#--------
 #--------

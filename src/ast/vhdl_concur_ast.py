@@ -27,7 +27,7 @@ class ConcurStmtBase(Base):
 		visitor.visitConcurrentStmtBase(self)
 	#--------
 #--------
-class ConcurAssignStmt(ConcurStmtBase):
+class ConcurAssign(ConcurStmtBase):
 	#--------
 	def __init__(self, left, right, *, name="", src_loc_at=1):
 		#--------
@@ -49,9 +49,9 @@ class ConcurAssignStmt(ConcurStmtBase):
 		return self.__right
 	#--------
 	def visit(self, visitor):
-		visitor.visitConcurAssignStmt(self)
+		visitor.visitConcurAssign(self)
 	#--------
-class ConcurSelAssignStmt(ConcurStmtBase):
+class ConcurSelAssign(ConcurStmtBase):
 	#--------
 	def __init__(self, expr, left, sel_waves, *, name="", src_loc_at=1):
 		#--------
@@ -78,16 +78,16 @@ class ConcurSelAssignStmt(ConcurStmtBase):
 		return self.__sel_waves
 	#--------
 	def visit(self, visitor):
-		visitor.visitConcurSelAssignStmt(self)
+		visitor.visitConcurSelAssign(self)
 	#--------
 #--------
-# To make `isinstance(obj, GenerateStmt)` work
-class GenerateStmt(ConcurStmtBase):
+# To make `isinstance(obj, GenerateStmtBase)` work
+class GenerateStmtBase(ConcurStmtBase):
 	def __init__(self, *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitGenerateStmt(self)
-class ForGenerateStmt(GenerateStmt):
+class ForGenerate(GenerateStmtBase):
 	#--------
 	def __init__(self, var_name, rang, body=[], *, name="", src_loc_at=1):
 		#--------
@@ -106,26 +106,26 @@ class ForGenerateStmt(GenerateStmt):
 		return self.__body
 	#--------
 	def visit(self, visitor):
-		visitor.visitForGenerateStmt(self)
+		visitor.visitForGenerate(self)
 	#--------
-class IfGenerateStmt(GenerateStmt):
+class IfGenerate(GenerateStmtBase):
 	def __init__(self, nodes=[], *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		self.__nodes = nodes
 	def nodes(self):
 		return self.__nodes
 	def visit(self, visitor):
-		visitor.visitIfGenerateStmt(self)
-class CaseGenerateStmt(GenerateStmt):
+		visitor.visitIfGenerate(self)
+class CaseGenerate(GenerateStmtBase):
 	def __init__(self, nodes=[], *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		self.__nodes = nodes
 	def nodes(self):
 		return self.__nodes
 	def visit(self, visitor):
-		visitor.visitCaseGenerateStmt(self)
+		visitor.visitCaseGenerate(self)
 #--------
-class BlockStmt(ConcurStmtBase):
+class Block(ConcurStmtBase):
 	#--------
 	def __init__(self, generics=NamedObjDict(), ports=NamedObjDict(),
 		body=[], *, name="", src_loc_at=1):
@@ -145,6 +145,6 @@ class BlockStmt(ConcurStmtBase):
 		return self.__body
 	#--------
 	def visit(self, visitor):
-		visitor.visitBlockStmt(self)
+		visitor.visitBlock(self)
 	#--------
 #--------

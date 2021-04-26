@@ -67,7 +67,7 @@ class NameDict:
 			for item in val:
 				assert isinstance(item, tuple) and (len(item) == 2)
 				self[item[0]] = item[1]
-		else: # if isinstance(val, tuple)
+		else: # if isinstance(val, tuple):
 			assert (len(item) == 2), \
 				str(len(item))
 			self[val[0]] = val[1]
