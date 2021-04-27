@@ -146,7 +146,8 @@ class PortBase(NamedValBase):
 		visitor.visitPortBase(self)
 	#--------
 	def is_lvalue(self):
-		return (self.direction() == PortBase.Direction.Out)
+		return (self.direction() == PortBase.Direction.Out) \
+			or (self.direction() == PortBase.Direction.Inout)
 	#--------
 class Port(PortBase)
 	def __init__(self, direction, typ, def_val=None, *, name="",
