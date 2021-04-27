@@ -63,27 +63,28 @@ class Others(Base):
 	def visit(self, visitor):
 		visitor.visitOthers(self)
 #--------
-class NamedObjDict(Base):
+class NamedObjList(Base):
 	#--------
-	def __init__(self, dct={}, *, src_loc_at=1):
+	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		assert isinstance(dct, dict), \
-			type(dct)
-		self.__dct = dct
+		self.__lst = []
+		self.__name_to_ind_map = {}
 	#--------
-	def dct(self):
-		return self.__dct
+	def lst(self):
+		return self.__lst
+	def name_to_ind_map(self):
+		return self.__name_to_ind_map
 	#--------
 	def visit(self, visitor):
-		visitor.visitNamedObjDict(self)
+		visitor.visitNamedObjList(self)
 	#--------
 	def __getattr__(self, key):
 		return self[key]
 	def __getitem__(self, key):
 		if NameDict.key_goes_in_dct(key):
-			return self.dct()[key]
-		else: # if not NameDict.key_goes_in_dct(keys):
+			return self.lst()[self.name_to_ind_map(key)][1]
+		else: # if not NameDict.key_goes_in_dct(key):
 			return self.__dict__[key]
 
 	def __setattr__(self, key, val):
@@ -92,41 +93,58 @@ class NamedObjDict(Base):
 		if NameDict.key_goes_in_dct(key):
 			assert isinstance(val, Base), \
 				type(val)
-
-			self.dct()[key] = val
-
-			assert hasattr(self.dct()[key], "_set_name")
 			self.assert_valid_val(val)
 
-			self.dct()[key]._set_name(key)
+			#ind = self.name_to_ind_map()[key]
+			#elem = self.lst()[ind]
+			#elem = (key, val)
+			#self.assert_valid_elem(elem)
+			ind = len(self.lst())
+			self.name_to_ind_map()[key] = ind
+			self.append(val)
+
+			assert hasattr(self.lst()[-1], "_set_name")
+
+			self.lst()[-1]._set_name(key)
 		else: # if not NameDict.key_goes_in_dct(key):
 			self.__dict__[key] = val
 
 	def assert_valid_val(self, val):
 		pass
 
+	def append(self, val):
+		self.lst().append(val)
+		return self.lst()[-1]
+
 	def __iadd__(self, val):
 		assert (isinstance(val, list) or isinstance(val, tuple)), \
 			type(val)
 
 		if isinstance(val, list):
-			for item in val:
-				assert isinstance(item, tuple) and (len(item) == 2)
-				self[item[0]] = item[1]
+			for elem in val:
+				assert isinstance(elem, tuple), \
+					type(elem)
+				assert (len(elem) == 2), \
+					len(elem)
+				assert isinstance(elem[0], str), \
+					type(elem[0])
+				assert isinstance(elem[1], Base), \
+					type(elem[1])
+				self[elem[0]] = elem[1]
 		else: # if isinstance(val, tuple):
 			assert (len(item) == 2), \
 				str(len(item))
 			self[val[0]] = val[1]
 	#--------
 ## FIXME:  These need to be adjusted once I remember what the problem with
-## just using `NamedObjDict` was
-#class BehavStmtNod(NamedObjDict):
+## just using `NamedObjList` was
+#class BehavStmtNol(NamedObjList):
 #	#--------
 #	def __init__(self, dct=NameDict(), *, src_loc_at=1):
 #		super().__init__(dct, src_loc_at=src_loc_at + 1)
 #	#--------
 #	def visit(self, visitor):
-#		visitor.visitBehavStmtNod(self)
+#		visitor.visitBehavStmtNol(self)
 #	#--------
 #	def assert_valid_val(self, val):
 #		assert isinstance(val, BehavStmt), \
@@ -134,13 +152,13 @@ class NamedObjDict(Base):
 #	#--------
 ## This is not a class to contain `DeclComponent` and friends, but it is to
 ## be their `decls` component.
-#class DeclsNod(NamedObjDict):
+#class DeclsNol(NamedObjList):
 #	#--------
 #	def __init__(self, dct=NameDict(), *, src_loc_at=1):
 #		super().__init__(dct, src_loc_at=src_loc_at + 1)
 #	#--------
 #	def visit(self, visitor):
-#		visitor.visitDeclsNod(self)
+#		visitor.visitDeclsNol(self)
 #	#--------
 #	def assert_valid_val(self, val):
 #		assert isinstance(val, )

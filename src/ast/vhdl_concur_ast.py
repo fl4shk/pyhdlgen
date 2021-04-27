@@ -127,20 +127,36 @@ class CaseGenerate(GenerateStmtBase):
 #--------
 class Block(ConcurStmtBase):
 	#--------
-	def __init__(self, generics=NamedObjDict(), ports=NamedObjDict(),
-		body=[], *, name="", src_loc_at=1):
+	def __init__(self, generics=NamedObjList(), generic_map=None,
+		ports=NamedObjList(), port_map=None, body=[], *, name="",
+		src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		self.__generics = generics
+
+		assert (generic_map is None
+			or isinstance(generic_map, GenericMap)), \
+			type(generic_map)
+		self.__generic_map = generic_map
+
 		self.__ports = ports
+
+		assert (port_map is None or isinstance(port_map, PortMap)), \
+			type(port_map)
+		self.__port_map = port_map
+
 		self.__body = body
 		#--------
 	#--------
 	def generics(self):
 		return self.__generics
+	def generic_map(self):
+		return self.__generic_map
 	def ports(self):
 		return self.__ports
+	def port_map(self):
+		return self.__port_map
 	def body(self):
 		return self.__body
 	#--------
