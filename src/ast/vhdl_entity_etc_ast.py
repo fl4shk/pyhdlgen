@@ -7,7 +7,7 @@ from vhdl_misc_ast import *
 
 from enum import Enum, auto
 #--------
-class Component(Base):
+class DeclComponent(Base):
 	#--------
 	def __init__(self, generics=NamedObjList(), ports=NamedObjList(), *,
 		name="", src_loc_at=1):
@@ -31,10 +31,10 @@ class Component(Base):
 		return self.__name
 	#--------
 	def visit(self, visitor):
-		visitor.visitComponent(self)
+		visitor.visitDeclComponent(self)
 	#--------
 #--------
-class Entity(Base):
+class DeclEntity(Base):
 	#--------
 	def __init__(self, generics=NamedObjList(), ports=NamedObjList(),
 		decls=NamedObjList(), archs=NamedObjList(), *, name="",
@@ -46,7 +46,7 @@ class Entity(Base):
 
 		self.__ports = ports
 
-		# arations
+		# declarations
 		self.__decls = decls
 
 		# Architectures
@@ -57,8 +57,6 @@ class Entity(Base):
 	#--------
 	def generics(self):
 		return self.__generics
-	def g(self):
-		return self.generics()
 	def ports(self):
 		return self.__ports
 	def decls(self):
@@ -73,17 +71,17 @@ class Entity(Base):
 		return self.__name
 	#--------
 	def visit(self, visitor):
-		visitor.visitEntity(self)
+		visitor.visitDeclEntity(self)
 	#--------
 #--------
-class Architecture(Base):
+class DeclArch(Base):
 	#--------
 	def __init__(self, decls=NamedObjList(), body=[], *, name="",
 		src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		# arations
+		# declarations
 		self.__decls = decls
 
 		# Unlabelled statements body
@@ -104,10 +102,10 @@ class Architecture(Base):
 		return self.__name
 	#--------
 	def visit(self, visitor):
-		visitor.visitArchitecture(self)
+		visitor.visitDeclArch(self)
 	#--------
 #--------
-class Package(Base):
+class DeclPackage(Base):
 	#--------
 	def __init__(self, generics=NamedObjList(), decls=NamedObjList(), *,
 		name="", src_loc_at=1):
@@ -131,9 +129,9 @@ class Package(Base):
 		return self.__name
 	#--------
 	def visit(self, visitor):
-		visitor.visitPackage(self)
+		visitor.visitDeclPackage(self)
 	#--------
-class PackageBody(Base):
+class DeclPackageBody(Base):
 	#--------
 	def __init__(self, decls=NamedObjList(), *, name="", src_loc_at=1):
 		#--------
@@ -155,6 +153,6 @@ class PackageBody(Base):
 		return self.__name
 	#--------
 	def visit(self, visitor):
-		visitor.visitPackageBody(self)
+		visitor.visitDeclPackageBody(self)
 	#--------
 #--------
