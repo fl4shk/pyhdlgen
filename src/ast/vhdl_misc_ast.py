@@ -63,11 +63,21 @@ class Others(Base):
 	def visit(self, visitor):
 		visitor.visitOthers(self)
 #--------
-class NamedObjList(Base):
+class HasNameBase:
 	#--------
-	def __init__(self, *, src_loc_at=1):
-		super().__init__(src_loc_at=src_loc_at + 1)
-
+	def __init__(self, *, name=""):
+		self._set_name(name)
+	#--------
+	def _set_name(self, n_name):
+		assert isinstance(n_name, str), \
+			type(n_name)
+		self.__name = n_name
+	def name(self):
+		return self.__name
+	#--------
+class NamedObjList:
+	#--------
+	def __init__(self):
 		self.__lst = []
 		self.__name_to_ind_map = {}
 	#--------
@@ -76,13 +86,10 @@ class NamedObjList(Base):
 	def name_to_ind_map(self):
 		return self.__name_to_ind_map
 	#--------
-	def visit(self, visitor):
-		visitor.visitNamedObjList(self)
-	#--------
 	def __getattr__(self, key):
 		return self[key]
 	def __getitem__(self, key):
-		if NameDict.key_goes_in_dct(key.lower()):
+		if NameDict.key_goes_in_dct(key):
 			return self.lst()[self.name_to_ind_map(key.lower())][1]
 		else: # if not NameDict.key_goes_in_dct(key):
 			return self.__dict__[key]
@@ -93,19 +100,22 @@ class NamedObjList(Base):
 		if NameDict.key_goes_in_dct(key):
 			assert isinstance(val, Base), \
 				type(val)
+			assert isinstance(val, HasNameBase), \
+				type(val)
+
+			temp_key = key.lower()
+
 			self.assert_valid_val(val)
 
-			if key.lower() not in self.name_to_ind_map():
+			if temp_key not in self.name_to_ind_map():
 				ind = len(self.lst())
-				self.name_to_ind_map()[key.lower()] = ind
+				self.name_to_ind_map()[temp_key] = ind
 				self.append(val)
-			else: # if key.lower() i in self.name_to_ind_map():
-				ind = self.name_to_ind_map()[key.lower()]
+			else: # if temp_key i in self.name_to_ind_map():
+				ind = self.name_to_ind_map()[temp_key]
 				self.lst()[ind] = val
 
-			assert hasattr(self.lst()[ind], "_set_name")
-
-			self.lst()[ind]._set_name(key)
+			self.lst()[ind]._set_name(temp_key)
 		else: # if not NameDict.key_goes_in_dct(key):
 			self.__dict__[key] = val
 

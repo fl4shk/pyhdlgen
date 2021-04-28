@@ -33,18 +33,11 @@ class InstableTypeBase(TypeBase):
 		visitor.visitInstableTypeBase(self)
 #--------
 # For `isinstance(obj, NamedTypeBase)`
-class NamedTypeBase(InstableTypeBase):
+class NamedTypeBase(InstableTypeBase, HasNameBase):
 	#--------
 	def __init__(self, *, name="", src_loc_at=1):
-		super().__init__(src_loc_at=src_loc_at + 1)
-		self._set_name(name)
-	#--------
-	def _set_name(self, n_name):
-		assert isinstance(n_name, str), \
-			type(n_name)
-		self.__name = name
-	def name(self):
-		return self.__name
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
+		HasNameBase.__init__(self, name=name)
 	#--------
 	def visit(self, visitor):
 		visitor.visitNamedTypeBase(self)

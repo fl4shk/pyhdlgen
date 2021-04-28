@@ -9,11 +9,12 @@ from vhdl_type_ast import *
 from enum import Enum, auto
 #--------
 # Named values, such as ports and signals
-class NamedValBase(Expr):
+class NamedValBase(Expr, HasNameBase):
 	#--------
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		#--------
-		super().__init__(src_loc_at=src_loc_at + 1)
+		Expr.__init__(self, src_loc_at=src_loc_at + 1)
+		HasNameBase.__init__(self, name=name)
 		#--------
 		assert isinstance(typ, InstableTypeBase), \
 			type(typ)
@@ -22,20 +23,12 @@ class NamedValBase(Expr):
 		assert ((def_val is None) or isinstance(def_val, Expr)), \
 			type(def_val)
 		self.__def_val = def_val
-
-		self._set_name(name)
 		#--------
 	#--------
 	def typ(self):
 		return self.__typ
 	def def_val(self):
 		return self.__def_val
-	def _set_name(self, n_name):
-		assert isinstance(n_name, str), \
-			type(n_name)
-		self.__name = n_name
-	def name(self):
-		return self.__name
 	#--------
 	def visit(self, visitor):
 		visitor.visitNamedValBase(self)

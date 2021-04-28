@@ -8,20 +8,13 @@ from vhdl_expr_ast import *
 from enum import Enum, auto
 #--------
 # For `isinstance()`
-class ConcurStmtBase(Base):
+class ConcurStmtBase(Base, HasNameBase):
 	#--------
 	def __init__(self, *, name="", src_loc_at=1):
-		super().__init__(src_loc_at=src_loc_at + 1)
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
 
 		# `name` is the label name
-		self._set_name(name)
-	#--------
-	def _set_name(self, n_name):
-		assert isinstance(n_name, str), \
-			type(n_name)
-		self.__name = n_name
-	def name(self):
-		return self.__name
+		HasNameBase.__init__(self, name=name)
 	#--------
 	def visit(self, visitor):
 		visitor.visitConcurrentStmtBase(self)
@@ -128,8 +121,8 @@ class CaseGenerate(GenerateStmtBase):
 class Block(ConcurStmtBase):
 	#--------
 	def __init__(self, generics=NamedObjList(), generic_map=None,
-		ports=NamedObjList(), port_map=None, body=[], *, name="",
-		src_loc_at=1):
+		ports=NamedObjList(), port_map=None, body=NamedObjList(),
+		guard_cond=None, *, name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
@@ -146,7 +139,12 @@ class Block(ConcurStmtBase):
 			type(port_map)
 		self.__port_map = port_map
 
+		assert isinstance(body, NamedObjList)
 		self.__body = body
+
+		assert isinstance(guard_cond, Expr), \
+			type(guard_cond)
+		self.__guard_cond = guard_cond
 		#--------
 	#--------
 	def generics(self):
@@ -159,6 +157,8 @@ class Block(ConcurStmtBase):
 		return self.__port_map
 	def body(self):
 		return self.__body
+	def guard_cond(self):
+		return self.__guard_cond
 	#--------
 	def visit(self, visitor):
 		visitor.visitBlock(self)

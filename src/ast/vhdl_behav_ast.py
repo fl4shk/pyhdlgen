@@ -9,21 +9,13 @@ from vhdl_generic_port_map_ast import *
 from enum import Enum, auto
 #--------
 # for `isinstance`
-class BehavStmt(Base):
+class BehavStmt(Base, HasNameBase):
 	#--------
 	def __init__(self, *, name="", src_loc_at=1):
 		#--------
-		super().__init__(src_loc_at=src_loc_at + 1)
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
+		HasNameBase.__init__(self, name=name)
 		#--------
-		self._set_name(name)
-		#--------
-	#--------
-	def _set_name(self, n_name):
-		assert isinstance(n_name, str), \
-			type(n_name)
-		self.__name = n_name
-	def name(self):
-		return self.__name
 	#--------
 	def visit(self, visitor):
 		visitor.visitBehav(self)
@@ -321,20 +313,12 @@ class Report(BehavStmt):
 
 		Expr.assert_valid(severity_expr)
 		self.__severity_expr = BasicLiteral.cast_opt(severity_expr)
-
-		self._set_name(name)
 		#--------
 	#--------
 	def expr(self):
 		return self.__expr
 	def severity_expr(self):
 		return self.__severity_expr
-	def _set_name(self, n_name):
-		assert isinstance(n_name, str), \
-			type(n_name)
-		self.__name = n_name
-	def name(self):
-		return self.__name
 	#--------
 	def visit(self, visitor):
 		visitor.visitReport(self)
