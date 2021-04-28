@@ -83,7 +83,7 @@ class NamedObjList(Base):
 		return self[key]
 	def __getitem__(self, key):
 		if NameDict.key_goes_in_dct(key):
-			return self.lst()[self.name_to_ind_map(key)][1]
+			return self.lst()[self.name_to_ind_map(key.lower())][1]
 		else: # if not NameDict.key_goes_in_dct(key):
 			return self.__dict__[key]
 
@@ -95,12 +95,12 @@ class NamedObjList(Base):
 				type(val)
 			self.assert_valid_val(val)
 
-			if key not in self.name_to_ind_map():
+			if key.lower() not in self.name_to_ind_map():
 				ind = len(self.lst())
-				self.name_to_ind_map()[key] = ind
+				self.name_to_ind_map()[key.lower()] = ind
 				self.append(val)
-			else: # if key i in self.name_to_ind_map():
-				ind = self.name_to_ind_map()[key]
+			else: # if key.lower() i in self.name_to_ind_map():
+				ind = self.name_to_ind_map()[key.lower()]
 				self.lst()[ind] = val
 
 			assert hasattr(self.lst()[ind], "_set_name")
