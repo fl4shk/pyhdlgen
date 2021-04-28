@@ -82,7 +82,7 @@ class NamedObjList(Base):
 	def __getattr__(self, key):
 		return self[key]
 	def __getitem__(self, key):
-		if NameDict.key_goes_in_dct(key):
+		if NameDict.key_goes_in_dct(key.lower()):
 			return self.lst()[self.name_to_ind_map(key.lower())][1]
 		else: # if not NameDict.key_goes_in_dct(key):
 			return self.__dict__[key]
