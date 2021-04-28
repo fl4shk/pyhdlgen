@@ -95,17 +95,17 @@ class NamedObjList(Base):
 				type(val)
 			self.assert_valid_val(val)
 
-			#ind = self.name_to_ind_map()[key]
-			#elem = self.lst()[ind]
-			#elem = (key, val)
-			#self.assert_valid_elem(elem)
-			ind = len(self.lst())
-			self.name_to_ind_map()[key] = ind
-			self.append(val)
+			if key not in self.name_to_ind_map():
+				ind = len(self.lst())
+				self.name_to_ind_map()[key] = ind
+				self.append(val)
+			else: # if key i in self.name_to_ind_map():
+				ind = self.name_to_ind_map()[key]
+				self.lst()[ind] = val
 
-			assert hasattr(self.lst()[-1], "_set_name")
+			assert hasattr(self.lst()[ind], "_set_name")
 
-			self.lst()[-1]._set_name(key)
+			self.lst()[ind]._set_name(key)
 		else: # if not NameDict.key_goes_in_dct(key):
 			self.__dict__[key] = val
 
