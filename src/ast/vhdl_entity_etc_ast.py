@@ -4,6 +4,7 @@
 from misc_util import *
 #from vhdl_misc_ast import *
 from vhdl_misc_ast import *
+from vhdl_expr_ast import *
 
 from enum import Enum, auto
 #--------
@@ -144,5 +145,46 @@ class PackageBody(Base, HasNameBase):
 	#--------
 	def visit(self, visitor):
 		visitor.visitPackageBody(self)
+	#--------
+class Use(Base):
+	def __init__(self, sel_name_lst=[], *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
+
+		assert isinstance(sel_name_lst, list), \
+			type(sel_name_lst)
+		for sel_name in sel_name_lst:
+			assert isinstance(sel_name, SelName), \
+				type(sel_name)
+
+		self.__sel_name_lst = sel_name_lst
+	def sel_name_lst(self):
+		return self.__sel_name_lst
+	def visit(self, visitor):
+		visitor.visitUse(self)
+class SelName(Base):
+	#--------
+	def __init__(self, prefix, suffix, *, src_loc_at=1):
+		#--------
+		super().__init__
+		#--------
+		assert (isinstance(prefix, str)
+			or isinstance(prefix, FunctionCall)), \
+			type(prefix)
+		self.__prefix = prefix
+
+		assert (isinstance(suffix, str) or isinstance(suffix, CharLiteral)
+			or isinstance(suffix, StrLiteral)
+			or isinstance(suffix, All)), \
+			type(suffix)
+		self.__suffix = suffix
+		#--------
+	#--------
+	def prefix(self):
+		return self.__prefix
+	def suffix(self):
+		return self.__suffix
+	#--------
+	def visit(self, visitor):
+		visitor.visitSelName(self)
 	#--------
 #--------

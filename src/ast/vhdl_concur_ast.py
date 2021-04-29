@@ -194,9 +194,4 @@ class Process(ConcurStmtBase):
 	def visit(self, visitor):
 		visitor.visitProcess(self)
 	#--------
-class All(Base):
-	def __init__(self, *, src_loc_at=1):
-		super().__init__(src_loc_at=src_loc_at + 1)
-	def visit(self, visitor):
-		visitor.visitAll(self)
 #--------
