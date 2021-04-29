@@ -9,7 +9,7 @@ from vhdl_type_ast import *
 
 from enum import Enum, auto
 #--------
-#class Generic(Base):
+#class Generic(Base, HasNameBase):
 #	#--------
 #	class Kind(Enum):
 #		Null = auto()
@@ -20,7 +20,8 @@ from enum import Enum, auto
 #	#--------
 #	def __init__(self, kind, typ, def_val=None, *, name="", src_loc_at=1):
 #		#--------
-#		super().__init__(src_loc_at=src_loc_at + 1)
+#		Base.__init__(self, src_loc_at=src_loc_at + 1)
+#		HasNameBase.__init__(self, name=name)
 #		#--------
 #		Kind = Generic.Kind
 #		assert (isinstance(kind, Kind) or isinstance(kind, str)), \
@@ -59,8 +60,6 @@ from enum import Enum, auto
 #		self.__typ = typ
 #
 #		self.__def_val = def_val
-#
-#		self._set_name(name)
 #		#--------
 #	#--------
 #	def kind(self):
@@ -69,12 +68,6 @@ from enum import Enum, auto
 #		return self.__typ
 #	def def_val(self):
 #		return self.__def_val
-#	def _set_name(self, n_name):
-#		assert isinstance(n_name, str), \
-#			type(n_name)
-#		self.__name = name
-#	def name(self):
-#		return self.__name
 #	#--------
 #	def visit(self, visitor):
 #		visitor.visitGeneric(self)

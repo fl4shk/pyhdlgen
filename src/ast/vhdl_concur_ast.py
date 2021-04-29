@@ -164,3 +164,39 @@ class Block(ConcurStmtBase):
 		visitor.visitBlock(self)
 	#--------
 #--------
+class Process(ConcurStmtBase):
+	#--------
+	def __init__(self, sens_lst=[], decls=NamedObjList(),
+		body=NamedObjList(), *, name="", src_loc_at=1):
+		#--------
+		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		#--------
+		assert (isinstance(sens_lst, list) or isinstance(sens_lst, All)), \
+			type(sens_lst)
+		self.__sens_lst = sens_lst
+
+		assert isinstance(decls, NamedObjList), \
+			type(decls)
+		self.__decls = decls
+
+		assert isinstance(body, NamedObjList), \
+			type(body)
+		self.__body = body
+		#--------
+	#--------
+	def sens_lst(self):
+		return self.__sens_lst
+	def decls(self):
+		return self.__decls
+	def body(self):
+		return self.__body
+	#--------
+	def visit(self, visitor):
+		visitor.visitProcess(self)
+	#--------
+class All(Base):
+	def __init__(self, *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAll(self)
+#--------

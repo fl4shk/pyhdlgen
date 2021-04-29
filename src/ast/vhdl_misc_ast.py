@@ -71,15 +71,19 @@ class HasNameBase:
 	def _set_name(self, n_name):
 		assert isinstance(n_name, str), \
 			type(n_name)
-		self.__name = n_name
+		self.__name = n_name.lower()
 	def name(self):
 		return self.__name
 	#--------
-class NamedObjList:
+class NamedObjList(Base):
 	#--------
-	def __init__(self):
+	def __init__(self, *, src_loc_at=1):
+		#--------
+		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
 		self.__lst = []
 		self.__name_to_ind_map = {}
+		#--------
 	#--------
 	def lst(self):
 		return self.__lst
@@ -123,28 +127,28 @@ class NamedObjList:
 		pass
 
 	def append(self, val):
-		self.lst().append(val)
-		return self.lst()[-1]
+		assert (isinstance(elem, Base) or isinstance(elem, tuple)), \
+			type(elem)
+
+		if isinstance(elem, Base):
+			self.lst().append(val)
+			return self.lst()[-1]
+		else: # if isinstance(elem, tuple):
+			assert (len(elem) == 2), \
+				len(elem)
+			assert isinstance(elem[0], str), \
+				type(elem[0])
+			assert isinstance(elem[1], Base), \
+				type(elem[1])
+			self[elem[0]] = elem[1]
+			return self[elem[0]]
 
 	def __iadd__(self, val):
-		assert (isinstance(val, list) or isinstance(val, tuple)), \
+		assert isinstance(val, list), \
 			type(val)
 
-		if isinstance(val, list):
-			for elem in val:
-				assert isinstance(elem, tuple), \
-					type(elem)
-				assert (len(elem) == 2), \
-					len(elem)
-				assert isinstance(elem[0], str), \
-					type(elem[0])
-				assert isinstance(elem[1], Base), \
-					type(elem[1])
-				self[elem[0]] = elem[1]
-		else: # if isinstance(val, tuple):
-			assert (len(item) == 2), \
-				str(len(item))
-			self[val[0]] = val[1]
+		for elem in val:
+			self.append(elem)
 	#--------
 ## FIXME:  These need to be adjusted once I remember what the problem with
 ## just using `NamedObjList` was
