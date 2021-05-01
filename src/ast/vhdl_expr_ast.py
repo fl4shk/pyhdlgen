@@ -8,7 +8,7 @@ from vhdl_generic_port_map_ast import *
 
 from enum import Enum, auto
 #--------
-class Expr(Base):
+class _Expr(_Base):
 	#--------
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
@@ -33,28 +33,28 @@ class Expr(Base):
 			or isinstance(other, str))
 	@classmethod
 	def assert_basic_literal(other):
-		assert Expr.is_basic_literal(other), \
+		assert _Expr.is_basic_literal(other), \
 			type(other)
 
 	@classmethod
 	def is_literal(other):
-		return (Expr.is_basic_literal(other) \
+		return (_Expr.is_basic_literal(other) \
 			or (hasattr(other, "_is_literal_cstm")
 				and other._is_literal_cstm()))
 	@classmethod
 	def assert_literal(other):
-		assert Expr.is_literal(other), \
+		assert _Expr.is_literal(other), \
 			type(other)
 
-	# check to see if this is a valid `Expr` (or convertable to one)
+	# check to see if this is a valid `_Expr` (or convertable to one)
 	@classmethod
 	def is_valid(other):
 		# floats not supported yet!
-		return (isinstance(other, Expr) or isinstance(other, int)
+		return (isinstance(other, _Expr) or isinstance(other, int)
 			or isinstance(other, str))
 	@classmethod
 	def assert_valid(other):
-		assert Expr.is_valid(other), \
+		assert _Expr.is_valid(other), \
 			type(other)
 	#--------
 	def eq(self, other, *, name=""):
@@ -73,105 +73,105 @@ class Expr(Base):
 		return MembSel(self, key)
 
 	def __abs__(self):
-		return Unop("abs", self)
+		return _Unop("abs", self)
 
 	def __add__(self, other):
-		return Binop("+", self, other)
+		return _Binop("+", self, other)
 	def __sub__(self, other):
-		return Binop("-", self, other)
+		return _Binop("-", self, other)
 	def __neg__(self):
-		return Unop("-", self)
+		return _Unop("-", self)
 
 	def __mul__(self, other):
-		return Binop("*", self, other)
+		return _Binop("*", self, other)
 	def __floordiv__(self, other):
-		return Binop("//", self, other)
+		return _Binop("//", self, other)
 	def __mod__(self, other):
-		return Binop("%", self, other)
+		return _Binop("%", self, other)
 	def rem(self, other):
-		return Binop("rem", self, other)
+		return _Binop("rem", self, other)
 
 	def __pow__(self, other):
-		return Binop("**", self, other)
+		return _Binop("**", self, other)
 
 	def __lshift__(self, other):
-		return Binop("<<", self, other)
+		return _Binop("<<", self, other)
 	def __rshift__(self, other):
-		return Binop(">>", self, other)
+		return _Binop(">>", self, other)
 	def rol(self, other):
-		return Binop("rol", self, other)
+		return _Binop("rol", self, other)
 	def ror(self, other):
-		return Binop("ror", self, other)
+		return _Binop("ror", self, other)
 
 	def __and__(self, other):
-		return Binop("&", self, other)
+		return _Binop("&", self, other)
 	def nand(self, other):
-		return Binop("nand", self, other)
+		return _Binop("nand", self, other)
 	def __or__(self, other):
-		return Binop("|", self, other)
+		return _Binop("|", self, other)
 	def nor(self, other):
-		return Binop("nor", self, other)
+		return _Binop("nor", self, other)
 	def __xor__(self, other):
-		return Binop("^", self, other)
+		return _Binop("^", self, other)
 	def xnor(self, other):
-		return Binop("xnor", self, other)
+		return _Binop("xnor", self, other)
 	def __invert__(self):
-		return Unop("~", self)
+		return _Unop("~", self)
 
 	def __lt__(self, other):
-		return Binop("<", self, other)
+		return _Binop("<", self, other)
 	def __gt__(self, other):
-		return Binop(">", self, other)
+		return _Binop(">", self, other)
 	def __le__(self, other):
-		return Binop("<=", self, other)
+		return _Binop("<=", self, other)
 	def __ge__(self, other):
-		return Binop(">=", self, other)
+		return _Binop(">=", self, other)
 	def __eq__(self, other):
-		return Binop("==", self, other)
+		return _Binop("==", self, other)
 	def __ne__(self, other):
-		return Binop("!=", self, other)
+		return _Binop("!=", self, other)
 	#--------
 	def __radd__(self, other):
-		return Binop("+", other, self)
+		return _Binop("+", other, self)
 	def __rsub__(self, other):
-		return Binop("-", other, self)
+		return _Binop("-", other, self)
 
 	def __rmul__(self, other):
-		return Binop("*", other, self)
+		return _Binop("*", other, self)
 	def __rfloordiv__(self, other):
-		return Binop("//", other, self)
+		return _Binop("//", other, self)
 	def __rmod__(self, other):
-		return Binop("%", other, self)
+		return _Binop("%", other, self)
 	def rrem(self, other):
-		return Binop("rem", other, self)
+		return _Binop("rem", other, self)
 
 	def __rpow__(self, other):
-		return Binop("**", other, self)
+		return _Binop("**", other, self)
 
 	def __rlshift__(self, other):
-		return Binop("<<", other, self)
+		return _Binop("<<", other, self)
 	def __rrshift__(self, other):
-		return Binop(">>", other, self)
+		return _Binop(">>", other, self)
 	def rrol(self, other):
-		return Binop("rol", other, self)
+		return _Binop("rol", other, self)
 	def rror(self, other):
-		return Binop("ror", other, self)
+		return _Binop("ror", other, self)
 
 	def __rand__(self, other):
-		return Binop("&", other, self)
+		return _Binop("&", other, self)
 	def rnand(self, other):
-		return Binop("nand", other, self)
+		return _Binop("nand", other, self)
 	def __ror__(self, other):
-		return Binop("|", other, self)
+		return _Binop("|", other, self)
 	def rnor(self, other):
-		return Binop("nor", other, self)
+		return _Binop("nor", other, self)
 	def __rxor__(self, other):
-		return Binop("^", other, self)
+		return _Binop("^", other, self)
 	def rxnor(self, other):
-		return Binop("xnor", other, self)
+		return _Binop("xnor", other, self)
 	#--------
 #--------
-class BasicLiteral(Expr):
+class BasicLiteral(_Expr):
 	#--------
 	class Kind(Enum):
 		Int = auto()
@@ -198,7 +198,7 @@ class BasicLiteral(Expr):
 
 		self.__kind = convert_str_to_enum_opt(kind, Kind, STR_KIND_MAP)
 		#--------
-		Expr.assert_basic_literal(val)
+		_Expr.assert_basic_literal(val)
 		self.__val = val.val() \
 			if isinstance(val, BasicLiteral) \
 			else val
@@ -232,7 +232,7 @@ class BasicLiteral(Expr):
 
 	@staticmethod
 	def cast_opt(other):
-		if Expr.is_basic_literal(other):
+		if _Expr.is_basic_literal(other):
 			if isinstance(other, BasicLiteral):
 				return other
 			elif isinstance(other, int):
@@ -247,7 +247,7 @@ class BasicLiteral(Expr):
 				return BasicLiteral("char", other) \
 					if len(other) == 1 \
 					else BasicLiteral("str", other)
-		else: # if not Expr.is_basic_literal(other):
+		else: # if not _Expr.is_basic_literal(other):
 			return other
 	#--------
 class IntLiteral(BasicLiteral):
@@ -261,7 +261,7 @@ class StrLiteral(BasicLiteral):
 		super().__init__("str", val, base, src_loc_at=src_loc_at + 1)
 #--------
 # Untyped (if not `Qualified`) aggregate:  (0 => '1', others => '0')
-class Agg(Expr):
+class Agg(_Expr):
 	#--------
 	def __init__(self, layout, *, src_loc_at=1):
 		#--------
@@ -271,7 +271,7 @@ class Agg(Expr):
 			type(layout)
 
 		for key in layout:
-			assert Expr.is_valid(layout[key]), \
+			assert _Expr.is_valid(layout[key]), \
 				psconcat("{}: {}; type(val): {}".format(key, layout[key],
 					type(layout[key])))
 		self.__layout = layout
@@ -285,31 +285,31 @@ class Agg(Expr):
 	#--------
 	def _is_literal_cstm(self):
 		for key in self.layout():
-			if not Expr.is_literal(self.layout()[key]):
+			if not _Expr.is_literal(self.layout()[key]):
 				return False
 		return True
 	#--------
 	def is_const(self):
 		for key in self.layout():
 			val = self.layout()[key]
-			if not (Expr.is_literal(val)
-				or (isinstance(val, Expr) and val.is_const())):
+			if not (_Expr.is_literal(val)
+				or (isinstance(val, _Expr) and val.is_const())):
 				return False
 		return True
 	#--------
 
 # Example:  my_record_t'(my_natural => 0, my_slv => (others => '0'))
-class Qualified(Expr):
+class Qualified(_Expr):
 	#--------
 	def __init__(self, typ, expr, *, src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(typ, InstableTypeBase), \
+		assert isinstance(typ, _InstableTypeBase), \
 			type(typ)
 		self.__typ = typ
 
-		Expr.assert_valid(expr)
+		_Expr.assert_valid(expr)
 		self.__expr = BasicLiteral.cast_opt(expr)
 		#--------
 	#--------
@@ -321,11 +321,17 @@ class Qualified(Expr):
 	def visit(self, visitor):
 		visitor.visitQualified(self)
 	#--------
+	def _is_literal_cstm(self):
+		if hasattr(self.expr(), "_is_literal_cstm"):
+			return self.expr()._is_literal_cstm()
+		else:
+			return self.expr().is_literal()
+	#--------
 	def is_const(self):
 		return self.expr().is_const()
 	#--------
 # unsigned(my_slv)
-class Cast(Expr):
+class Cast(_Expr):
 	#--------
 	def __init__(self, typ, expr, *, src_loc_at=1):
 		#--------
@@ -343,9 +349,12 @@ class Cast(Expr):
 	def visit(self, visitor):
 		visitor.visitCast(self)
 	#--------
+	def is_const(self):
+		return self.expr().is_const()
+	#--------
 
 #--------
-class Unop(Expr):
+class _Unop(_Expr):
 	#--------
 	class Kind(Enum):
 		Abs = auto()
@@ -357,7 +366,7 @@ class Unop(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		Kind = Unop.Kind
+		Kind = _Unop.Kind
 
 		STR_KIND_MAP \
 			= {
@@ -368,7 +377,7 @@ class Unop(Expr):
 
 		self.__kind = convert_str_to_enum_opt(kind, Kind, STR_KIND_MAP)
 
-		Expr.assert_valid(val)
+		_Expr.assert_valid(val)
 		self.__val = BasicLiteral.cast_opt(val)
 		#--------
 	#--------
@@ -383,7 +392,7 @@ class Unop(Expr):
 	def is_const(self):
 		return self.val().is_const()
 	#--------
-class Binop(Expr):
+class _Binop(_Expr):
 	#--------
 	class Kind(Enum):
 		#Assign = auto()
@@ -422,7 +431,7 @@ class Binop(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		Kind = Binop.Kind
+		Kind = _Binop.Kind
 
 		STR_KIND_MAP \
 			= {
@@ -457,10 +466,10 @@ class Binop(Expr):
 			}
 		self.__kind = convert_str_to_enum_opt(kind, Kind, STR_KIND_MAP)
 
-		Expr.assert_valid(left)
+		_Expr.assert_valid(left)
 		self.__left = BasicLiteral.cast_opt(left)
 
-		Expr.assert_valid(right)
+		_Expr.assert_valid(right)
 		self.__right = BasicLiteral.cast_opt(right)
 		#--------
 	#--------
@@ -479,20 +488,20 @@ class Binop(Expr):
 	#--------
 #--------
 # A part select:  `a[b]`
-class PartSel(Expr):
+class PartSel(_Expr):
 	#--------
 	def __init__(self, val, ind_rang, *, src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		# Object to part-select
-		assert (isinstance(val, NamedValBase) or isinstance(val, PartSel)
+		assert (isinstance(val, _NamedValBase) or isinstance(val, PartSel)
 			or isinstance(val, MembSel)), \
 			type(val)
 		self.__val = val
 
 		# Index, range, or slice
-		assert (Expr.is_valid(ind_rang)
+		assert (_Expr.is_valid(ind_rang)
 			or isinstance(ind_rang, Range)
 			or isinstance(ind_rang, slice)), \
 			type(ind_rang)
@@ -539,13 +548,13 @@ class PartSel(Expr):
 		return self.val().is_const()
 	#--------
 # A member select:  `a.b`
-class MembSel(Expr):
+class MembSel(_Expr):
 	#--------
 	def __init__(self, val, name, *, src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert (isinstance(val, NamedValBase) or isinstance(val, PartSel)
+		assert (isinstance(val, _NamedValBase) or isinstance(val, PartSel)
 			or isinstance(val, MembSel)), \
 			type(val)
 		self.__val = val
@@ -565,7 +574,7 @@ class MembSel(Expr):
 	#--------
 #--------
 # Concatenation:  `a & b & ...`
-class Cat(Expr):
+class Cat(_Expr):
 	#--------
 	def __init__(self, *args, src_loc_at=1):
 		super().__init__()
@@ -573,7 +582,7 @@ class Cat(Expr):
 		self.__args = []
 
 		for arg in arg:
-			Expr.assert_valid(arg)
+			_Expr.assert_valid(arg)
 			self.__args.append(BasicLiteral.cast_opt(arg))
 	#--------
 	def args(self):
@@ -589,7 +598,7 @@ class Cat(Expr):
 		return True
 	#--------
 #--------
-class FunctionCall(Expr):
+class CallFunction(_Expr):
 	#--------
 	def __init__(self, func_name, assoc_list, *, src_loc_at=1):
 		#--------
@@ -613,6 +622,6 @@ class FunctionCall(Expr):
 		return self.__assoc_list
 	#--------
 	def visit(self, visitor):
-		visitor.visitFunctionCall(self)
+		visitor.visitCallFunction(self)
 	#--------
 #--------

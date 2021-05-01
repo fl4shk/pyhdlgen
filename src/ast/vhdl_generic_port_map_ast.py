@@ -6,7 +6,7 @@ from vhdl_misc_ast import *
 from vhdl_expr_ast import *
 #--------
 # Association list
-class AssocList(Base):
+class AssocList(_Base):
 	def __init__(self, data, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
@@ -19,7 +19,7 @@ class AssocList(Base):
 	def visit(self):
 		visitor.visitAssocList(self)
 #--------
-class GenericMap(Base):
+class GenericMap(_Base):
 	def __init__(self, assoc_list, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
@@ -30,7 +30,7 @@ class GenericMap(Base):
 		return self.__assoc_list
 	def visit(self, visitor):
 		visitor.visitGenericMap(self)
-class PortMap(Base):
+class PortMap(_Base):
 	def __init__(self, assoc_list, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
@@ -42,7 +42,7 @@ class PortMap(Base):
 	def visit(self, visitor):
 		visitor.visitPortMap(self)
 #--------
-class Open(Base):
+class Open(_Base):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):

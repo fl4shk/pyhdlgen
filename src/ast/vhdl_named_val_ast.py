@@ -9,18 +9,18 @@ from vhdl_type_ast import *
 from enum import Enum, auto
 #--------
 # Named values, such as ports and signals
-class NamedValBase(Expr, HasNameBase):
+class _NamedValBase(_Expr, HasNameBase):
 	#--------
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		#--------
-		Expr.__init__(self, src_loc_at=src_loc_at + 1)
+		_Expr.__init__(self, src_loc_at=src_loc_at + 1)
 		HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(typ, InstableTypeBase), \
+		assert isinstance(typ, _InstableTypeBase), \
 			type(typ)
 		self.__typ = typ
 
-		assert ((def_val is None) or isinstance(def_val, Expr)), \
+		assert ((def_val is None) or isinstance(def_val, _Expr)), \
 			type(def_val)
 		self.__def_val = def_val
 		#--------
@@ -34,7 +34,7 @@ class NamedValBase(Expr, HasNameBase):
 		visitor.visitNamedValBase(self)
 	#--------
 #--------
-class Signal(NamedValBase):
+class Signal(_NamedValBase):
 	#--------
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name, 
@@ -46,7 +46,7 @@ class Signal(NamedValBase):
 	def is_lvalue(self):
 		return True
 	#--------
-class Variable(NamedValBase):
+class Variable(_NamedValBase):
 	#--------
 	def __init__(self, typ, def_val=None, is_shared=False, *, name="",
 		src_loc_at=1):
@@ -66,7 +66,7 @@ class Variable(NamedValBase):
 	def is_lvalue(self):
 		return True
 	#--------
-class Constant(NamedValBase):
+class Constant(_NamedValBase):
 	#--------
 	def __init__(self, typ, def_val, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name,
@@ -79,7 +79,7 @@ class Constant(NamedValBase):
 		return True
 	#--------
 #--------
-class GenericValBase(NamedValBase):
+class _GenericValBase(_NamedValBase):
 	#--------
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name,
@@ -92,21 +92,21 @@ class GenericValBase(NamedValBase):
 		return True
 	#--------
 # Not a `constant` generic, but basically equivalent to one
-class RegularGeneric(GenericValBase):
+class RegularGeneric(_GenericValBase):
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitRegularGeneric(self)
 # A `constant` generic
-class ConstantGeneric(GenericValBase):
+class ConstantGeneric(_GenericValBase):
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitConstantGeneric(self)
 #--------
-class PortBase(NamedValBase):
+class _PortBase(_NamedValBase):
 	#--------
 	class Direction(Enum):
 		In = auto()
@@ -119,7 +119,7 @@ class PortBase(NamedValBase):
 		super().__init__(typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 		#--------
-		Direction = PortBase.Direction
+		Direction = _PortBase.Direction
 
 		STR_DIRECTION_MAP \
 			= {
@@ -139,24 +139,24 @@ class PortBase(NamedValBase):
 		visitor.visitPortBase(self)
 	#--------
 	def is_lvalue(self):
-		return (self.direction() == PortBase.Direction.Out) \
-			or (self.direction() == PortBase.Direction.Inout)
+		return ((self.direction() == _PortBase.Direction.Out)
+			or (self.direction() == _PortBase.Direction.Inout))
 	#--------
-class Port(PortBase)
+class Port(_PortBase)
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):
 		super().__init__(direction, typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitPort(self)
-class SigPort(PortBase)
+class SigPort(_PortBase)
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):
 		super().__init__(direction, typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitSigPort(self)
-class VarPort(PortBase)
+class VarPort(_PortBase)
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):
 		super().__init__(direction, typ, def_val, name=name,
