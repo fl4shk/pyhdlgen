@@ -625,7 +625,7 @@ class CallFunction(Expr):
 		visitor.visitCallFunction(self)
 	#--------
 #--------
-class _ValAttrBase(Expr):
+class ValAttrBase(Expr):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
@@ -639,32 +639,32 @@ class _ValAttrBase(Expr):
 		return self.__obj
 	def visit(self, visitor):
 		visitor.visitValAttrBase(self)
-class AttrLeft(_ValAttrBase):
+class AttrLeft(ValAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrLeft(self)
-class AttrRight(_ValAttrBase):
+class AttrRight(ValAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrRight(self)
-class AttrHigh(_ValAttrBase):
+class AttrHigh(ValAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrHigh(self)
-class AttrLow(_ValAttrBase):
+class AttrLow(ValAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrLow(self)
-class AttrLength(_ValAttrBase):
+class AttrLength(ValAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrLength(self)
-class AttrAscending(_ValAttrBase):
+class AttrAscending(ValAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
