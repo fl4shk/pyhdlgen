@@ -161,30 +161,4 @@ class Use(Base):
 		return self.__sel_name_lst
 	def visit(self, visitor):
 		visitor.visitUse(self)
-class SelName(Base):
-	#--------
-	def __init__(self, prefix, suffix, *, src_loc_at=1):
-		#--------
-		super().__init__(src_loc_at=src_loc_at + 1)
-		#--------
-		assert (isinstance(prefix, str)
-			or isinstance(prefix, CallFunction)), \
-			type(prefix)
-		self.__prefix = prefix
-
-		assert (isinstance(suffix, str) or isinstance(suffix, CharLiteral)
-			or isinstance(suffix, StrLiteral)
-			or isinstance(suffix, All)), \
-			type(suffix)
-		self.__suffix = suffix
-		#--------
-	#--------
-	def prefix(self):
-		return self.__prefix
-	def suffix(self):
-		return self.__suffix
-	#--------
-	def visit(self, visitor):
-		visitor.visitSelName(self)
-	#--------
 #--------

@@ -625,48 +625,80 @@ class CallFunction(Expr):
 		visitor.visitCallFunction(self)
 	#--------
 #--------
-class ValAttrBase(Expr):
+class ValueAttrBase(Expr):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		assert (isinstance(obj, NamedValBase)
-			or isinstance(obj, NamedTypeBase)), \
+		assert isinstance(obj, Base), \
+			type(obj)
+		assert isinstance(obj, HasNameBase), \
 			type(obj)
 		if isinstance(obj, NamedTypeBase):
-			assert isinstance(obj
+			assert isinstance(obj, )
 		self.__obj = obj
 	def obj(self):
 		return self.__obj
 	def visit(self, visitor):
-		visitor.visitValAttrBase(self)
-class AttrLeft(ValAttrBase):
+		visitor.visitValueAttrBase(self)
+class ValueAttrLeft(ValueAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrLeft(self)
-class AttrRight(ValAttrBase):
+class ValueAttrRight(ValueAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrRight(self)
-class AttrHigh(ValAttrBase):
+class ValueAttrHigh(ValueAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrHigh(self)
-class AttrLow(ValAttrBase):
+class ValueAttrLow(ValueAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrLow(self)
-class AttrLength(ValAttrBase):
+class ValueAttrLength(ValueAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrLength(self)
-class AttrAscending(ValAttrBase):
+class ValueAttrAscending(ValueAttrBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrAscending(self)
+
+class FuncAttrBase(Expr):
+	def __init__(self, outer, inner, *, src_loc_at=1):
+		#--------
+		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
+		assert isinstance(outer, Base), \
+			type(outer)
+		assert isinstance(outer, HasNameBase), \
+			type(outer)
+		self.__outer = outer
+
+		assert (isinstance(inner, SimpleName) or Expr.is_valid(inner)), \
+			type(inner)
+		self.__inner = inner
+		#--------
+	#--------
+	def outer(self):
+		return self.__outer
+	def inner(self):
+		return self.__inner
+	#--------
+	def visit(self, visitor):
+		visitor.visitFuncAttrBase(self)
+	#--------
+class FuncAttrVal(ValueAttrBase):
+	#--------
+	def __init__(self, outer, inner, *, src_loc_at=1):
+		super().__init__(outer, inner, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrVal(self)
 #--------
