@@ -5,6 +5,8 @@ from misc_util import *
 from vhdl_misc_ast import *
 from vhdl_expr_ast import *
 from vhdl_generic_port_map_ast import *
+from vhdl_subprogram_ast import *
+from vhdl_name_ast import *
 
 from enum import Enum, auto
 #--------
@@ -77,14 +79,16 @@ class SelAssign(ConcurBase):
 #--------
 class CallProcedure(BehavStmt):
 	#--------
-	def __init__(self, proc_name, assoc_list, *, name="",
+	def __init__(self, procedure, assoc_list, *, name="",
 		src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(proc_name, str), \
-			type(proc_name)
-		self.__proc_name = proc_name
+		assert (isinstance(procedure, SmplName)
+			or isinstance(procedure, SelName)
+			or isinstance(procedure, Procedure)), \
+			type(procedure)
+		self.__procedure = procedure
 
 		#assert (assoc_list is None or isinstance(assoc_list, list)
 		#	or isinstance(assoc_list, dict)), \
@@ -94,8 +98,8 @@ class CallProcedure(BehavStmt):
 		self.__assoc_list = assoc_list
 		#--------
 	#--------
-	def proc_name(self):
-		return self.__proc_name
+	def procedure(self):
+		return self.__procedure
 	def assoc_list(self):
 		return self.__assoc_list
 	#--------

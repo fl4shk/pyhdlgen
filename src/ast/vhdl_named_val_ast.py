@@ -33,23 +33,39 @@ class NamedValBase(Expr, HasNameBase):
 	def visit(self, visitor):
 		visitor.visitNamedValBase(self)
 	#--------
-	def left(self):
-		return ValueAttrLeft(self)
-	def right(self):
-		return ValueAttrRight(self)
+	def left(self, inner=None):
+		return AttrExprLeft(self, inner)
+	def right(self, inner=None):
+		return AttrExprRight(self, inner)
 
-	def high(self):
-		return ValueAttrHigh(self)
-	def low(self):
-		return ValueAttrLow(self)
+	def high(self, inner=None):
+		return AttrExprHigh(self, inner)
+	def low(self, inner=None):
+		return AttrExprLow(self, inner)
 
 	def length(self):
-		return ValueAttrLength(self)
+		return AttrExprLength(self)
 	def __len__(self):
 		return self.length()
 
 	def ascending(self):
-		return ValueAttrAscending(self)
+		return AttrExprAscending(self)
+	#--------
+	def event(self):
+		return AttrExprEvent(self)
+	def active(self):
+		return AttrExprActive(self)
+	def last_event(self):
+		return AttrExprLastEvent(self)
+	def last_value(self):
+		return AttrExprLastValue(self)
+	def last_active(self):
+		return AttrExprLastActive(self)
+	#--------
+	def rang(self):
+		return AttrTypeRange(self)
+	def reverse_rang(self):
+		return AttrTypeReverseRange(self)
 	#--------
 #--------
 class Signal(NamedValBase):

@@ -125,6 +125,12 @@ class Natural(InstableTypeBase):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitNatural(self)
+
+class Real(InstableTypeBase):
+	def __init__(self, *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitReal(self)
 #--------
 class VectorBase(InstableTypeBase):
 	def __init__(self, rang, *, src_loc_at=1):
@@ -277,6 +283,26 @@ class NaturalVectorW(NaturalVector):
 			src_loc_at=src_loc_at + 1,
 		)
 
+class RealVector(VectorBase):
+	def __init__(self, rang, *, src_loc_at=1):
+		super().__init__(rang, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitRealVector(self)
+class RealVectorR(RealVector):
+	def __init__(self, high, low=0, is_downto=True, *, src_loc_at=1):
+		super().__init__ \
+		(
+			rang=Range(high, low, is_downto),
+			src_loc_at=src_loc_at + 1,
+		)
+class RealVectorW(RealVector):
+	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
+		super().__init__ \
+		(
+			rang=RangeW(width, low, is_downto),
+			src_loc_at=src_loc_at + 1,
+		)
+
 class Array(TypeBase):
 	#--------
 	def __init__(self, rang, ElemT, *, src_loc_at=1):
@@ -377,7 +403,7 @@ class RangeW(Range):
 			src_loc_at=src_loc_at + 1,
 		)
 # `mynamedval'range` or `mytype'range`
-class TickRange(ConRangeBase):
+class AttrTypeRange(ConRangeBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
@@ -390,7 +416,21 @@ class TickRange(ConRangeBase):
 	def obj(self):
 		return self.__obj
 	def visit(self, visitor):
-		visitor.visitTickRange(self)
+		visitor.visitAttrTypeRange(self)
+class AttrTypeReverseRange(ConRangeBase):
+	def __init__(self, obj, *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
+
+		# This isn't a perfect check since `DeclType` might be
+		# unconstrained
+		assert (isinstance(obj, NamedValBase)
+			or isinstance(obj, NamedTypeBase)), \
+			type(obj)
+		self.__obj = obj
+	def obj(self):
+		return self.__obj
+	def visit(self, visitor):
+		visitor.visitAttrTypeReverseRange(self)
 
 # An unconstrained range, such as `natural range <>`
 class UnconRange(Base):

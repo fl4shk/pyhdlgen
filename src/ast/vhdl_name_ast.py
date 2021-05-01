@@ -32,7 +32,6 @@ class SelName(Base):
 
 		for i in range(len(lst) - 1):
 			assert (isinstance(lst[i], SmplName)
-				or isinstance(lst[i], SelName)
 				or isinstance(lst[i], CallFunction)), \
 				type(lst[i])
 		assert (isinstance(lst[-1], SmplName)

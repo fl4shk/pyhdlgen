@@ -5,6 +5,8 @@ from misc_util import *
 
 from vhdl_misc_ast import *
 from vhdl_generic_port_map_ast import *
+from vhdl_subprogram_ast import *
+from vhdl_name_ast import *
 
 from enum import Enum, auto
 #--------
@@ -600,13 +602,15 @@ class Cat(Expr):
 #--------
 class CallFunction(Expr):
 	#--------
-	def __init__(self, func_name, assoc_list, *, src_loc_at=1):
+	def __init__(self, function, assoc_list, *, src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(func_name, str), \
-			type(func_name)
-		self.__func_name = func_name
+		assert (isinstance(function, SmplName)
+			or isinstance(function, SelName)
+			or isinstance(function, Function)), \
+			type(function)
+		self.__function = function
 
 		#assert (assoc_list is None or isinstance(assoc_list, list)
 		#	or isinstance(assoc_list, dict)), \
@@ -616,8 +620,8 @@ class CallFunction(Expr):
 		self.__assoc_list = assoc_list
 		#--------
 	#--------
-	def func_name(self):
-		return self.__func_name
+	def function(self):
+		return self.__function
 	def assoc_list(self):
 		return self.__assoc_list
 	#--------
@@ -625,80 +629,155 @@ class CallFunction(Expr):
 		visitor.visitCallFunction(self)
 	#--------
 #--------
-class ValueAttrBase(Expr):
+class AttrExprBase(Expr):
+	def __init__(self, obj, inner_obj=None, *, src_loc_at=1):
+		#--------
+		super().__init__(src_loc_at=src_loc_at + 1)
+		#--------
+		#assert isinstance(obj, Base), \
+		#	type(obj)
+		#assert isinstance(obj, HasNameBase), \
+		#	type(obj)
+		assert (isinstance(obj, NamedValBase)
+			or isinstance(obj, NamedTypeBase)), \
+			type(obj)
+		self.__obj = obj
+
+		assert (isinstance(inner_obj, SmplName) or Expr.is_valid(inner_obj)
+			or isinstance(inner_obj, ConRangeBase)
+			or (inner_obj is None)), \
+			type(inner_obj)
+		self.__inner_obj = inner_obj
+		#--------
+	#--------
+	def obj(self):
+		return self.__obj
+	def inner_obj(self):
+		return self.__inner_obj
+	#--------
+	def visit(self, visitor):
+		visitor.visitAttrExprBase(self)
+	#--------
+class AttrExprLeft(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		assert isinstance
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprLeft(self)
+class AttrExprRight(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprRight(self)
+class AttrExprHigh(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprHigh(self)
+class AttrExprLow(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprLow(self)
+class AttrExprLength(AttrExprBase):
+	def __init__(self, obj, *, src_loc_at=1):
+		super().__init__(obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprLength(self)
+class AttrExprAscending(AttrExprBase):
+	def __init__(self, obj, *, src_loc_at=1):
+		super().__init__(obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprAscending(self)
+
+class AttrExprPos(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprPos(self)
+class AttrExprVal(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprVal(self)
+class AttrExprSucc(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprSucc(self)
+class AttrExprPred(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprPred(self)
+class AttrExprLeftof(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprLeftof(self)
+class AttrExprRightof(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprRightof(self)
+
+class AttrExprEvent(AttrExprBase):
+	def __init__(self, obj, *, src_loc_at=1):
+		super().__init__(obj, None, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprEvent(self)
+class AttrExprActive(AttrExprBase):
+	def __init__(self, obj, *, src_loc_at=1):
+		super().__init__(obj, None, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprActive(self)
+class AttrExprLastEvent(AttrExprBase):
+	def __init__(self, obj, *, src_loc_at=1):
+		super().__init__(obj, None, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprLastEvent(self)
+class AttrExprLastValue(AttrExprBase):
+	def __init__(self, obj, *, src_loc_at=1):
+		super().__init__(obj, None, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprLastValue(self)
+class AttrExprLastActive(AttrExprBase):
+	def __init__(self, obj, *, src_loc_at=1):
+		super().__init__(obj, None, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprLastActive(self)
+
+class AttrExprImage(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprImage(self)
+class AttrExprValue(AttrExprBase):
+	def __init__(self, obj, inner_obj, *, src_loc_at=1):
+		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
+	def visit(self, visitor):
+		visitor.visitAttrExprValue(self)
+#--------
+class RisingEdge(Expr):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		assert isinstance(obj, Base), \
+		assert isinstance(obj, NamedValBase), \
 			type(obj)
-		assert isinstance(obj, HasNameBase), \
-			type(obj)
-		if isinstance(obj, NamedTypeBase):
-			assert isinstance(obj, )
 		self.__obj = obj
 	def obj(self):
 		return self.__obj
 	def visit(self, visitor):
-		visitor.visitValueAttrBase(self)
-class ValueAttrLeft(ValueAttrBase):
+		visitor.visitRisingEdge(self)
+class FallingEdge(Expr):
 	def __init__(self, obj, *, src_loc_at=1):
-		super().__init__(obj, src_loc_at=src_loc_at + 1)
-	def visit(self, visitor):
-		visitor.visitAttrLeft(self)
-class ValueAttrRight(ValueAttrBase):
-	def __init__(self, obj, *, src_loc_at=1):
-		super().__init__(obj, src_loc_at=src_loc_at + 1)
-	def visit(self, visitor):
-		visitor.visitAttrRight(self)
-class ValueAttrHigh(ValueAttrBase):
-	def __init__(self, obj, *, src_loc_at=1):
-		super().__init__(obj, src_loc_at=src_loc_at + 1)
-	def visit(self, visitor):
-		visitor.visitAttrHigh(self)
-class ValueAttrLow(ValueAttrBase):
-	def __init__(self, obj, *, src_loc_at=1):
-		super().__init__(obj, src_loc_at=src_loc_at + 1)
-	def visit(self, visitor):
-		visitor.visitAttrLow(self)
-class ValueAttrLength(ValueAttrBase):
-	def __init__(self, obj, *, src_loc_at=1):
-		super().__init__(obj, src_loc_at=src_loc_at + 1)
-	def visit(self, visitor):
-		visitor.visitAttrLength(self)
-class ValueAttrAscending(ValueAttrBase):
-	def __init__(self, obj, *, src_loc_at=1):
-		super().__init__(obj, src_loc_at=src_loc_at + 1)
-	def visit(self, visitor):
-		visitor.visitAttrAscending(self)
-
-class FuncAttrBase(Expr):
-	def __init__(self, outer, inner, *, src_loc_at=1):
-		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
-		#--------
-		assert isinstance(outer, Base), \
-			type(outer)
-		assert isinstance(outer, HasNameBase), \
-			type(outer)
-		self.__outer = outer
 
-		assert (isinstance(inner, SimpleName) or Expr.is_valid(inner)), \
-			type(inner)
-		self.__inner = inner
-		#--------
-	#--------
-	def outer(self):
-		return self.__outer
-	def inner(self):
-		return self.__inner
-	#--------
+		assert isinstance(obj, NamedValBase), \
+			type(obj)
+		self.__obj = obj
+	def obj(self):
+		return self.__obj
 	def visit(self, visitor):
-		visitor.visitFuncAttrBase(self)
-	#--------
-class FuncAttrVal(ValueAttrBase):
-	#--------
-	def __init__(self, outer, inner, *, src_loc_at=1):
-		super().__init__(outer, inner, src_loc_at=src_loc_at + 1)
-	def visit(self, visitor):
-		visitor.visitAttrVal(self)
+		visitor.visitFallingEdge(self)
 #--------
