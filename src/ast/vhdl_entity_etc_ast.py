@@ -8,12 +8,12 @@ from vhdl_expr_ast import *
 
 from enum import Enum, auto
 #--------
-class Component(_Base, HasNameBase):
+class Component(Base, HasNameBase):
 	#--------
 	def __init__(self, generics=NamedObjList(), ports=NamedObjList(), *,
 		name="", src_loc_at=1):
 		#--------
-		_Base.__init__(self, src_loc_at=src_loc_at + 1)
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
 		HasNameBase.__init__(self, name=name)
 		#--------
 		assert isinstance(generics, NamedObjList), \
@@ -34,13 +34,13 @@ class Component(_Base, HasNameBase):
 		visitor.visitComponent(self)
 	#--------
 #--------
-class Entity(_Base, HasNameBase):
+class Entity(Base, HasNameBase):
 	#--------
 	def __init__(self, generics=NamedObjList(), ports=NamedObjList(),
 		decls=NamedObjList(), archs=NamedObjList(), *, name="",
 		src_loc_at=1):
 		#--------
-		_Base.__init__(self, src_loc_at=src_loc_at + 1)
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
 		HasNameBase.__init__(self, name=name)
 		#--------
 		assert isinstance(generics, NamedObjList), \
@@ -75,12 +75,12 @@ class Entity(_Base, HasNameBase):
 		visitor.visitEntity(self)
 	#--------
 #--------
-class Arch(_Base, HasNameBase):
+class Arch(Base, HasNameBase):
 	#--------
 	def __init__(self, decls=NamedObjList(), body=NamedObjList(), *,
 		name="", src_loc_at=1):
 		#--------
-		_Base.__init__(self, src_loc_at=src_loc_at + 1)
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
 		HasNameBase.__init__(self, name=name)
 		#--------
 		# declarations
@@ -103,12 +103,12 @@ class Arch(_Base, HasNameBase):
 		visitor.visitArch(self)
 	#--------
 #--------
-class Package(_Base, HasNameBase):
+class Package(Base, HasNameBase):
 	#--------
 	def __init__(self, generics=NamedObjList(), decls=NamedObjList(), *,
 		name="", src_loc_at=1):
 		#--------
-		_Base.__init__(self, src_loc_at=src_loc_at + 1)
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
 		HasNameBase.__init__(self, name=name)
 		#--------
 		assert isinstance(generics, NamedObjList), \
@@ -128,11 +128,11 @@ class Package(_Base, HasNameBase):
 	def visit(self, visitor):
 		visitor.visitPackage(self)
 	#--------
-class PackageBody(_Base, HasNameBase):
+class PackageBody(Base, HasNameBase):
 	#--------
 	def __init__(self, decls=NamedObjList(), *, name="", src_loc_at=1):
 		#--------
-		_Base.__init__(self, src_loc_at=src_loc_at + 1)
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
 		HasNameBase.__init__(self, name=name)
 		#--------
 		assert isinstance(decls, NamedObjList), \
@@ -146,7 +146,7 @@ class PackageBody(_Base, HasNameBase):
 	def visit(self, visitor):
 		visitor.visitPackageBody(self)
 	#--------
-class Use(_Base):
+class Use(Base):
 	def __init__(self, sel_name_lst=[], *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
@@ -161,7 +161,7 @@ class Use(_Base):
 		return self.__sel_name_lst
 	def visit(self, visitor):
 		visitor.visitUse(self)
-class SelName(_Base):
+class SelName(Base):
 	#--------
 	def __init__(self, prefix, suffix, *, src_loc_at=1):
 		#--------

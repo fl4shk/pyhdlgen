@@ -8,10 +8,10 @@ from vhdl_expr_ast import *
 from enum import Enum, auto
 #--------
 # For `isinstance()`
-class _ConcurStmtBase(_Base, HasNameBase):
+class ConcurStmtBase(Base, HasNameBase):
 	#--------
 	def __init__(self, *, name="", src_loc_at=1):
-		_Base.__init__(self, src_loc_at=src_loc_at + 1)
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
 
 		# `name` is the label name
 		HasNameBase.__init__(self, name=name)
@@ -20,19 +20,19 @@ class _ConcurStmtBase(_Base, HasNameBase):
 		visitor.visitConcurrentStmtBase(self)
 	#--------
 #--------
-class ConcurAssign(_ConcurStmtBase):
+class ConcurAssign(ConcurStmtBase):
 	#--------
 	def __init__(self, left, right, *, name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(left, _Expr), \
+		assert isinstance(left, Expr), \
 			type(left)
 		assert left.is_lvalue(), \
 			type(left)
 		self.__left = left
 
-		_Expr.assert_valid(right)
+		Expr.assert_valid(right)
 		self.__right = BasicLiteral.cast_opt(right)
 		#--------
 	#--------
@@ -44,17 +44,17 @@ class ConcurAssign(_ConcurStmtBase):
 	def visit(self, visitor):
 		visitor.visitConcurAssign(self)
 	#--------
-class ConcurSelAssign(_ConcurStmtBase):
+class ConcurSelAssign(ConcurStmtBase):
 	#--------
 	def __init__(self, expr, left, sel_waves, *, name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert _Expr.is_valid(expr), \
+		assert Expr.is_valid(expr), \
 			type(expr)
 		self.__expr = BasicLiteral.cast_opt(expr)
 
-		assert isinstance(left, _Expr), \
+		assert isinstance(left, Expr), \
 			type(left)
 		assert left.is_lvalue(), \
 			type(left)
@@ -74,13 +74,13 @@ class ConcurSelAssign(_ConcurStmtBase):
 		visitor.visitConcurSelAssign(self)
 	#--------
 #--------
-# To make `isinstance(obj, _GenerateStmtBase)` work
-class _GenerateStmtBase(_ConcurStmtBase):
+# To make `isinstance(obj, GenerateStmtBase)` work
+class GenerateStmtBase(ConcurStmtBase):
 	def __init__(self, *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitGenerateStmt(self)
-class ForGenerate(_GenerateStmtBase):
+class ForGenerate(GenerateStmtBase):
 	#--------
 	def __init__(self, var_name, rang, body=[], *, name="", src_loc_at=1):
 		#--------
@@ -101,7 +101,7 @@ class ForGenerate(_GenerateStmtBase):
 	def visit(self, visitor):
 		visitor.visitForGenerate(self)
 	#--------
-class IfGenerate(_GenerateStmtBase):
+class IfGenerate(GenerateStmtBase):
 	def __init__(self, nodes=[], *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		self.__nodes = nodes
@@ -109,7 +109,7 @@ class IfGenerate(_GenerateStmtBase):
 		return self.__nodes
 	def visit(self, visitor):
 		visitor.visitIfGenerate(self)
-class CaseGenerate(_GenerateStmtBase):
+class CaseGenerate(GenerateStmtBase):
 	def __init__(self, nodes=[], *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		self.__nodes = nodes
@@ -118,7 +118,7 @@ class CaseGenerate(_GenerateStmtBase):
 	def visit(self, visitor):
 		visitor.visitCaseGenerate(self)
 #--------
-class Block(_ConcurStmtBase):
+class Block(ConcurStmtBase):
 	#--------
 	def __init__(self, generics=NamedObjList(), generic_map=None,
 		ports=NamedObjList(), port_map=None, body=NamedObjList(),
@@ -142,7 +142,7 @@ class Block(_ConcurStmtBase):
 		assert isinstance(body, NamedObjList)
 		self.__body = body
 
-		assert isinstance(guard_cond, _Expr), \
+		assert isinstance(guard_cond, Expr), \
 			type(guard_cond)
 		self.__guard_cond = guard_cond
 		#--------
@@ -164,7 +164,7 @@ class Block(_ConcurStmtBase):
 		visitor.visitBlock(self)
 	#--------
 #--------
-class Process(_ConcurStmtBase):
+class Process(ConcurStmtBase):
 	#--------
 	def __init__(self, sens_lst=[], decls=NamedObjList(),
 		body=NamedObjList(), *, name="", src_loc_at=1):

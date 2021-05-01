@@ -7,8 +7,8 @@ from vhdl_expr_ast import *
 
 from enum import Enum, auto
 #--------
-# To make `isinstance(obj, _TypeBase)` work
-class _TypeBase(_Base):
+# To make `isinstance(obj, TypeBase)` work
+class TypeBase(Base):
 	#--------
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
@@ -16,26 +16,26 @@ class _TypeBase(_Base):
 	def visit(self, visitor):
 		visitor.visitTypeBase(self)
 	#--------
-	## Whether or not we can instantiate a `_NamedValBase` of this type
+	## Whether or not we can instantiate a `NamedValBase` of this type
 	#def is_instable(self):
 	#	return False
 	#def is_unconstrained(self):
 	#	return False
 	#--------
 #--------
-# _Base class for a type that can be instantiated directly (i.e. not a
+# Base class for a type that can be instantiated directly (i.e. not a
 # `Record` or `Array`)
-class _InstableTypeBase(_TypeBase):
+class InstableTypeBase(TypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitInstableTypeBase(self)
 #--------
-# For `isinstance(obj, _NamedTypeBase)`
-class _NamedTypeBase(_InstableTypeBase, HasNameBase):
+# For `isinstance(obj, NamedTypeBase)`
+class NamedTypeBase(InstableTypeBase, HasNameBase):
 	#--------
 	def __init__(self, *, name="", src_loc_at=1):
-		_Base.__init__(self, src_loc_at=src_loc_at + 1)
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
 		HasNameBase.__init__(self, name=name)
 	#--------
 	def visit(self, visitor):
@@ -51,7 +51,7 @@ class _NamedTypeBase(_InstableTypeBase, HasNameBase):
 	#--------
 
 # `type whatever_t is array(0 to 42) of asdf_t;`
-class DeclType(_NamedTypeBase):
+class DeclType(NamedTypeBase):
 	#--------
 	def __init__(self, typ, *, name="", src_loc_at=1):
 		#--------
@@ -70,13 +70,13 @@ class DeclType(_NamedTypeBase):
 		visitor.visitDeclType(self)
 	#--------
 # `subtype whatever_t is unsigned(42 downto 0);`
-class DeclSubtype(_NamedTypeBase):
+class DeclSubtype(NamedTypeBase):
 	#--------
 	def __init__(self, typ, layout, *, name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(typ, _TypeBase) \
+		assert isinstance(typ, TypeBase) \
 			and (not isinstance(typ, DeclSubtype)), \
 			type(typ)
 		#assert typ.is_unconstrained(), \
@@ -97,36 +97,36 @@ class DeclSubtype(_NamedTypeBase):
 		visitor.visitDeclDeclSubtype(self)
 	#--------
 #--------
-class Bit(_InstableTypeBase):
+class Bit(InstableTypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitBit(self)
 
-class StdLogic(_InstableTypeBase):
+class StdLogic(InstableTypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitStdLogic(self)
 
-class Boolean(_InstableTypeBase):
+class Boolean(InstableTypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitBoolean(self)
 
-class Integer(_InstableTypeBase):
+class Integer(InstableTypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitInteger(self)
-class Natural(_InstableTypeBase):
+class Natural(InstableTypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitNatural(self)
 #--------
-class _VectorBase(_InstableTypeBase):
+class VectorBase(InstableTypeBase):
 	def __init__(self, rang, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
@@ -137,7 +137,7 @@ class _VectorBase(_InstableTypeBase):
 	def visit(self, visitor):
 		visitor.visitVectorBase(self)
 
-class BitVector(_VectorBase):
+class BitVector(VectorBase):
 	def __init__(self, rang, *, src_loc_at=1):
 		super().__init__(rang, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
@@ -157,7 +157,7 @@ class BitVectorW(BitVector):
 			src_loc_at=src_loc_at + 1,
 		)
 
-class Slv(_VectorBase):
+class Slv(VectorBase):
 	def __init__(self, rang, *, src_loc_at=1):
 		super().__init__(rang, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
@@ -177,7 +177,7 @@ class SlvW(Slv):
 			src_loc_at=src_loc_at + 1,
 		)
 
-class Unsigned(_VectorBase):
+class Unsigned(VectorBase):
 	def __init__(self, rang, *, src_loc_at=1):
 		super().__init__(rang, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
@@ -197,7 +197,7 @@ class UnsignedW(Unsigned):
 			src_loc_at=src_loc_at + 1,
 		)
 	
-class Signed(_VectorBase):
+class Signed(VectorBase):
 	def __init__(self, rang, *, src_loc_at=1):
 		super().__init__(rang, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
@@ -217,7 +217,7 @@ class SignedW(Signed):
 			src_loc_at=src_loc_at + 1,
 		)
 
-class BooleanVector(_VectorBase):
+class BooleanVector(VectorBase):
 	def __init__(self, rang, *, src_loc_at=1):
 		super().__init__(rang, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
@@ -237,7 +237,7 @@ class BooleanVectorW(BooleanVector):
 			src_loc_at=src_loc_at + 1,
 		)
 
-class IntegerVector(_VectorBase):
+class IntegerVector(VectorBase):
 	def __init__(self, rang, *, src_loc_at=1):
 		super().__init__(rang, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
@@ -257,7 +257,7 @@ class IntegerVectorW(IntegerVector):
 			src_loc_at=src_loc_at + 1,
 		)
 
-class NaturalVector(_VectorBase):
+class NaturalVector(VectorBase):
 	def __init__(self, rang, *, src_loc_at=1):
 		super().__init__(rang, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
@@ -277,7 +277,7 @@ class NaturalVectorW(NaturalVector):
 			src_loc_at=src_loc_at + 1,
 		)
 
-class Array(_TypeBase):
+class Array(TypeBase):
 	#--------
 	def __init__(self, rang, ElemT, *, src_loc_at=1):
 		#--------
@@ -307,7 +307,7 @@ class ArrayS(Array):
 			ElemT=ElemT,
 			src_loc_at=src_loc_at + 1
 		)
-class Record(_TypeBase):
+class Record(TypeBase):
 	#--------
 	def __init__(self, layout, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
@@ -329,15 +329,15 @@ class Record(_TypeBase):
 	#	pass
 	#--------
 
-# _Base class for a constrained range, used for 
-# `isinstance(obj, _ConRangeBase)`
-class _ConRangeBase(_TypeBase):
+# Base class for a constrained range, used for 
+# `isinstance(obj, ConRangeBase)`
+class ConRangeBase(TypeBase):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitConRangeBase(self)
 	
-class Range(_ConRangeBase):
+class Range(ConRangeBase):
 	#--------
 	def __init__(self, high, low=0, is_downto=True, *, src_loc_at=1):
 		#--------
@@ -377,14 +377,14 @@ class RangeW(Range):
 			src_loc_at=src_loc_at + 1,
 		)
 # `mynamedval'range` or `mytype'range`
-class TickRange(_ConRangeBase):
+class TickRange(ConRangeBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		# This isn't a perfect check since `DeclType` might be
 		# unconstrained
-		assert (isinstance(obj, _NamedValBase)
-			or isinstance(obj, _NamedTypeBase)), \
+		assert (isinstance(obj, NamedValBase)
+			or isinstance(obj, NamedTypeBase)), \
 			type(obj)
 		self.__obj = obj
 	def obj(self):
@@ -393,7 +393,7 @@ class TickRange(_ConRangeBase):
 		visitor.visitTickRange(self)
 
 # An unconstrained range, such as `natural range <>`
-class UnconRange(_Base):
+class UnconRange(Base):
 	def __init__(self, is_natural=True, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		self.__is_natural = is_natural

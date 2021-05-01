@@ -9,11 +9,11 @@ from vhdl_generic_port_map_ast import *
 from enum import Enum, auto
 #--------
 # for `isinstance`
-class _BehavStmt(_Base, HasNameBase):
+class BehavStmt(Base, HasNameBase):
 	#--------
 	def __init__(self, *, name="", src_loc_at=1):
 		#--------
-		_Base.__init__(self, src_loc_at=src_loc_at + 1)
+		Base.__init__(self, src_loc_at=src_loc_at + 1)
 		HasNameBase.__init__(self, name=name)
 		#--------
 	#--------
@@ -21,19 +21,19 @@ class _BehavStmt(_Base, HasNameBase):
 		visitor.visitBehav(self)
 	#--------
 #--------
-class Assign(_BehavStmt):
+class Assign(BehavStmt):
 	#--------
 	def __init__(self, left, right, *, name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(left, _Expr), \
+		assert isinstance(left, Expr), \
 			type(left)
 		assert left.is_lvalue(), \
 			type(left)
 		self.__left = left
 
-		_Expr.assert_valid(right)
+		Expr.assert_valid(right)
 		self.__right = BasicLiteral.cast_opt(right)
 		#--------
 	#--------
@@ -51,11 +51,11 @@ class SelAssign(ConcurBase):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert _Expr.is_valid(expr), \
+		assert Expr.is_valid(expr), \
 			type(expr)
 		self.__expr = BasicLiteral.cast_opt(expr)
 
-		assert isinstance(left, _Expr), \
+		assert isinstance(left, Expr), \
 			type(left)
 		assert left.is_lvalue(), \
 			type(left)
@@ -75,7 +75,7 @@ class SelAssign(ConcurBase):
 		visitor.visitSelAssign(self)
 	#--------
 #--------
-class CallProcedure(_BehavStmt):
+class CallProcedure(BehavStmt):
 	#--------
 	def __init__(self, proc_name, assoc_list, *, name="",
 		src_loc_at=1):
@@ -103,7 +103,7 @@ class CallProcedure(_BehavStmt):
 		visitor.visitCallProcedure(self)
 	#--------
 #--------
-class While(_BehavStmt):
+class While(BehavStmt):
 	#--------
 	def __init__(self, expr, body=[], *, name="", src_loc_at=1):
 		#--------
@@ -121,7 +121,7 @@ class While(_BehavStmt):
 	def visit(self, visitor):
 		visitor.visitWhile(self)
 	#--------
-class For(_BehavStmt):
+class For(BehavStmt):
 	#--------
 	def __init__(self, var_name, rang, body=[], *, name="", src_loc_at=1):
 		#--------
@@ -142,7 +142,7 @@ class For(_BehavStmt):
 	def visit(self, visitor):
 		visitor.visitFor(self)
 	#--------
-class Next(_BehavStmt):
+class Next(BehavStmt):
 	#--------
 	def __init__(self, loop_label=None, cond=None, *, name="",
 		src_loc_at=1):
@@ -152,7 +152,7 @@ class Next(_BehavStmt):
 		self.__loop_label = loop_label
 
 		if cond is not None:
-			_Expr.assert_valid(cond)
+			Expr.assert_valid(cond)
 			self.__cond = BasicLiteral.cast_opt(cond)
 		else:
 			self.__cond = cond
@@ -166,7 +166,7 @@ class Next(_BehavStmt):
 	def visit(self, visitor):
 		visitor.visitNext(self)
 	#--------
-class Exit(_BehavStmt):
+class Exit(BehavStmt):
 	#--------
 	def __init__(self, loop_label=None, cond=None, *, name="",
 		src_loc_at=1):
@@ -176,7 +176,7 @@ class Exit(_BehavStmt):
 		self.__loop_label = loop_label
 
 		if cond is not None:
-			_Expr.assert_valid(cond)
+			Expr.assert_valid(cond)
 			self.__cond = BasicLiteral.cast_opt(cond)
 		else:
 			self.__cond = cond
@@ -191,7 +191,7 @@ class Exit(_BehavStmt):
 		visitor.visitExit(self)
 	#--------
 #--------
-class If(_BehavStmt):
+class If(BehavStmt):
 	def __init__(self, nodes=[], *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		self.__nodes = nodes
@@ -201,7 +201,7 @@ class If(_BehavStmt):
 		return visitor.visitIf(self)
 
 # This is for both `if` and `if ... generate`.
-class NodeIf(_Base):
+class NodeIf(Base):
 	#--------
 	def __init__(self, cond, body=[], *, src_loc_at=1):
 		#--------
@@ -219,7 +219,7 @@ class NodeIf(_Base):
 	def visit(self, visitor):
 		visitor.visitNodeIf(self)
 	#--------
-class NodeElsif(_Base):
+class NodeElsif(Base):
 	#--------
 	def __init__(self, cond, body=[], *, src_loc_at=1):
 		#--------
@@ -237,7 +237,7 @@ class NodeElsif(_Base):
 	def visit(self, visitor):
 		visitor.visitNodeElsif(self)
 	#--------
-class NodeElse(_Base):
+class NodeElse(Base):
 	def __init__(self, body=[], *, src_loc_at=1)
 		super().__init__(src_loc_at=src_loc_at + 1)
 		self.__body = body
@@ -246,7 +246,7 @@ class NodeElse(_Base):
 	def visit(self, visitor):
 		visitor.visitNodeElse(self)
 #--------
-class Case(_BehavStmt):
+class Case(BehavStmt):
 	#--------
 	def __init__(self, is_qmark=False, nodes=[], *, name="", src_loc_at=1):
 		#--------
@@ -265,7 +265,7 @@ class Case(_BehavStmt):
 		visitor.visitCase(self)
 	#--------
 
-class NodeCaseWhen(_Base):
+class NodeCaseWhen(Base):
 	#--------
 	def __init__(self, choices, body=[], *, src_loc_at=1):
 		#--------
@@ -285,33 +285,33 @@ class NodeCaseWhen(_Base):
 		visitor.visitNodeCaseWhen(self)
 	#--------
 #--------
-class Return(_BehavStmt):
+class Return(BehavStmt):
 	def __init__(self, expr, *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 
-		_Expr.assert_valid(expr)
+		Expr.assert_valid(expr)
 		self.__expr = BasicLiteral.cast_opt(expr)
 	def expr(self):
 		return self.__expr
 	def visit(self):
 		visitor.visitReturn(self)
 #--------
-class Null(_BehavStmt):
+class Null(BehavStmt):
 	def __init__(self, *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitNull(self)
 #--------
-class Report(_BehavStmt):
+class Report(BehavStmt):
 	#--------
 	def __init__(self, expr, severity_expr, *, name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		_Expr.assert_valid(expr)
+		Expr.assert_valid(expr)
 		self.__expr = BasicLiteral.cast_opt(expr)
 
-		_Expr.assert_valid(severity_expr)
+		Expr.assert_valid(severity_expr)
 		self.__severity_expr = BasicLiteral.cast_opt(severity_expr)
 		#--------
 	#--------

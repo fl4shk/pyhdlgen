@@ -12,7 +12,7 @@ from vhdl_concur_ast import *
 from enum import Enum, auto
 import inspect
 #--------
-class _Base:
+class Base:
 	#--------
 	def __init__(self, *, src_loc_at=1):
 		frame = inspect.stack()[src_loc_at].frame
@@ -29,7 +29,7 @@ class _Base:
 	def lineno(self):
 		return self.__lineno
 	def _set_parent(self, n_parent):
-		assert isinstance(n_parent, _Base), \
+		assert isinstance(n_parent, Base), \
 			type(n_parent)
 		self.__parent = n_parent
 	def parent(self):
@@ -40,7 +40,7 @@ class _Base:
 	#--------
 #--------
 # Comment
-class Com(_Base):
+class Com(Base):
 	#--------
 	def __init__(self, val, *, src_loc_at=1):
 		#--------
@@ -57,12 +57,12 @@ class Com(_Base):
 	def visit(self, visitor):
 		visitor.visitCom(self)
 	#--------
-class Others(_Base):
+class Others(Base):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitOthers(self)
-class All(_Base):
+class All(Base):
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
@@ -80,7 +80,7 @@ class HasNameBase:
 	def name(self):
 		return self.__name
 	#--------
-class NamedObjList(_Base):
+class NamedObjList(Base):
 	#--------
 	def __init__(self, *, src_loc_at=1):
 		#--------
@@ -107,7 +107,7 @@ class NamedObjList(_Base):
 		self[key] = val
 	def __setitem__(self, key, val):
 		if NameDict.key_goes_in_dct(key):
-			assert isinstance(val, _Base), \
+			assert isinstance(val, Base), \
 				type(val)
 			assert isinstance(val, HasNameBase), \
 				type(val)
@@ -132,10 +132,10 @@ class NamedObjList(_Base):
 		pass
 
 	def append(self, val):
-		assert (isinstance(elem, _Base) or isinstance(elem, tuple)), \
+		assert (isinstance(elem, Base) or isinstance(elem, tuple)), \
 			type(elem)
 
-		if isinstance(elem, _Base):
+		if isinstance(elem, Base):
 			self.lst().append(val)
 			return self.lst()[-1]
 		else: # if isinstance(elem, tuple):
@@ -143,7 +143,7 @@ class NamedObjList(_Base):
 				len(elem)
 			assert isinstance(elem[0], str), \
 				type(elem[0])
-			assert isinstance(elem[1], _Base), \
+			assert isinstance(elem[1], Base), \
 				type(elem[1])
 			self[elem[0]] = elem[1]
 			return self[elem[0]]
@@ -166,7 +166,7 @@ class NamedObjList(_Base):
 #		visitor.visitBehavStmtNol(self)
 #	#--------
 #	def assert_valid_val(self, val):
-#		assert isinstance(val, _BehavStmt), \
+#		assert isinstance(val, BehavStmt), \
 #			type(val)
 #	#--------
 ## This is not a class to contain `DeclComponent` and friends, but it is to

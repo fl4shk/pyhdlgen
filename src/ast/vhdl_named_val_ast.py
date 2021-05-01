@@ -9,18 +9,18 @@ from vhdl_type_ast import *
 from enum import Enum, auto
 #--------
 # Named values, such as ports and signals
-class _NamedValBase(_Expr, HasNameBase):
+class NamedValBase(Expr, HasNameBase):
 	#--------
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		#--------
-		_Expr.__init__(self, src_loc_at=src_loc_at + 1)
+		Expr.__init__(self, src_loc_at=src_loc_at + 1)
 		HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(typ, _InstableTypeBase), \
+		assert isinstance(typ, InstableTypeBase), \
 			type(typ)
 		self.__typ = typ
 
-		assert ((def_val is None) or isinstance(def_val, _Expr)), \
+		assert ((def_val is None) or isinstance(def_val, Expr)), \
 			type(def_val)
 		self.__def_val = def_val
 		#--------
@@ -33,8 +33,26 @@ class _NamedValBase(_Expr, HasNameBase):
 	def visit(self, visitor):
 		visitor.visitNamedValBase(self)
 	#--------
+	def left(self):
+		return AttrLeft(self)
+	def right(self):
+		return AttrRight(self)
+
+	def high(self):
+		return AttrHigh(self)
+	def low(self):
+		return AttrLow(self)
+
+	def length(self):
+		return AttrLength(self)
+	def __len__(self):
+		return self.length()
+
+	def ascending(self):
+		return AttrAscending(self)
+	#--------
 #--------
-class Signal(_NamedValBase):
+class Signal(NamedValBase):
 	#--------
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name, 
@@ -46,7 +64,7 @@ class Signal(_NamedValBase):
 	def is_lvalue(self):
 		return True
 	#--------
-class Variable(_NamedValBase):
+class Variable(NamedValBase):
 	#--------
 	def __init__(self, typ, def_val=None, is_shared=False, *, name="",
 		src_loc_at=1):
@@ -66,7 +84,7 @@ class Variable(_NamedValBase):
 	def is_lvalue(self):
 		return True
 	#--------
-class Constant(_NamedValBase):
+class Constant(NamedValBase):
 	#--------
 	def __init__(self, typ, def_val, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name,
@@ -79,7 +97,7 @@ class Constant(_NamedValBase):
 		return True
 	#--------
 #--------
-class _GenericValBase(_NamedValBase):
+class GenericValBase(NamedValBase):
 	#--------
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name,
@@ -92,21 +110,21 @@ class _GenericValBase(_NamedValBase):
 		return True
 	#--------
 # Not a `constant` generic, but basically equivalent to one
-class RegularGeneric(_GenericValBase):
+class RegularGeneric(GenericValBase):
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitRegularGeneric(self)
 # A `constant` generic
-class ConstantGeneric(_GenericValBase):
+class ConstantGeneric(GenericValBase):
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		super().__init__(typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitConstantGeneric(self)
 #--------
-class _PortBase(_NamedValBase):
+class PortBase(NamedValBase):
 	#--------
 	class Direction(Enum):
 		In = auto()
@@ -119,7 +137,7 @@ class _PortBase(_NamedValBase):
 		super().__init__(typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 		#--------
-		Direction = _PortBase.Direction
+		Direction = PortBase.Direction
 
 		STR_DIRECTION_MAP \
 			= {
@@ -139,24 +157,24 @@ class _PortBase(_NamedValBase):
 		visitor.visitPortBase(self)
 	#--------
 	def is_lvalue(self):
-		return ((self.direction() == _PortBase.Direction.Out)
-			or (self.direction() == _PortBase.Direction.Inout))
+		return ((self.direction() == PortBase.Direction.Out)
+			or (self.direction() == PortBase.Direction.Inout))
 	#--------
-class Port(_PortBase)
+class Port(PortBase)
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):
 		super().__init__(direction, typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitPort(self)
-class SigPort(_PortBase)
+class SigPort(PortBase)
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):
 		super().__init__(direction, typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitSigPort(self)
-class VarPort(_PortBase)
+class VarPort(PortBase)
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):
 		super().__init__(direction, typ, def_val, name=name,
