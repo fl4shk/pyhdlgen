@@ -3,34 +3,28 @@
 #--------
 from misc_util import *
 
-#from vhdl_ast.vhdl_misc_ast import *
-##from vhdl_ast.vhdl_expr_ast import *
-#from vhdl_ast.vhdl_named_val_ast import *
-#from vhdl_ast.vhdl_behav_ast import *
-#from vhdl_ast.vhdl_type_ast import *
-
-import vhdl_ast.vhdl_ast as vhdl_ast
+import vhdl_ast.vhdl_ast as ast
 
 from enum import Enum, auto
 #--------
-class SubprogramBase(vhdl_ast.Base, vhdl_ast.HasNameBase):
+class SubprogramBase(ast.Base, ast.HasNameBase):
 	#--------
-	def __init__(self, param_list=vhdl_ast.NamedObjList(),
-		decls=vhdl_ast.NamedObjList(), body=vhdl_ast.NamedObjList(), *,
+	def __init__(self, param_list=ast.NamedObjList(),
+		decls=ast.NamedObjList(), body=ast.NamedObjList(), *,
 		name="", src_loc_at=1):
 		#--------
-		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
-		vhdl_ast.HasNameBase.__init__(self, name=name)
+		ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		ast.HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(param_list, vhdl_ast.NamedObjList), \
+		assert isinstance(param_list, ast.NamedObjList), \
 			type(param_list)
 		self.__param_list = param_list
 
-		assert isinstance(decls, vhdl_ast.NamedObjList), \
+		assert isinstance(decls, ast.NamedObjList), \
 			type(decls)
 		self.__decls = decls
 
-		assert isinstance(body, vhdl_ast.NamedObjList), \
+		assert isinstance(body, ast.NamedObjList), \
 			type(body)
 		self.__body = body
 		#--------
@@ -47,8 +41,8 @@ class SubprogramBase(vhdl_ast.Base, vhdl_ast.HasNameBase):
 	#--------
 class Procedure(SubprogramBase):
 	#--------
-	def __init__(self, param_list=vhdl_ast.NamedObjList(),
-		decls=vhdl_ast.NamedObjList(), body=vhdl_ast.NamedObjList(), *,
+	def __init__(self, param_list=ast.NamedObjList(),
+		decls=ast.NamedObjList(), body=ast.NamedObjList(), *,
 		name="", src_loc_at=1):
 		super().__init__(param_list, decls, body, name=name,
 			src_loc_at=src_loc_at + 1)
@@ -57,7 +51,7 @@ class Procedure(SubprogramBase):
 		visitor.visitProcedure(self)
 	#--------
 	def call(self, assoc_list):
-		return vhdl_ast.CallProcedure(self, assoc_list)
+		return ast.CallProcedure(self, assoc_list)
 	#--------
 class Function(SubprogramBase):
 	#--------
@@ -65,14 +59,14 @@ class Function(SubprogramBase):
 		Pure = auto()
 		Impure = auto()
 	#--------
-	def __init__(self, ret_type, param_list=vhdl_ast.NamedObjList(),
-		decls=vhdl_ast.NamedObjList(), body=vhdl_ast.NamedObjList(),
+	def __init__(self, ret_type, param_list=ast.NamedObjList(),
+		decls=ast.NamedObjList(), body=ast.NamedObjList(),
 		kind="pure", is_op=False, *, name="", src_loc_at=1):
 		#--------
 		super().__init__(param_list, decls, body, name=name,
 			src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(ret_type, vhdl_ast.InstableTypeBase), \
+		assert isinstance(ret_type, ast.InstableTypeBase), \
 			type(ret_type)
 		self.__ret_type = ret_type
 
@@ -100,6 +94,6 @@ class Function(SubprogramBase):
 		visitor.visitFunction(self)
 	#--------
 	def call(self, assoc_list):
-		return vhdl_ast.CallFunction(self, assoc_list)
+		return ast.CallFunction(self, assoc_list)
 	#--------
 #--------

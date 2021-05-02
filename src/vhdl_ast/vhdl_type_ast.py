@@ -2,16 +2,13 @@
 
 #--------
 from misc_util import *
-#from vhdl_ast.vhdl_misc_ast import *
-#from vhdl_ast.vhdl_expr_ast import *
-#from vhdl_ast.vhdl_named_val_ast import *
 
-import vhdl_ast.vhdl_ast as vhdl_ast
+import vhdl_ast.vhdl_ast as ast
 
 from enum import Enum, auto
 #--------
 # To make `isinstance(obj, TypeBase)` work
-class TypeBase(vhdl_ast.Base):
+class TypeBase(ast.Base):
 	#--------
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
@@ -19,14 +16,15 @@ class TypeBase(vhdl_ast.Base):
 	def visit(self, visitor):
 		visitor.visitTypeBase(self)
 	#--------
-	## Whether or not we can instantiate a `vhdl_ast.NamedValBase` of this type
+	## Whether or not we can instantiate a `ast.NamedValBase` of this
+	## type
 	#def is_instable(self):
 	#	return False
 	#def is_unconstrained(self):
 	#	return False
 	#--------
 #--------
-# vhdl_ast.Base class for a type that can be instantiated directly (i.e.
+# ast.Base class for a type that can be instantiated directly (i.e.
 # not a `Record` or `Array`)
 class InstableTypeBase(TypeBase):
 	def __init__(self, *, src_loc_at=1):
@@ -35,22 +33,22 @@ class InstableTypeBase(TypeBase):
 		visitor.visitInstableTypeBase(self)
 #--------
 # For `isinstance(obj, NamedTypeBase)`
-class NamedTypeBase(InstableTypeBase, vhdl_ast.HasNameBase):
+class NamedTypeBase(InstableTypeBase, ast.HasNameBase):
 	#--------
 	def __init__(self, *, name="", src_loc_at=1):
-		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
-		vhdl_ast.HasNameBase.__init__(self, name=name)
+		ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		ast.HasNameBase.__init__(self, name=name)
 	#--------
 	def visit(self, visitor):
 		visitor.visitNamedTypeBase(self)
 	#--------
-	## Create a `vhdl_ast.Qualified` expression
+	## Create a `ast.Qualified` expression
 	#def qual_expr(self, expr):
-	#	return vhdl_ast.Qualified(self, expr)
+	#	return ast.Qualified(self, expr)
 
-	## Create a `vhdl_ast.Cast` expression
+	## Create a `ast.Cast` expression
 	#def cast_expr(self, expr):
-	#	return vhdl_ast.Cast(self, expr)
+	#	return ast.Cast(self, expr)
 	#--------
 
 # `type whatever_t is array(0 to 42) of asdf_t;`
@@ -358,7 +356,7 @@ class Record(TypeBase):
 	#	pass
 	#--------
 
-# vhdl_ast.Base class for a constrained range, used for 
+# ast.Base class for a constrained range, used for 
 # `isinstance(obj, ConRangeBase)`
 class ConRangeBase(TypeBase):
 	def __init__(self, *, src_loc_at=1):
@@ -372,10 +370,10 @@ class Range(ConRangeBase):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		self.__high = vhdl_ast.BasicLiteral.cast_opt(high)
+		self.__high = ast.BasicLiteral.cast_opt(high)
 		self.high().assert_const()
 
-		self.__low = vhdl_ast.BasicLiteral.cast_opt(low)
+		self.__low = ast.BasicLiteral.cast_opt(low)
 		self.low().assert_const(low)
 
 		self.__is_downto = is_downto
@@ -400,7 +398,7 @@ class RangeW(Range):
 	def __init__(self, width, low=0, is_downto=True, *, src_loc_at=1):
 		super().__init__ \
 		(
-			high=vhdl_ast.BasicLiteral.cast_opt(width) - 1,
+			high=ast.BasicLiteral.cast_opt(width) - 1,
 			low=low,
 			is_downto=is_downto,
 			src_loc_at=src_loc_at + 1,
@@ -412,7 +410,7 @@ class AttrTypeRange(ConRangeBase):
 
 		# This isn't a perfect check since `DeclType` might be
 		# unconstrained
-		assert (isinstance(obj, vhdl_ast.NamedValBase)
+		assert (isinstance(obj, ast.NamedValBase)
 			or isinstance(obj, NamedTypeBase)), \
 			type(obj)
 		self.__obj = obj
@@ -426,7 +424,7 @@ class AttrTypeReverseRange(ConRangeBase):
 
 		# This isn't a perfect check since `DeclType` might be
 		# unconstrained
-		assert (isinstance(obj, vhdl_ast.NamedValBase)
+		assert (isinstance(obj, ast.NamedValBase)
 			or isinstance(obj, NamedTypeBase)), \
 			type(obj)
 		self.__obj = obj
@@ -436,7 +434,7 @@ class AttrTypeReverseRange(ConRangeBase):
 		visitor.visitAttrTypeReverseRange(self)
 
 # An unconstrained range, such as `natural range <>`
-class UnconRange(vhdl_ast.Base):
+class UnconRange(ast.Base):
 	def __init__(self, is_natural=True, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		self.__is_natural = is_natural

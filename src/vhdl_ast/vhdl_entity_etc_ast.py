@@ -2,27 +2,25 @@
 
 #--------
 from misc_util import *
-#from vhdl_misc_ast import *
-#from vhdl_misc_ast import *
-#from vhdl_expr_ast import *
-import vhdl_ast.vhdl_ast as vhdl_ast
+
+import vhdl_ast.vhdl_ast as ast
 
 from enum import Enum, auto
 #--------
-class Component(vhdl_ast.Base, vhdl_ast.HasNameBase):
+class Component(ast.Base, ast.HasNameBase):
 	#--------
-	def __init__(self, generics=vhdl_ast.NamedObjList(),
-		ports=vhdl_ast.NamedObjList(), *,
+	def __init__(self, generics=ast.NamedObjList(),
+		ports=ast.NamedObjList(), *,
 		name="", src_loc_at=1):
 		#--------
-		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
-		vhdl_ast.HasNameBase.__init__(self, name=name)
+		ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		ast.HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(generics, vhdl_ast.NamedObjList), \
+		assert isinstance(generics, ast.NamedObjList), \
 			type(generics)
 		self.__generics = generics
 
-		assert isinstance(ports, vhdl_ast.NamedObjList), \
+		assert isinstance(ports, ast.NamedObjList), \
 			type(ports)
 		self.__ports = ports
 		#--------
@@ -36,30 +34,30 @@ class Component(vhdl_ast.Base, vhdl_ast.HasNameBase):
 		visitor.visitComponent(self)
 	#--------
 #--------
-class Entity(vhdl_ast.Base, vhdl_ast.HasNameBase):
+class Entity(ast.Base, ast.HasNameBase):
 	#--------
-	def __init__(self, generics=vhdl_ast.NamedObjList(),
-		ports=vhdl_ast.NamedObjList(), decls=vhdl_ast.NamedObjList(),
-		archs=vhdl_ast.NamedObjList(), *, name="", src_loc_at=1):
+	def __init__(self, generics=ast.NamedObjList(),
+		ports=ast.NamedObjList(), decls=ast.NamedObjList(),
+		archs=ast.NamedObjList(), *, name="", src_loc_at=1):
 		#--------
-		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
-		vhdl_ast.HasNameBase.__init__(self, name=name)
+		ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		ast.HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(generics, vhdl_ast.NamedObjList), \
+		assert isinstance(generics, ast.NamedObjList), \
 			type(generics)
 		self.__generics = generics
 
-		assert isinstance(ports, vhdl_ast.NamedObjList), \
+		assert isinstance(ports, ast.NamedObjList), \
 			type(ports)
 		self.__ports = ports
 
 		# declarations
-		assert isinstance(decls, vhdl_ast.NamedObjList), \
+		assert isinstance(decls, ast.NamedObjList), \
 			type(decls)
 		self.__decls = decls
 
 		# architectures
-		assert isinstance(archs, vhdl_ast.NamedObjList), \
+		assert isinstance(archs, ast.NamedObjList), \
 			type(archs)
 		self.__archs = archs
 		#--------
@@ -77,22 +75,22 @@ class Entity(vhdl_ast.Base, vhdl_ast.HasNameBase):
 		visitor.visitEntity(self)
 	#--------
 #--------
-class Arch(vhdl_ast.Base, vhdl_ast.HasNameBase):
+class Arch(ast.Base, ast.HasNameBase):
 	#--------
-	def __init__(self, decls=vhdl_ast.NamedObjList(),
-		body=vhdl_ast.NamedObjList(), *,
+	def __init__(self, decls=ast.NamedObjList(),
+		body=ast.NamedObjList(), *,
 		name="", src_loc_at=1):
 		#--------
-		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
-		vhdl_ast.HasNameBase.__init__(self, name=name)
+		ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		ast.HasNameBase.__init__(self, name=name)
 		#--------
 		# declarations
-		assert isinstance(decls, vhdl_ast.NamedObjList), \
+		assert isinstance(decls, ast.NamedObjList), \
 			type(decls)
 		self.__decls = decls
 
 		# Unlabelled statements body
-		assert isinstance(body, vhdl_ast.NamedObjList), \
+		assert isinstance(body, ast.NamedObjList), \
 			type(body)
 		self.__body = body
 		#--------
@@ -106,40 +104,44 @@ class Arch(vhdl_ast.Base, vhdl_ast.HasNameBase):
 		visitor.visitArch(self)
 	#--------
 #--------
-class Package(vhdl_ast.Base, vhdl_ast.HasNameBase):
+class Package(ast.Base, ast.HasNameBase):
 	#--------
-	def __init__(self, generics=vhdl_ast.NamedObjList(),
-		decls=vhdl_ast.NamedObjList(), *, name="", src_loc_at=1):
+	def __init__(self, decls=ast.NamedObjList(), is_extern=False, *,
+		name="", src_loc_at=1):
 		#--------
-		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
-		vhdl_ast.HasNameBase.__init__(self, name=name)
+		ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		ast.HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(generics, vhdl_ast.NamedObjList), \
-			type(generics)
-		self.__generics = generics
+		#assert isinstance(generics, ast.NamedObjList), \
+		#	type(generics)
+		#self.__generics = generics
 
-		assert isinstance(decls, vhdl_ast.NamedObjList), \
+		assert isinstance(decls, ast.NamedObjList), \
 			type(decls)
 		self.__decls = decls
+
+		self.__is_extern = is_extern
 		#--------
 	#--------
-	def generics(self):
-		return self.__generics
+	#def generics(self):
+	#	return self.__generics
 	def decls(self):
 		return self.__decls
+	def is_extern(self):
+		return self.__is_extern
 	#--------
 	def visit(self, visitor):
 		visitor.visitPackage(self)
 	#--------
-class PackageBody(vhdl_ast.Base, vhdl_ast.HasNameBase):
+class PackageBody(ast.Base, ast.HasNameBase):
 	#--------
-	def __init__(self, decls=vhdl_ast.NamedObjList(), *, name="",
+	def __init__(self, decls=ast.NamedObjList(), *, name="",
 		src_loc_at=1):
 		#--------
-		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
-		vhdl_ast.HasNameBase.__init__(self, name=name)
+		ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		ast.HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(decls, vhdl_ast.NamedObjList), \
+		assert isinstance(decls, ast.NamedObjList), \
 			type(decls)
 		self.__decls = decls
 		#--------
@@ -150,14 +152,14 @@ class PackageBody(vhdl_ast.Base, vhdl_ast.HasNameBase):
 	def visit(self, visitor):
 		visitor.visitPackageBody(self)
 	#--------
-class Use(vhdl_ast.Base):
+class Use(ast.Base):
 	def __init__(self, sel_name_lst=[], *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		assert isinstance(sel_name_lst, list), \
 			type(sel_name_lst)
 		for sel_name in sel_name_lst:
-			assert isinstance(sel_name, vhdl_ast.SelName), \
+			assert isinstance(sel_name, ast.SelName), \
 				type(sel_name)
 
 		self.__sel_name_lst = sel_name_lst

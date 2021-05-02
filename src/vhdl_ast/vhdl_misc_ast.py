@@ -2,8 +2,6 @@
 
 #--------
 from misc_util import *
-#from vhdl_ast.vhdl_behav_ast import *
-#from vhdl_ast.vhdl_concur_ast import *
 
 from enum import Enum, auto
 import inspect

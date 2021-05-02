@@ -3,15 +3,11 @@
 #--------
 from misc_util import *
 
-#from vhdl_ast.vhdl_misc_ast import *
-#from vhdl_ast.vhdl_assoc_list_ast import *
-#from vhdl_ast.vhdl_subprogram_ast import *
-#from vhdl_ast.vhdl_name_ast import *
-import vhdl_ast.vhdl_ast as vhdl_ast
+import vhdl_ast.vhdl_ast as ast
 
 from enum import Enum, auto
 #--------
-class Expr(vhdl_ast.Base):
+class Expr(ast.Base):
 	#--------
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
@@ -61,14 +57,14 @@ class Expr(vhdl_ast.Base):
 			type(other)
 	#--------
 	def eq(self, other, *, name=""):
-		return vhdl_ast.Assign(self, other, name=name)
+		return ast.Assign(self, other, name=name)
 	def seleq(self, expr, sel_waves, *, name=""):
-		return vhdl_ast.SelAssign(expr, self, sel_waves, name=name)
+		return ast.SelAssign(expr, self, sel_waves, name=name)
 
 	def concur_eq(self, other, *, name=""):
-		return vhdl_ast.ConcurAssign(self, other, name=name)
+		return ast.ConcurAssign(self, other, name=name)
 	def concur_seleq(self, expr, sel_waves, *, name=""):
-		return vhdl_ast.ConcurSelAssign(expr, self, sel_waves, name=name)
+		return ast.ConcurSelAssign(expr, self, sel_waves, name=name)
 
 	def __getitem__(self, key):
 		return PartSel(self, key)
@@ -306,7 +302,7 @@ class Qualified(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(typ, vhdl_ast.InstableTypeBase), \
+		assert isinstance(typ, ast.InstableTypeBase), \
 			type(typ)
 		self.__typ = typ
 
@@ -338,7 +334,7 @@ class Cast(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(typ, vhdl_ast.InstableTypeBase), \
+		assert isinstance(typ, ast.InstableTypeBase), \
 			type(typ)
 		self.__typ = typ
 
@@ -400,7 +396,7 @@ class Unop(Expr):
 class Binop(Expr):
 	#--------
 	class Kind(Enum):
-		#vhdl_ast.Assign = auto()
+		#ast.Assign = auto()
 
 		Add = auto()
 		Sub = auto()
@@ -500,14 +496,14 @@ class PartSel(Expr):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		# Object to part-select
-		assert (isinstance(val, vhdl_ast.NamedValBase)
+		assert (isinstance(val, ast.NamedValBase)
 			or isinstance(val, PartSel) or isinstance(val, MembSel)), \
 			type(val)
 		self.__val = val
 
 		# Index, range, or slice
 		assert (Expr.is_valid(ind_rang)
-			or isinstance(ind_rang, vhdl_ast.ConRangeBase)
+			or isinstance(ind_rang, ast.ConRangeBase)
 			or isinstance(ind_rang, slice)), \
 			type(ind_rang)
 
@@ -559,7 +555,7 @@ class MembSel(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert (isinstance(val, vhdl_ast.NamedValBase)
+		assert (isinstance(val, ast.NamedValBase)
 			or isinstance(val, PartSel) or isinstance(val, MembSel)), \
 			type(val)
 		self.__val = val
@@ -609,16 +605,16 @@ class CallFunction(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert (isinstance(function, vhdl_ast.SmplName)
-			or isinstance(function, vhdl_ast.SelName)
-			or isinstance(function, vhdl_ast.Function)), \
+		assert (isinstance(function, ast.SmplName)
+			or isinstance(function, ast.SelName)
+			or isinstance(function, ast.Function)), \
 			type(function)
 		self.__function = function
 
 		#assert (assoc_list is None or isinstance(assoc_list, list)
 		#	or isinstance(assoc_list, dict)), \
 		#	type(assoc_list)
-		assert isinstance(assoc_list, vhdl_ast.AssocList), \
+		assert isinstance(assoc_list, ast.AssocList), \
 			type(assoc_list)
 		self.__assoc_list = assoc_list
 		#--------
@@ -637,18 +633,18 @@ class AttrExprBase(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		#assert isinstance(obj, vhdl_ast.Base), \
+		#assert isinstance(obj, ast.Base), \
 		#	type(obj)
-		#assert isinstance(obj, vhdl_ast.HasNameBase), \
+		#assert isinstance(obj, ast.HasNameBase), \
 		#	type(obj)
-		assert (isinstance(obj, vhdl_ast.NamedValBase)
-			or isinstance(obj, vhdl_ast.NamedTypeBase)), \
+		assert (isinstance(obj, ast.NamedValBase)
+			or isinstance(obj, ast.NamedTypeBase)), \
 			type(obj)
 		self.__obj = obj
 
-		assert (isinstance(inner_obj, vhdl_ast.SmplName)
+		assert (isinstance(inner_obj, ast.SmplName)
 			or Expr.is_valid(inner_obj)
-			or isinstance(inner_obj, vhdl_ast.ConRangeBase)
+			or isinstance(inner_obj, ast.ConRangeBase)
 			or (inner_obj is None)), \
 			type(inner_obj)
 		self.__inner_obj = inner_obj
@@ -766,7 +762,7 @@ class RisingEdge(Expr):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		assert isinstance(obj, vhdl_ast.NamedValBase), \
+		assert isinstance(obj, ast.NamedValBase), \
 			type(obj)
 		self.__obj = obj
 	def obj(self):
@@ -777,7 +773,7 @@ class FallingEdge(Expr):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		assert isinstance(obj, vhdl_ast.NamedValBase), \
+		assert isinstance(obj, ast.NamedValBase), \
 			type(obj)
 		self.__obj = obj
 	def obj(self):

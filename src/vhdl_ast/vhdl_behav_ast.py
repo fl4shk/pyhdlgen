@@ -2,25 +2,18 @@
 
 #--------
 from misc_util import *
-#from vhdl_ast.vhdl_misc_ast import *
-##from vhdl_ast.vhdl_expr_ast import *
-##from vhdl_ast.vhdl_named_val_ast import *
-#from vhdl_ast.vhdl_assoc_list_ast import *
-#from vhdl_ast.vhdl_subprogram_ast import *
-#from vhdl_ast.vhdl_name_ast import *
-#from vhdl_ast.vhdl_type_ast import *
 
-import vhdl_ast.vhdl_ast as vhdl_ast
+import vhdl_ast.vhdl_ast as ast
 
 from enum import Enum, auto
 #--------
 # for `isinstance`
-class BehavStmt(vhdl_ast.Base, vhdl_ast.HasNameBase):
+class BehavStmt(ast.Base, ast.HasNameBase):
 	#--------
 	def __init__(self, *, name="", src_loc_at=1):
 		#--------
-		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
-		vhdl_ast.HasNameBase.__init__(self, name=name)
+		ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		ast.HasNameBase.__init__(self, name=name)
 		#--------
 	#--------
 	def visit(self, visitor):
@@ -33,14 +26,14 @@ class Assign(BehavStmt):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(left, vhdl_ast.Expr), \
+		assert isinstance(left, ast.Expr), \
 			type(left)
 		assert left.is_lvalue(), \
 			type(left)
 		self.__left = left
 
-		vhdl_ast.Expr.assert_valid(right)
-		self.__right = vhdl_ast.BasicLiteral.cast_opt(right)
+		ast.Expr.assert_valid(right)
+		self.__right = ast.BasicLiteral.cast_opt(right)
 		#--------
 	#--------
 	def left(self):
@@ -57,11 +50,11 @@ class SelAssign(BehavStmt):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert vhdl_ast.Expr.is_valid(expr), \
+		assert ast.Expr.is_valid(expr), \
 			type(expr)
-		self.__expr = vhdl_ast.BasicLiteral.cast_opt(expr)
+		self.__expr = ast.BasicLiteral.cast_opt(expr)
 
-		assert isinstance(left, vhdl_ast.Expr), \
+		assert isinstance(left, ast.Expr), \
 			type(left)
 		assert left.is_lvalue(), \
 			type(left)
@@ -88,16 +81,16 @@ class CallProcedure(BehavStmt):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert (isinstance(procedure, vhdl_ast.SmplName)
-			or isinstance(procedure, vhdl_ast.SelName)
-			or isinstance(procedure, vhdl_ast.Procedure)), \
+		assert (isinstance(procedure, ast.SmplName)
+			or isinstance(procedure, ast.SelName)
+			or isinstance(procedure, ast.Procedure)), \
 			type(procedure)
 		self.__procedure = procedure
 
 		#assert (assoc_list is None or isinstance(assoc_list, list)
 		#	or isinstance(assoc_list, dict)), \
 		#	type(assoc_list)
-		assert isinstance(assoc_list, vhdl_ast.AssocList), \
+		assert isinstance(assoc_list, ast.AssocList), \
 			type(assoc_list)
 		self.__assoc_list = assoc_list
 		#--------
@@ -113,15 +106,15 @@ class CallProcedure(BehavStmt):
 #--------
 class While(BehavStmt):
 	#--------
-	def __init__(self, expr, body=vhdl_ast.NamedObjList(), *, name="",
+	def __init__(self, expr, body=ast.NamedObjList(), *, name="",
 		src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		vhdl_ast.Expr.assert_valid(expr)
-		self.__expr = vhdl_ast.BasicLiteral.cast_opt(expr)
+		ast.Expr.assert_valid(expr)
+		self.__expr = ast.BasicLiteral.cast_opt(expr)
 
-		assert isinstance(body, vhdl_ast.NamedObjList), \
+		assert isinstance(body, ast.NamedObjList), \
 			type(body)
 		self.__body = body
 		#--------
@@ -136,20 +129,20 @@ class While(BehavStmt):
 	#--------
 class For(BehavStmt):
 	#--------
-	def __init__(self, var_name, rang, body=vhdl_ast.NamedObjList(), *,
+	def __init__(self, var_name, rang, body=ast.NamedObjList(), *,
 		name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(var_name, vhdl_ast.SmplName), \
+		assert isinstance(var_name, ast.SmplName), \
 			type(var_name)
 		self.__var_name = var_name
 
-		assert isinstance(rang, vhdl_ast.ConRangeBase), \
+		assert isinstance(rang, ast.ConRangeBase), \
 			type(rang)
 		self.__rang = rang
 
-		assert isinstance(body, vhdl_ast.NamedObjList), \
+		assert isinstance(body, ast.NamedObjList), \
 			type(body)
 		self.__body = body
 		#--------
@@ -171,13 +164,13 @@ class Next(BehavStmt):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(loop_label, vhdl_ast.SmplName), \
+		assert isinstance(loop_label, ast.SmplName), \
 			type(loop_label)
 		self.__loop_label = loop_label
 
 		if cond is not None:
-			vhdl_ast.Expr.assert_valid(cond)
-			self.__cond = vhdl_ast.BasicLiteral.cast_opt(cond)
+			ast.Expr.assert_valid(cond)
+			self.__cond = ast.BasicLiteral.cast_opt(cond)
 		else:
 			self.__cond = cond
 		#--------
@@ -197,13 +190,13 @@ class Exit(BehavStmt):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(loop_label, vhdl_ast.SmplName), \
+		assert isinstance(loop_label, ast.SmplName), \
 			type(loop_label)
 		self.__loop_label = loop_label
 
 		if cond is not None:
-			vhdl_ast.Expr.assert_valid(cond)
-			self.__cond = vhdl_ast.BasicLiteral.cast_opt(cond)
+			ast.Expr.assert_valid(cond)
+			self.__cond = ast.BasicLiteral.cast_opt(cond)
 		else:
 			self.__cond = cond
 		#--------
@@ -230,17 +223,17 @@ class If(BehavStmt):
 		return visitor.visitIf(self)
 
 # This is for both `if` and `if ... generate`.
-class NodeIf(vhdl_ast.Base):
+class NodeIf(ast.Base):
 	#--------
-	def __init__(self, cond, body=vhdl_ast.NamedObjList(), *,
+	def __init__(self, cond, body=ast.NamedObjList(), *,
 		src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		vhdl_ast.Expr.assert_valid(cond)
-		self.__cond = vhdl_ast.BasicLiteral.cast_opt(cond)
+		ast.Expr.assert_valid(cond)
+		self.__cond = ast.BasicLiteral.cast_opt(cond)
 
-		assert isinstance(body, vhdl_ast.NamedObjList), \
+		assert isinstance(body, ast.NamedObjList), \
 			type(body)
 		self.__body = body
 		#--------
@@ -253,17 +246,17 @@ class NodeIf(vhdl_ast.Base):
 	def visit(self, visitor):
 		visitor.visitNodeIf(self)
 	#--------
-class NodeElsif(vhdl_ast.Base):
+class NodeElsif(ast.Base):
 	#--------
-	def __init__(self, cond, body=vhdl_ast.NamedObjList(), *,
+	def __init__(self, cond, body=ast.NamedObjList(), *,
 		src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		vhdl_ast.Expr.assert_valid(cond)
-		self.__cond = vhdl_ast.BasicLiteral.cast_opt(cond)
+		ast.Expr.assert_valid(cond)
+		self.__cond = ast.BasicLiteral.cast_opt(cond)
 
-		assert isinstance(body, vhdl_ast.NamedObjList), \
+		assert isinstance(body, ast.NamedObjList), \
 			type(body)
 		self.__body = body
 		#--------
@@ -276,11 +269,11 @@ class NodeElsif(vhdl_ast.Base):
 	def visit(self, visitor):
 		visitor.visitNodeElsif(self)
 	#--------
-class NodeElse(vhdl_ast.Base):
-	def __init__(self, body=vhdl_ast.NamedObjList(), *, src_loc_at=1):
+class NodeElse(ast.Base):
+	def __init__(self, body=ast.NamedObjList(), *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		assert isinstance(body, vhdl_ast.NamedObjList), \
+		assert isinstance(body, ast.NamedObjList), \
 			type(body)
 		self.__body = body
 	def body(self):
@@ -310,9 +303,9 @@ class Case(BehavStmt):
 		visitor.visitCase(self)
 	#--------
 
-class NodeCaseWhen(vhdl_ast.Base):
+class NodeCaseWhen(ast.Base):
 	#--------
-	def __init__(self, choices, body=vhdl_ast.NamedObjList(), *,
+	def __init__(self, choices, body=ast.NamedObjList(), *,
 		src_loc_at=1):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
@@ -322,7 +315,7 @@ class NodeCaseWhen(vhdl_ast.Base):
 			type(choices)
 		self.__choices = choices
 
-		assert isinstance(body, vhdl_ast.NamedObjList), \
+		assert isinstance(body, ast.NamedObjList), \
 			type(body)
 		self.__body = body
 		#--------
@@ -340,8 +333,8 @@ class Return(BehavStmt):
 	def __init__(self, expr, *, name="", src_loc_at=1):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 
-		vhdl_ast.Expr.assert_valid(expr)
-		self.__expr = vhdl_ast.BasicLiteral.cast_opt(expr)
+		ast.Expr.assert_valid(expr)
+		self.__expr = ast.BasicLiteral.cast_opt(expr)
 	def expr(self):
 		return self.__expr
 	def visit(self):
@@ -359,11 +352,11 @@ class Report(BehavStmt):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		vhdl_ast.Expr.assert_valid(expr)
-		self.__expr = vhdl_ast.BasicLiteral.cast_opt(expr)
+		ast.Expr.assert_valid(expr)
+		self.__expr = ast.BasicLiteral.cast_opt(expr)
 
-		vhdl_ast.Expr.assert_valid(severity_expr)
-		self.__severity_expr = vhdl_ast.BasicLiteral.cast_opt \
+		ast.Expr.assert_valid(severity_expr)
+		self.__severity_expr = ast.BasicLiteral.cast_opt \
 			(severity_expr)
 		#--------
 	#--------

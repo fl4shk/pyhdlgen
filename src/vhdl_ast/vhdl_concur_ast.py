@@ -2,21 +2,19 @@
 
 #--------
 from misc_util import *
-#from vhdl_ast.vhdl_misc_ast import *
-#from vhdl_ast.vhdl_expr_ast import *
 
-import vhdl_ast.vhdl_ast as vhdl_ast
+import vhdl_ast.vhdl_ast as ast
 
 from enum import Enum, auto
 #--------
 # For `isinstance()`
-class ConcurStmtBase(vhdl_ast.Base, vhdl_ast.HasNameBase):
+class ConcurStmtBase(ast.Base, ast.HasNameBase):
 	#--------
 	def __init__(self, *, name="", src_loc_at=1):
-		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
 
 		# `name` is the label name
-		vhdl_ast.HasNameBase.__init__(self, name=name)
+		ast.HasNameBase.__init__(self, name=name)
 	#--------
 	def visit(self, visitor):
 		visitor.visitConcurrentStmtBase(self)
@@ -28,14 +26,14 @@ class ConcurAssign(ConcurStmtBase):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(left, vhdl_ast.Expr), \
+		assert isinstance(left, ast.Expr), \
 			type(left)
 		assert left.is_lvalue(), \
 			type(left)
 		self.__left = left
 
-		vhdl_ast.Expr.assert_valid(right)
-		self.__right = vhdl_ast.BasicLiteral.cast_opt(right)
+		ast.Expr.assert_valid(right)
+		self.__right = ast.BasicLiteral.cast_opt(right)
 		#--------
 	#--------
 	def left(self):
@@ -52,11 +50,11 @@ class ConcurSelAssign(ConcurStmtBase):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert vhdl_ast.Expr.is_valid(expr), \
+		assert ast.Expr.is_valid(expr), \
 			type(expr)
-		self.__expr = vhdl_ast.BasicLiteral.cast_opt(expr)
+		self.__expr = ast.BasicLiteral.cast_opt(expr)
 
-		assert isinstance(left, vhdl_ast.Expr), \
+		assert isinstance(left, ast.Expr), \
 			type(left)
 		assert left.is_lvalue(), \
 			type(left)
@@ -84,20 +82,20 @@ class GenerateStmtBase(ConcurStmtBase):
 		visitor.visitGenerateStmt(self)
 class ForGenerate(GenerateStmtBase):
 	#--------
-	def __init__(self, var_name, rang, body=vhdl_ast.NamedObjList(), *,
+	def __init__(self, var_name, rang, body=ast.NamedObjList(), *,
 		name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(var_name, vhdl_ast.SmplName), \
+		assert isinstance(var_name, ast.SmplName), \
 			type(var_name)
 		self.__var_name = var_name
 
-		assert isinstance(rang, vhdl_ast.ConRangeBase), \
+		assert isinstance(rang, ast.ConRangeBase), \
 			type(rang)
 		self.__rang = rang
 
-		assert isinstance(body, vhdl_ast.NamedObjList), \
+		assert isinstance(body, ast.NamedObjList), \
 			type(body)
 		self.__body = body
 		#--------
@@ -137,9 +135,9 @@ class CaseGenerate(GenerateStmtBase):
 #--------
 class Block(ConcurStmtBase):
 	#--------
-	def __init__(self, generics=vhdl_ast.NamedObjList(), generic_map=None,
-		ports=vhdl_ast.NamedObjList(), port_map=None,
-		body=vhdl_ast.NamedObjList(), guard_cond=None, *, name="",
+	def __init__(self, generics=ast.NamedObjList(), generic_map=None,
+		ports=ast.NamedObjList(), port_map=None,
+		body=ast.NamedObjList(), guard_cond=None, *, name="",
 		src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
@@ -157,14 +155,14 @@ class Block(ConcurStmtBase):
 			type(port_map)
 		self.__port_map = port_map
 
-		assert isinstance(body, vhdl_ast.NamedObjList)
+		assert isinstance(body, ast.NamedObjList)
 		self.__body = body
 
-		#assert isinstance(guard_cond, vhdl_ast.Expr), \
+		#assert isinstance(guard_cond, ast.Expr), \
 		#	type(guard_cond)
 
-		vhdl_ast.Expr.assert_valid(guard_cond)
-		self.__guard_cond = vhdl_ast.BasicLiteral.cast_opt(guard_cond)
+		ast.Expr.assert_valid(guard_cond)
+		self.__guard_cond = ast.BasicLiteral.cast_opt(guard_cond)
 		#--------
 	#--------
 	def generics(self):
@@ -186,8 +184,8 @@ class Block(ConcurStmtBase):
 #--------
 class Process(ConcurStmtBase):
 	#--------
-	def __init__(self, sens_lst=[], decls=vhdl_ast.NamedObjList(),
-		body=vhdl_ast.NamedObjList(), *, name="", src_loc_at=1):
+	def __init__(self, sens_lst=[], decls=ast.NamedObjList(),
+		body=ast.NamedObjList(), *, name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
@@ -195,11 +193,11 @@ class Process(ConcurStmtBase):
 			type(sens_lst)
 		self.__sens_lst = sens_lst
 
-		assert isinstance(decls, vhdl_ast.NamedObjList), \
+		assert isinstance(decls, ast.NamedObjList), \
 			type(decls)
 		self.__decls = decls
 
-		assert isinstance(body, vhdl_ast.NamedObjList), \
+		assert isinstance(body, ast.NamedObjList), \
 			type(body)
 		self.__body = body
 		#--------
