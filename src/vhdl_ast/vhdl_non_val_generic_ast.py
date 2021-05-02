@@ -3,13 +3,15 @@
 #--------
 from misc_util import *
 
-from vhdl_misc_ast import *
-from vhdl_expr_ast import *
-from vhdl_type_ast import *
+#from vhdl_misc_ast import *
+#from vhdl_expr_ast import *
+#from vhdl_type_ast import *
+
+import vhdl_ast.vhdl_ast as vhdl_ast
 
 from enum import Enum, auto
 #--------
-#class Generic(Base, HasNameBase):
+#class Generic(vhdl_ast.Base, vhdl_ast.HasNameBase):
 #	#--------
 #	class Kind(Enum):
 #		Null = auto()
@@ -20,8 +22,8 @@ from enum import Enum, auto
 #	#--------
 #	def __init__(self, kind, typ, def_val=None, *, name="", src_loc_at=1):
 #		#--------
-#		Base.__init__(self, src_loc_at=src_loc_at + 1)
-#		HasNameBase.__init__(self, name=name)
+#		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+#		vhdl_ast.HasNameBase.__init__(self, name=name)
 #		#--------
 #		Kind = Generic.Kind
 #		assert (isinstance(kind, Kind) or isinstance(kind, str)), \
@@ -46,16 +48,16 @@ from enum import Enum, auto
 #
 #
 #		if (self.kind() == Kind.Null) or (self.kind() == Kind.Constant):
-#			assert isinstance(typ, InstableTypeBase), \
+#			assert isinstance(typ, vhdl_ast.InstableTypeBase), \
 #				type(typ)
 #		elif self.kind() == Kind.Type:
 #			assert (typ == None), \
 #				type(typ)
 #		elif self.kind() == Kind.Function:
-#			assert isinstance(typ, DeclFunctionHeader), \
+#			assert isinstance(typ, vhdl_ast.Function), \
 #				type(typ)
 #		elif self.kind() == Kind.Procedure:
-#			assert isinstance(typ, DeclProcedureHeader), \
+#			assert isinstance(typ, vhdl_ast.Procedure), \
 #				typ(typ)
 #		self.__typ = typ
 #

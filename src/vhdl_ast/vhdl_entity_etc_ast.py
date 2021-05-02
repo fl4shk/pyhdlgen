@@ -3,24 +3,26 @@
 #--------
 from misc_util import *
 #from vhdl_misc_ast import *
-from vhdl_misc_ast import *
-from vhdl_expr_ast import *
+#from vhdl_misc_ast import *
+#from vhdl_expr_ast import *
+import vhdl_ast.vhdl_ast as vhdl_ast
 
 from enum import Enum, auto
 #--------
-class Component(Base, HasNameBase):
+class Component(vhdl_ast.Base, vhdl_ast.HasNameBase):
 	#--------
-	def __init__(self, generics=NamedObjList(), ports=NamedObjList(), *,
+	def __init__(self, generics=vhdl_ast.NamedObjList(),
+		ports=vhdl_ast.NamedObjList(), *,
 		name="", src_loc_at=1):
 		#--------
-		Base.__init__(self, src_loc_at=src_loc_at + 1)
-		HasNameBase.__init__(self, name=name)
+		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		vhdl_ast.HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(generics, NamedObjList), \
+		assert isinstance(generics, vhdl_ast.NamedObjList), \
 			type(generics)
 		self.__generics = generics
 
-		assert isinstance(ports, NamedObjList), \
+		assert isinstance(ports, vhdl_ast.NamedObjList), \
 			type(ports)
 		self.__ports = ports
 		#--------
@@ -34,30 +36,30 @@ class Component(Base, HasNameBase):
 		visitor.visitComponent(self)
 	#--------
 #--------
-class Entity(Base, HasNameBase):
+class Entity(vhdl_ast.Base, vhdl_ast.HasNameBase):
 	#--------
-	def __init__(self, generics=NamedObjList(), ports=NamedObjList(),
-		decls=NamedObjList(), archs=NamedObjList(), *, name="",
-		src_loc_at=1):
+	def __init__(self, generics=vhdl_ast.NamedObjList(),
+		ports=vhdl_ast.NamedObjList(), decls=vhdl_ast.NamedObjList(),
+		archs=vhdl_ast.NamedObjList(), *, name="", src_loc_at=1):
 		#--------
-		Base.__init__(self, src_loc_at=src_loc_at + 1)
-		HasNameBase.__init__(self, name=name)
+		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		vhdl_ast.HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(generics, NamedObjList), \
+		assert isinstance(generics, vhdl_ast.NamedObjList), \
 			type(generics)
 		self.__generics = generics
 
-		assert isinstance(ports, NamedObjList), \
+		assert isinstance(ports, vhdl_ast.NamedObjList), \
 			type(ports)
 		self.__ports = ports
 
 		# declarations
-		assert isinstance(decls, NamedObjList), \
+		assert isinstance(decls, vhdl_ast.NamedObjList), \
 			type(decls)
 		self.__decls = decls
 
 		# architectures
-		assert isinstance(archs, NamedObjList), \
+		assert isinstance(archs, vhdl_ast.NamedObjList), \
 			type(archs)
 		self.__archs = archs
 		#--------
@@ -75,21 +77,22 @@ class Entity(Base, HasNameBase):
 		visitor.visitEntity(self)
 	#--------
 #--------
-class Arch(Base, HasNameBase):
+class Arch(vhdl_ast.Base, vhdl_ast.HasNameBase):
 	#--------
-	def __init__(self, decls=NamedObjList(), body=NamedObjList(), *,
+	def __init__(self, decls=vhdl_ast.NamedObjList(),
+		body=vhdl_ast.NamedObjList(), *,
 		name="", src_loc_at=1):
 		#--------
-		Base.__init__(self, src_loc_at=src_loc_at + 1)
-		HasNameBase.__init__(self, name=name)
+		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		vhdl_ast.HasNameBase.__init__(self, name=name)
 		#--------
 		# declarations
-		assert isinstance(decls, NamedObjList), \
+		assert isinstance(decls, vhdl_ast.NamedObjList), \
 			type(decls)
 		self.__decls = decls
 
 		# Unlabelled statements body
-		assert isinstance(body, NamedObjList), \
+		assert isinstance(body, vhdl_ast.NamedObjList), \
 			type(body)
 		self.__body = body
 		#--------
@@ -103,19 +106,19 @@ class Arch(Base, HasNameBase):
 		visitor.visitArch(self)
 	#--------
 #--------
-class Package(Base, HasNameBase):
+class Package(vhdl_ast.Base, vhdl_ast.HasNameBase):
 	#--------
-	def __init__(self, generics=NamedObjList(), decls=NamedObjList(), *,
-		name="", src_loc_at=1):
+	def __init__(self, generics=vhdl_ast.NamedObjList(),
+		decls=vhdl_ast.NamedObjList(), *, name="", src_loc_at=1):
 		#--------
-		Base.__init__(self, src_loc_at=src_loc_at + 1)
-		HasNameBase.__init__(self, name=name)
+		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		vhdl_ast.HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(generics, NamedObjList), \
+		assert isinstance(generics, vhdl_ast.NamedObjList), \
 			type(generics)
 		self.__generics = generics
 
-		assert isinstance(decls, NamedObjList), \
+		assert isinstance(decls, vhdl_ast.NamedObjList), \
 			type(decls)
 		self.__decls = decls
 		#--------
@@ -128,14 +131,15 @@ class Package(Base, HasNameBase):
 	def visit(self, visitor):
 		visitor.visitPackage(self)
 	#--------
-class PackageBody(Base, HasNameBase):
+class PackageBody(vhdl_ast.Base, vhdl_ast.HasNameBase):
 	#--------
-	def __init__(self, decls=NamedObjList(), *, name="", src_loc_at=1):
+	def __init__(self, decls=vhdl_ast.NamedObjList(), *, name="",
+		src_loc_at=1):
 		#--------
-		Base.__init__(self, src_loc_at=src_loc_at + 1)
-		HasNameBase.__init__(self, name=name)
+		vhdl_ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
+		vhdl_ast.HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(decls, NamedObjList), \
+		assert isinstance(decls, vhdl_ast.NamedObjList), \
 			type(decls)
 		self.__decls = decls
 		#--------
@@ -146,14 +150,14 @@ class PackageBody(Base, HasNameBase):
 	def visit(self, visitor):
 		visitor.visitPackageBody(self)
 	#--------
-class Use(Base):
+class Use(vhdl_ast.Base):
 	def __init__(self, sel_name_lst=[], *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		assert isinstance(sel_name_lst, list), \
 			type(sel_name_lst)
 		for sel_name in sel_name_lst:
-			assert isinstance(sel_name, SelName), \
+			assert isinstance(sel_name, vhdl_ast.SelName), \
 				type(sel_name)
 
 		self.__sel_name_lst = sel_name_lst

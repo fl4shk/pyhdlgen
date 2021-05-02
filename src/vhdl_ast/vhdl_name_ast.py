@@ -3,11 +3,12 @@
 #--------
 from misc_util import *
 
-from vhdl_misc_ast import *
-from vhdl_expr_ast import *
+#import vhdl_ast.vhdl_misc_ast as misc_ast
+#import vhdl_ast.vhdl_expr_ast as expr_ast
+import vhdl_ast.vhdl_ast as vhdl_ast
 #--------
 # Simple name
-class SmplName(Base):
+class SmplName(vhdl_ast.Base):
 	def __init__(self, val, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
@@ -19,7 +20,7 @@ class SmplName(Base):
 	def visit(self, visitor):
 		visitor.visitSmplName(self)
 # Selected names, used for `Use`
-class SelName(Base):
+class SelName(vhdl_ast.Base):
 	#--------
 	def __init__(self, lst, *, src_loc_at=1):
 		#--------
@@ -32,12 +33,12 @@ class SelName(Base):
 
 		for i in range(len(lst) - 1):
 			assert (isinstance(lst[i], SmplName)
-				or isinstance(lst[i], CallFunction)), \
+				or isinstance(lst[i], vhdl_ast.CallFunction)), \
 				type(lst[i])
 		assert (isinstance(lst[-1], SmplName)
-			or isinstance(lst[-1], CharLiteral)
-			or isinstance(lst[-1], StrLiteral)
-			or isinstance(lst[-1], All)), \
+			or isinstance(lst[-1], vhdl_ast.CharLiteral)
+			or isinstance(lst[-1], vhdl_ast.StrLiteral)
+			or isinstance(lst[-1], vhdl_ast.All)), \
 			type(lst[-1])
 		#--------
 	#--------

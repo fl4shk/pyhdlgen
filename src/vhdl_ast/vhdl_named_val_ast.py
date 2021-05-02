@@ -2,25 +2,28 @@
 
 #--------
 from misc_util import *
-from vhdl_misc_ast import *
-from vhdl_expr_ast import *
-from vhdl_type_ast import *
+
+#from vhdl_ast.vhdl_misc_ast import *
+#from vhdl_ast.vhdl_expr_ast import *
+#from vhdl_ast.vhdl_type_ast import *
+
+import vhdl_ast.vhdl_ast as vhdl_ast
 
 from enum import Enum, auto
 #--------
 # Named values, such as ports and signals
-class NamedValBase(Expr, HasNameBase):
+class NamedValBase(vhdl_ast.Expr, vhdl_ast.HasNameBase):
 	#--------
 	def __init__(self, typ, def_val=None, *, name="", src_loc_at=1):
 		#--------
-		Expr.__init__(self, src_loc_at=src_loc_at + 1)
-		HasNameBase.__init__(self, name=name)
+		vhdl_ast.Expr.__init__(self, src_loc_at=src_loc_at + 1)
+		vhdl_ast.HasNameBase.__init__(self, name=name)
 		#--------
-		assert isinstance(typ, InstableTypeBase), \
+		assert isinstance(typ, vhdl_ast.InstableTypeBase), \
 			type(typ)
 		self.__typ = typ
 
-		assert ((def_val is None) or isinstance(def_val, Expr)), \
+		assert ((def_val is None) or isinstance(def_val, vhdl_ast.Expr)), \
 			type(def_val)
 		self.__def_val = def_val
 		#--------
@@ -34,38 +37,43 @@ class NamedValBase(Expr, HasNameBase):
 		visitor.visitNamedValBase(self)
 	#--------
 	def left(self, inner=None):
-		return AttrExprLeft(self, inner)
+		return vhdl_ast.AttrExprLeft(self, inner)
 	def right(self, inner=None):
-		return AttrExprRight(self, inner)
+		return vhdl_ast.AttrExprRight(self, inner)
 
 	def high(self, inner=None):
-		return AttrExprHigh(self, inner)
+		return vhdl_ast.AttrExprHigh(self, inner)
 	def low(self, inner=None):
-		return AttrExprLow(self, inner)
+		return vhdl_ast.AttrExprLow(self, inner)
 
 	def length(self):
-		return AttrExprLength(self)
+		return vhdl_ast.AttrExprLength(self)
 	def __len__(self):
 		return self.length()
 
 	def ascending(self):
-		return AttrExprAscending(self)
+		return vhdl_ast.AttrExprAscending(self)
 	#--------
 	def event(self):
-		return AttrExprEvent(self)
+		return vhdl_ast.AttrExprEvent(self)
 	def active(self):
-		return AttrExprActive(self)
+		return vhdl_ast.AttrExprActive(self)
 	def last_event(self):
-		return AttrExprLastEvent(self)
+		return vhdl_ast.AttrExprLastEvent(self)
 	def last_value(self):
-		return AttrExprLastValue(self)
+		return vhdl_ast.AttrExprLastValue(self)
 	def last_active(self):
-		return AttrExprLastActive(self)
+		return vhdl_ast.AttrExprLastActive(self)
+	#--------
+	def rising_edge(self):
+		return vhdl_ast.RisingEdge(self)
+	def falling_edge(self):
+		return vhdl_ast.FallingEdge(self)
 	#--------
 	def rang(self):
-		return AttrTypeRange(self)
+		return vhdl_ast.AttrTypeRange(self)
 	def reverse_rang(self):
-		return AttrTypeReverseRange(self)
+		return vhdl_ast.AttrTypeReverseRange(self)
 	#--------
 #--------
 class Signal(NamedValBase):
@@ -176,21 +184,21 @@ class PortBase(NamedValBase):
 		return ((self.direction() == PortBase.Direction.Out)
 			or (self.direction() == PortBase.Direction.Inout))
 	#--------
-class Port(PortBase)
+class Port(PortBase):
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):
 		super().__init__(direction, typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitPort(self)
-class SigPort(PortBase)
+class SigPort(PortBase):
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):
 		super().__init__(direction, typ, def_val, name=name,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitSigPort(self)
-class VarPort(PortBase)
+class VarPort(PortBase):
 	def __init__(self, direction, typ, def_val=None, *, name="",
 		src_loc_at=1):
 		super().__init__(direction, typ, def_val, name=name,

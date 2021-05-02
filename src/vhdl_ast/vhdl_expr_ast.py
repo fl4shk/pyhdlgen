@@ -3,14 +3,15 @@
 #--------
 from misc_util import *
 
-from vhdl_misc_ast import *
-from vhdl_generic_port_map_ast import *
-from vhdl_subprogram_ast import *
-from vhdl_name_ast import *
+#from vhdl_ast.vhdl_misc_ast import *
+#from vhdl_ast.vhdl_assoc_list_ast import *
+#from vhdl_ast.vhdl_subprogram_ast import *
+#from vhdl_ast.vhdl_name_ast import *
+import vhdl_ast.vhdl_ast as vhdl_ast
 
 from enum import Enum, auto
 #--------
-class Expr(Base):
+class Expr(vhdl_ast.Base):
 	#--------
 	def __init__(self, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
@@ -60,14 +61,14 @@ class Expr(Base):
 			type(other)
 	#--------
 	def eq(self, other, *, name=""):
-		return Assign(self, other, name=name)
+		return vhdl_ast.Assign(self, other, name=name)
 	def seleq(self, expr, sel_waves, *, name=""):
-		return SelAssign(expr, self, sel_waves, name=name)
+		return vhdl_ast.SelAssign(expr, self, sel_waves, name=name)
 
 	def concur_eq(self, other, *, name=""):
-		return ConcurAssign(self, other, name=name)
+		return vhdl_ast.ConcurAssign(self, other, name=name)
 	def concur_seleq(self, expr, sel_waves, *, name=""):
-		return ConcurSelAssign(expr, self, sel_waves, name=name)
+		return vhdl_ast.ConcurSelAssign(expr, self, sel_waves, name=name)
 
 	def __getitem__(self, key):
 		return PartSel(self, key)
@@ -79,44 +80,81 @@ class Expr(Base):
 
 	def __add__(self, other):
 		return Binop("+", self, other)
+	def __radd__(self, other):
+		return Binop("+", other, self)
 	def __sub__(self, other):
 		return Binop("-", self, other)
+	def __rsub__(self, other):
+		return Binop("-", other, self)
 	def __neg__(self):
 		return Unop("-", self)
 
 	def __mul__(self, other):
 		return Binop("*", self, other)
+	def __rmul__(self, other):
+		return Binop("*", other, self)
 	def __floordiv__(self, other):
 		return Binop("//", self, other)
+	def __rfloordiv__(self, other):
+		return Binop("//", other, self)
 	def __mod__(self, other):
 		return Binop("%", self, other)
+	def __rmod__(self, other):
+		return Binop("%", other, self)
 	def rem(self, other):
 		return Binop("rem", self, other)
+	def rrem(self, other):
+		return Binop("rem", other, self)
 
 	def __pow__(self, other):
 		return Binop("**", self, other)
+	def __rpow__(self, other):
+		return Binop("**", other, self)
 
 	def __lshift__(self, other):
 		return Binop("<<", self, other)
+	def __rlshift__(self, other):
+		return Binop("<<", other, self)
 	def __rshift__(self, other):
 		return Binop(">>", self, other)
+	def __rrshift__(self, other):
+		return Binop(">>", other, self)
 	def rol(self, other):
 		return Binop("rol", self, other)
+	def rrol(self, other):
+		return Binop("rol", other, self)
 	def ror(self, other):
 		return Binop("ror", self, other)
+	def rror(self, other):
+		return Binop("ror", other, self)
 
 	def __and__(self, other):
 		return Binop("&", self, other)
+	def __rand__(self, other):
+		return Binop("&", other, self)
 	def nand(self, other):
 		return Binop("nand", self, other)
+	def rnand(self, other):
+		return Binop("nand", other, self)
+
 	def __or__(self, other):
 		return Binop("|", self, other)
+	def __ror__(self, other):
+		return Binop("|", other, self)
 	def nor(self, other):
 		return Binop("nor", self, other)
+	def rnor(self, other):
+		return Binop("nor", other, self)
+
 	def __xor__(self, other):
 		return Binop("^", self, other)
+	def __rxor__(self, other):
+		return Binop("^", other, self)
 	def xnor(self, other):
 		return Binop("xnor", self, other)
+	def rxnor(self, other):
+		return Binop("xnor", other, self)
+
 	def __invert__(self):
 		return Unop("~", self)
 
@@ -132,45 +170,6 @@ class Expr(Base):
 		return Binop("==", self, other)
 	def __ne__(self, other):
 		return Binop("!=", self, other)
-	#--------
-	def __radd__(self, other):
-		return Binop("+", other, self)
-	def __rsub__(self, other):
-		return Binop("-", other, self)
-
-	def __rmul__(self, other):
-		return Binop("*", other, self)
-	def __rfloordiv__(self, other):
-		return Binop("//", other, self)
-	def __rmod__(self, other):
-		return Binop("%", other, self)
-	def rrem(self, other):
-		return Binop("rem", other, self)
-
-	def __rpow__(self, other):
-		return Binop("**", other, self)
-
-	def __rlshift__(self, other):
-		return Binop("<<", other, self)
-	def __rrshift__(self, other):
-		return Binop(">>", other, self)
-	def rrol(self, other):
-		return Binop("rol", other, self)
-	def rror(self, other):
-		return Binop("ror", other, self)
-
-	def __rand__(self, other):
-		return Binop("&", other, self)
-	def rnand(self, other):
-		return Binop("nand", other, self)
-	def __ror__(self, other):
-		return Binop("|", other, self)
-	def rnor(self, other):
-		return Binop("nor", other, self)
-	def __rxor__(self, other):
-		return Binop("^", other, self)
-	def rxnor(self, other):
-		return Binop("xnor", other, self)
 	#--------
 #--------
 class BasicLiteral(Expr):
@@ -307,7 +306,7 @@ class Qualified(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(typ, InstableTypeBase), \
+		assert isinstance(typ, vhdl_ast.InstableTypeBase), \
 			type(typ)
 		self.__typ = typ
 
@@ -339,8 +338,12 @@ class Cast(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
+		assert isinstance(typ, vhdl_ast.InstableTypeBase), \
+			type(typ)
 		self.__typ = typ
-		self.__expr = expr
+
+		Expr.assert_valid(expr)
+		self.__expr = BasicLiteral.cast_opt(expr)
 		#--------
 	#--------
 	def typ(self):
@@ -397,7 +400,7 @@ class Unop(Expr):
 class Binop(Expr):
 	#--------
 	class Kind(Enum):
-		#Assign = auto()
+		#vhdl_ast.Assign = auto()
 
 		Add = auto()
 		Sub = auto()
@@ -497,14 +500,14 @@ class PartSel(Expr):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		# Object to part-select
-		assert (isinstance(val, NamedValBase) or isinstance(val, PartSel)
-			or isinstance(val, MembSel)), \
+		assert (isinstance(val, vhdl_ast.NamedValBase)
+			or isinstance(val, PartSel) or isinstance(val, MembSel)), \
 			type(val)
 		self.__val = val
 
 		# Index, range, or slice
 		assert (Expr.is_valid(ind_rang)
-			or isinstance(ind_rang, Range)
+			or isinstance(ind_rang, vhdl_ast.ConRangeBase)
 			or isinstance(ind_rang, slice)), \
 			type(ind_rang)
 
@@ -556,8 +559,8 @@ class MembSel(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert (isinstance(val, NamedValBase) or isinstance(val, PartSel)
-			or isinstance(val, MembSel)), \
+		assert (isinstance(val, vhdl_ast.NamedValBase)
+			or isinstance(val, PartSel) or isinstance(val, MembSel)), \
 			type(val)
 		self.__val = val
 
@@ -606,16 +609,16 @@ class CallFunction(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		assert (isinstance(function, SmplName)
-			or isinstance(function, SelName)
-			or isinstance(function, Function)), \
+		assert (isinstance(function, vhdl_ast.SmplName)
+			or isinstance(function, vhdl_ast.SelName)
+			or isinstance(function, vhdl_ast.Function)), \
 			type(function)
 		self.__function = function
 
 		#assert (assoc_list is None or isinstance(assoc_list, list)
 		#	or isinstance(assoc_list, dict)), \
 		#	type(assoc_list)
-		assert isinstance(assoc_list, AssocList), \
+		assert isinstance(assoc_list, vhdl_ast.AssocList), \
 			type(assoc_list)
 		self.__assoc_list = assoc_list
 		#--------
@@ -634,17 +637,18 @@ class AttrExprBase(Expr):
 		#--------
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
-		#assert isinstance(obj, Base), \
+		#assert isinstance(obj, vhdl_ast.Base), \
 		#	type(obj)
-		#assert isinstance(obj, HasNameBase), \
+		#assert isinstance(obj, vhdl_ast.HasNameBase), \
 		#	type(obj)
-		assert (isinstance(obj, NamedValBase)
-			or isinstance(obj, NamedTypeBase)), \
+		assert (isinstance(obj, vhdl_ast.NamedValBase)
+			or isinstance(obj, vhdl_ast.NamedTypeBase)), \
 			type(obj)
 		self.__obj = obj
 
-		assert (isinstance(inner_obj, SmplName) or Expr.is_valid(inner_obj)
-			or isinstance(inner_obj, ConRangeBase)
+		assert (isinstance(inner_obj, vhdl_ast.SmplName)
+			or Expr.is_valid(inner_obj)
+			or isinstance(inner_obj, vhdl_ast.ConRangeBase)
 			or (inner_obj is None)), \
 			type(inner_obj)
 		self.__inner_obj = inner_obj
@@ -762,7 +766,7 @@ class RisingEdge(Expr):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		assert isinstance(obj, NamedValBase), \
+		assert isinstance(obj, vhdl_ast.NamedValBase), \
 			type(obj)
 		self.__obj = obj
 	def obj(self):
@@ -773,7 +777,7 @@ class FallingEdge(Expr):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		assert isinstance(obj, NamedValBase), \
+		assert isinstance(obj, vhdl_ast.NamedValBase), \
 			type(obj)
 		self.__obj = obj
 	def obj(self):
