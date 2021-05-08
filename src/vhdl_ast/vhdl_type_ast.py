@@ -52,7 +52,7 @@ class NamedTypeBase(InstableTypeBase, ast.HasNameBase):
 	#--------
 
 # `type whatever_t is array(0 to 42) of asdf_t;`
-class DeclType(NamedTypeBase):
+class TypeDecl(NamedTypeBase):
 	#--------
 	def __init__(self, typ, *, name="", src_loc_at=1):
 		#--------
@@ -71,14 +71,14 @@ class DeclType(NamedTypeBase):
 		visitor.visitDeclType(self)
 	#--------
 # `subtype whatever_t is unsigned(42 downto 0);`
-class DeclSubtype(NamedTypeBase):
+class SubtypeDecl(NamedTypeBase):
 	#--------
 	def __init__(self, typ, layout, *, name="", src_loc_at=1):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(typ, TypeBase) \
-			and (not isinstance(typ, DeclSubtype)), \
+			and (not isinstance(typ, SubtypeDecl)), \
 			type(typ)
 		#assert typ.is_unconstrained(), \
 		#	type(typ)
@@ -86,6 +86,8 @@ class DeclSubtype(NamedTypeBase):
 
 		assert isinstance(layout, list), \
 			type(layout)
+		for i in range(len(layout)):
+			item = layout[i]
 		self.__layout = layout
 		#--------
 	#--------
@@ -312,8 +314,8 @@ class Array(TypeBase):
 		#--------
 		self.__rang = rang
 
-		# `ElemT` can be a preexisting type, a `DeclType`, or a
-		# `DeclSubtype`.
+		# `ElemT` can be a preexisting type, a `TypeDecl`, or a
+		# `SubtypeDecl`.
 		self.__ElemT = ElemT
 		#--------
 	#--------
@@ -408,7 +410,7 @@ class AttrTypeRange(ConRangeBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		# This isn't a perfect check since `DeclType` might be
+		# This isn't a perfect check since `TypeDecl` might be
 		# unconstrained
 		assert (isinstance(obj, ast.NamedValBase)
 			or isinstance(obj, NamedTypeBase)), \
@@ -422,7 +424,7 @@ class AttrTypeReverseRange(ConRangeBase):
 	def __init__(self, obj, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
-		# This isn't a perfect check since `DeclType` might be
+		# This isn't a perfect check since `TypeDecl` might be
 		# unconstrained
 		assert (isinstance(obj, ast.NamedValBase)
 			or isinstance(obj, NamedTypeBase)), \
