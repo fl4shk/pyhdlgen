@@ -33,11 +33,18 @@ class DslBehavBase:
 	#--------
 	def body(self):
 		return self.__body
+	def curr_scope_body(self)
+		if len(self.__nodes) == 0:
+			ret = self.body()
+		else:
+			ret = self.__nodes[-1].body()
+		return ret
 	#--------
 	def append(self, val):
 		assert isinstance(val, BehavStmt), \
 			do_type_assert_psconcat(val)
-		self.__nodes[-1].body() += val
+		self.curr_scope_body() += val
+
 	def __iadd__(self, val):
 		assert (isinstance(val, list) or isinstance(val, BehavStmt)), \
 			do_type_assert_psconcat(val)
