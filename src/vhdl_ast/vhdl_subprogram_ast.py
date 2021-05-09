@@ -7,7 +7,7 @@ import vhdl_ast.vhdl_ast as ast
 
 from enum import Enum, auto
 #--------
-class SubprogramBase(ast.Base, ast.HasNameBase):
+class SubprogramBase(ast.Base, ast.HasNameBase, ast.DslBehavBase):
 	#--------
 	def __init__(self, param_list=ast.NamedObjList(),
 		decls=ast.NamedObjList(), body=ast.NamedObjList(), *,
@@ -15,26 +15,21 @@ class SubprogramBase(ast.Base, ast.HasNameBase):
 		#--------
 		ast.Base.__init__(self, src_loc_at=src_loc_at + 1)
 		ast.HasNameBase.__init__(self, name=name)
+		ast.DslBehavBase.__init__(self, body=body)
 		#--------
 		assert isinstance(param_list, ast.NamedObjList), \
-			type(param_list)
+			do_type_assert_psconcat(param_list)
 		self.__param_list = param_list
 
 		assert isinstance(decls, ast.NamedObjList), \
-			type(decls)
+			do_type_assert_psconcat(decls)
 		self.__decls = decls
-
-		assert isinstance(body, ast.NamedObjList), \
-			type(body)
-		self.__body = body
 		#--------
 	#--------
 	def param_list(self):
 		return self.__param_list
 	def decls(self):
 		return self.__decls
-	def body(self):
-		return self.__body
 	#--------
 	def visit(self, visitor):
 		visitor.visitSubprogramBase(self)
@@ -67,7 +62,7 @@ class Function(SubprogramBase):
 			src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(ret_type, ast.InstableTypeBase), \
-			type(ret_type)
+			do_type_assert_psconcat(ret_type)
 		self.__ret_type = ret_type
 
 		Kind = Function.Kind

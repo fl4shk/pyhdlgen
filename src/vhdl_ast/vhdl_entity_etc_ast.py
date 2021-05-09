@@ -16,11 +16,11 @@ class Component(ast.Base, ast.HasNameBase):
 		ast.HasNameBase.__init__(self, name=name)
 		#--------
 		assert isinstance(generics, ast.NamedObjList), \
-			type(generics)
+			do_type_assert_psconcat(generics)
 		self.__generics = generics
 
 		assert isinstance(ports, ast.NamedObjList), \
-			type(ports)
+			do_type_assert_psconcat(ports)
 		self.__ports = ports
 		#--------
 	#--------
@@ -43,21 +43,21 @@ class Entity(ast.Base, ast.HasNameBase):
 		ast.HasNameBase.__init__(self, name=name)
 		#--------
 		assert isinstance(generics, ast.NamedObjList), \
-			type(generics)
+			do_type_assert_psconcat(generics)
 		self.__generics = generics
 
 		assert isinstance(ports, ast.NamedObjList), \
-			type(ports)
+			do_type_assert_psconcat(ports)
 		self.__ports = ports
 
 		# declarations
 		assert isinstance(decls, ast.NamedObjList), \
-			type(decls)
+			do_type_assert_psconcat(decls)
 		self.__decls = decls
 
 		# architectures
 		assert isinstance(archs, ast.NamedObjList), \
-			type(archs)
+			do_type_assert_psconcat(archs)
 		self.__archs = archs
 		#--------
 	#--------
@@ -84,12 +84,12 @@ class Arch(ast.Base, ast.HasNameBase):
 		#--------
 		# declarations
 		assert isinstance(decls, ast.NamedObjList), \
-			type(decls)
+			do_type_assert_psconcat(decls)
 		self.__decls = decls
 
 		# Unlabelled statements body
 		assert isinstance(body, ast.NamedObjList), \
-			type(body)
+			do_type_assert_psconcat(body)
 		self.__body = body
 		#--------
 	#--------
@@ -112,17 +112,17 @@ class Instance(ast.Base, ast.HasNameBase):
 		#--------
 		assert (isinstance(obj, Component) or isinstance(obj, Entity)
 			or isinstance(obj, Arch) or isinstance(obj, ast.ConfigDecl)), \
-			type(obj)
+			do_type_assert_psconcat(obj)
 		self.__obj = obj
 
 		assert ((generic_map is None)
 			or isinstance(generic_map, ast.GenericMap)), \
-			type(generic_map)
+			do_type_assert_psconcat(generic_map)
 		self.__generic_map = generic_map
 
 		assert ((port_map is None)
 			or isinstance(port_map, ast.PortMap)), \
-			type(port_map)
+			do_type_assert_psconcat(port_map)
 		self.__port_map = port_map
 		#--------
 	#--------

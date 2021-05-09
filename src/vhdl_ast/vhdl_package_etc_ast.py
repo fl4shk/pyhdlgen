@@ -16,11 +16,11 @@ class Package(ast.Base, ast.HasNameBase):
 		ast.HasNameBase.__init__(self, name=name)
 		#--------
 		#assert isinstance(generics, ast.NamedObjList), \
-		#	type(generics)
+		#	do_type_assert_psconcat(generics)
 		#self.__generics = generics
 
 		assert isinstance(decls, ast.NamedObjList), \
-			type(decls)
+			do_type_assert_psconcat(decls)
 		self.__decls = decls
 
 		self.__is_extern = is_extern
@@ -45,7 +45,7 @@ class PackageBody(ast.Base, ast.HasNameBase):
 		ast.HasNameBase.__init__(self, name=name)
 		#--------
 		assert isinstance(decls, ast.NamedObjList), \
-			type(decls)
+			do_type_assert_psconcat(decls)
 		self.__decls = decls
 		#--------
 	#--------
@@ -60,10 +60,10 @@ class UseClause(ast.Base):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		assert isinstance(sel_name_lst, list), \
-			type(sel_name_lst)
+			do_type_assert_psconcat(sel_name_lst)
 		for sel_name in sel_name_lst:
 			assert isinstance(sel_name, ast.SelName), \
-				type(sel_name)
+				do_type_assert_psconcat(sel_name)
 
 		self.__sel_name_lst = sel_name_lst
 	def sel_name_lst(self):
@@ -75,7 +75,7 @@ class Library(ast.Base):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		assert isinstance(which, SmplName), \
-			type(which)
+			do_type_assert_psconcat(which)
 		self.__which = which
 	def which(self):
 		return self.__which

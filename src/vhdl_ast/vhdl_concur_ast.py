@@ -20,6 +20,11 @@ class ConcurStmtBase(ast.Base, ast.HasNameBase):
 		visitor.visitConcurrentStmtBase(self)
 	#--------
 #--------
+class DslConcurBase:
+	#--------
+	#class 
+	#--------
+#--------
 class ConcurAssign(ConcurStmtBase):
 	#--------
 	def __init__(self, left, right, *, name="", src_loc_at=1):
@@ -27,9 +32,9 @@ class ConcurAssign(ConcurStmtBase):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(left, ast.Expr), \
-			type(left)
+			do_type_assert_psconcat(left)
 		assert left.is_lvalue(), \
-			type(left)
+			do_type_assert_psconcat(left)
 		self.__left = left
 
 		ast.Expr.assert_valid(right)
@@ -51,13 +56,13 @@ class ConcurSelAssign(ConcurStmtBase):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert ast.Expr.is_valid(expr), \
-			type(expr)
+			do_type_assert_psconcat(expr)
 		self.__expr = ast.BasicLiteral.cast_opt(expr)
 
 		assert isinstance(left, ast.Expr), \
-			type(left)
+			do_type_assert_psconcat(left)
 		assert left.is_lvalue(), \
-			type(left)
+			do_type_assert_psconcat(left)
 		self.__left = left
 
 		self.__sel_waves = sel_waves
@@ -88,15 +93,15 @@ class ForGenerate(GenerateStmtBase):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(var_name, ast.SmplName), \
-			type(var_name)
+			do_type_assert_psconcat(var_name)
 		self.__var_name = var_name
 
 		assert isinstance(rang, ast.ConRangeBase), \
-			type(rang)
+			do_type_assert_psconcat(rang)
 		self.__rang = rang
 
 		assert isinstance(body, ast.NamedObjList), \
-			type(body)
+			do_type_assert_psconcat(body)
 		self.__body = body
 		#--------
 	#--------
@@ -115,7 +120,7 @@ class IfGenerate(GenerateStmtBase):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 
 		assert isinstance(nodes, list), \
-			type(nodes)
+			do_type_assert_psconcat(nodes)
 		self.__nodes = nodes
 	def nodes(self):
 		return self.__nodes
@@ -126,7 +131,7 @@ class CaseGenerate(GenerateStmtBase):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 
 		assert isinstance(nodes, list), \
-			type(nodes)
+			do_type_assert_psconcat(nodes)
 		self.__nodes = nodes
 	def nodes(self):
 		return self.__nodes
@@ -146,20 +151,21 @@ class Block(ConcurStmtBase):
 
 		assert (generic_map is None
 			or isinstance(generic_map, GenericMap)), \
-			type(generic_map)
+			do_type_assert_psconcat(generic_map)
 		self.__generic_map = generic_map
 
 		self.__ports = ports
 
 		assert (port_map is None or isinstance(port_map, PortMap)), \
-			type(port_map)
+			do_type_assert_psconcat(port_map)
 		self.__port_map = port_map
 
-		assert isinstance(body, ast.NamedObjList)
+		assert isinstance(body, ast.NamedObjList), \
+			do_type_assert_psconcat(body)
 		self.__body = body
 
 		#assert isinstance(guard_cond, ast.Expr), \
-		#	type(guard_cond)
+		#	do_type_assert_psconcat(guard_cond)
 
 		ast.Expr.assert_valid(guard_cond)
 		self.__guard_cond = ast.BasicLiteral.cast_opt(guard_cond)
@@ -182,32 +188,27 @@ class Block(ConcurStmtBase):
 		visitor.visitBlock(self)
 	#--------
 #--------
-class Process(ConcurStmtBase):
+class Process(ConcurStmtBase, ast.DslBehavBase):
 	#--------
 	def __init__(self, sens_lst=[], decls=ast.NamedObjList(),
 		body=ast.NamedObjList(), *, name="", src_loc_at=1):
 		#--------
-		super().__init__(name=name, src_loc_at=src_loc_at + 1)
+		ConcurStmtBase.__init__(self, name=name, src_loc_at=src_loc_at + 1)
+		ast.DslBehavBase.__init__(self, body)
 		#--------
 		assert (isinstance(sens_lst, list) or isinstance(sens_lst, All)), \
-			type(sens_lst)
+			do_type_assert_psconcat(sens_lst)
 		self.__sens_lst = sens_lst
 
 		assert isinstance(decls, ast.NamedObjList), \
-			type(decls)
+			do_type_assert_psconcat(decls)
 		self.__decls = decls
-
-		assert isinstance(body, ast.NamedObjList), \
-			type(body)
-		self.__body = body
 		#--------
 	#--------
 	def sens_lst(self):
 		return self.__sens_lst
 	def decls(self):
 		return self.__decls
-	def body(self):
-		return self.__body
 	#--------
 	def visit(self, visitor):
 		visitor.visitProcess(self)

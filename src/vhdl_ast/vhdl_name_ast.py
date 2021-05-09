@@ -11,7 +11,7 @@ class SmplName(ast.Base):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		assert isinstance(val, str), \
-			type(val)
+			do_type_assert_psconcat(val)
 		self.__val = val
 	def val(self):
 		return self.__val
@@ -25,19 +25,19 @@ class SelName(ast.Base):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(lst, list), \
-			type(lst)
+			do_type_assert_psconcat(lst)
 		assert len(lst) > 1, \
 			psconcat("len, lst:  {}, {}".format(len(lst), lst))
 
 		for i in range(len(lst) - 1):
 			assert (isinstance(lst[i], SmplName)
 				or isinstance(lst[i], ast.CallFunction)), \
-				type(lst[i])
+				do_type_assert_psconcat(lst[i])
 		assert (isinstance(lst[-1], SmplName)
 			or isinstance(lst[-1], ast.CharLiteral)
 			or isinstance(lst[-1], ast.StrLiteral)
 			or isinstance(lst[-1], ast.All)), \
-			type(lst[-1])
+			do_type_assert_psconcat(lst[-1])
 		#--------
 	#--------
 	def lst(self):
@@ -49,7 +49,7 @@ class SelName(ast.Base):
 	@staticmethod
 	def cast_simple(to_cast):
 		assert isinstance(to_cast, str), \
-			type(to_cast)
+			do_type_assert_psconcat(to_cast)
 		lst = [elem.lower() for elem in to_cast.split(".")]
 		if lst[-1] == "all":
 			lst[-1] = All()

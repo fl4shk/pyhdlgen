@@ -34,6 +34,9 @@ def convert_str_to_enum_opt(to_conv, EnumT, STR_ENUM_MAP):
 		assert (to_conv in STR_ENUM_MAP), \
 			to_conv
 		return STR_DIRECTION_MAP[to_conv]
+
+def do_type_assert_psconcat(obj):
+	return psconcat("{}, {}".format(obj, type(obj)))
 #--------
 class NameDict:
 	#--------
@@ -61,15 +64,18 @@ class NameDict:
 
 	def __iadd__(self, val):
 		assert (isinstance(val, list) or isinstance(val, tuple)), \
-			type(val)
+			do_type_assert_psconcat(val)
 
 		if isinstance(val, list):
 			for item in val:
-				assert isinstance(item, tuple) and (len(item) == 2)
+				assert isinstance(item, tuple), \
+					do_type_assert_psconcat(item)
+				assert (len(item) == 2), \
+					do_type_assert_psconcat(item)
 				self[item[0]] = item[1]
 		else: # if isinstance(val, tuple):
 			assert (len(item) == 2), \
-				str(len(item))
+				len(item)
 			self[val[0]] = val[1]
 	#--------
 	@staticmethod

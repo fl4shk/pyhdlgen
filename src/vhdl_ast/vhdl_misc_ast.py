@@ -24,7 +24,7 @@ class Base:
 		return self.__lineno
 	def _set_parent(self, n_parent):
 		assert isinstance(n_parent, Base), \
-			type(n_parent)
+			do_type_assert_psconcat(n_parent)
 		self.__parent = n_parent
 	def parent(self):
 		return self.__parent
@@ -126,28 +126,32 @@ class NamedObjList(Base):
 		pass
 
 	def append(self, val):
-		assert (isinstance(elem, Base) or isinstance(elem, tuple)), \
-			type(elem)
-
-		if isinstance(elem, Base):
-			self.lst().append(val)
-			return self.lst()[-1]
-		else: # if isinstance(elem, tuple):
-			assert (len(elem) == 2), \
-				len(elem)
-			assert isinstance(elem[0], str), \
-				type(elem[0])
-			assert isinstance(elem[1], Base), \
-				type(elem[1])
-			self[elem[0]] = elem[1]
-			return self[elem[0]]
-
-	def __iadd__(self, val):
-		assert isinstance(val, list), \
+		assert (isinstance(val, Base) or isinstance(val, tuple)), \
 			type(val)
 
-		for elem in val:
-			self.append(elem)
+		if isinstance(val, Base):
+			self.lst().append(val)
+			return self.lst()[-1]
+		else: # if isinstance(val, tuple):
+			assert (len(val) == 2), \
+				len(val)
+			assert isinstance(val[0], str), \
+				do_type_assert_psconcat(val[0])
+			assert isinstance(val[1], Base), \
+				do_type_assert_psconcat(val[1])
+			self[val[0]] = val[1]
+			return self[val[0]]
+
+	def __iadd__(self, val):
+		assert (isinstance(val, list) or isinstance(val, Base)
+			or isinstance(val, tuple)), \
+			do_type_assert_psconcat(val)
+
+		if isinstance(val, list):
+			for elem in val:
+				self.append(elem)
+		else: # if isinstance(val, Base) or isinstance(val, tuple):
+			self.append(val)
 	#--------
 ## FIXME:  These need to be adjusted once I remember what the problem with
 ## just using `NamedObjList` was
@@ -161,7 +165,7 @@ class NamedObjList(Base):
 #	#--------
 #	def assert_valid_val(self, val):
 #		assert isinstance(val, BehavStmt), \
-#			type(val)
+#			do_assert_psconcat(val)
 #	#--------
 ## This is not a class to contain `DeclComponent` and friends, but it is to
 ## be their `decls` component.

@@ -20,6 +20,52 @@ class BehavStmt(ast.Base, ast.HasNameBase):
 		visitor.visitBehav(self)
 	#--------
 #--------
+class DslBehavBase:
+	#--------
+	def __init__(self, body=ast.NamedObjList()):
+		#--------
+		assert isinstance(body, ast.NamedObjList), \
+			do_type_assert_psconcat(body)
+		self.__body = body
+
+		self.__nodes = []
+		#--------
+	#--------
+	def body(self):
+		return self.__body
+	#--------
+	def append(self, val):
+		assert isinstance(val, BehavStmt), \
+			do_type_assert_psconcat(val)
+		self.__nodes[-1].body() += val
+	def __iadd__(self, val):
+		assert (isinstance(val, list) or isinstance(val, BehavStmt)), \
+			do_type_assert_psconcat(val)
+
+		if isinstance(val, list):
+			for elem in val:
+				self.append(elem)
+		else: # if isinstance(val, BehavStmt):
+			self.append(val)
+	#--------
+	#class _ScopeCtxMgr:
+	#	def __init__(self, nodes):
+	#		self.__nodes = nodes
+	#	def __enter__(self):
+	#		return self.__nodes[-1]
+	#	def __exit__(self, type, value, traceback):
+	#		node = self.__nodes[-1]
+	#		if isinstance(node, NodeIf):
+
+	#def If(self, cond, *, name=""):
+	#	self.__nodes.append(If(name=name))
+	#	self.__nodes.append(NodeIf(cond))
+	#	self.__nodes[-1]._set_parent(self.__nodes[-2])
+	#	self.__nodes[-2].nodes() += self.__nodes[-1]
+	#	return DslBehavBase._ScopeCtxMgr(self.__nodes)
+	#def Elsif(self, cond):
+	#--------
+#--------
 class Assign(BehavStmt):
 	#--------
 	def __init__(self, left, right, *, name="", src_loc_at=1):
@@ -27,9 +73,9 @@ class Assign(BehavStmt):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(left, ast.Expr), \
-			type(left)
+			do_type_assert_psconcat(left)
 		assert left.is_lvalue(), \
-			type(left)
+			do_type_assert_psconcat(left)
 		self.__left = left
 
 		ast.Expr.assert_valid(right)
@@ -51,13 +97,13 @@ class SelAssign(BehavStmt):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert ast.Expr.is_valid(expr), \
-			type(expr)
+			do_type_assert_psconcat(expr)
 		self.__expr = ast.BasicLiteral.cast_opt(expr)
 
 		assert isinstance(left, ast.Expr), \
-			type(left)
+			do_type_assert_psconcat(left)
 		assert left.is_lvalue(), \
-			type(left)
+			do_type_assert_psconcat(left)
 		self.__left = left
 
 		self.__sel_waves = sel_waves
@@ -84,14 +130,14 @@ class CallProcedure(BehavStmt):
 		assert (isinstance(procedure, ast.SmplName)
 			or isinstance(procedure, ast.SelName)
 			or isinstance(procedure, ast.Procedure)), \
-			type(procedure)
+			do_type_assert_psconcat(procedure)
 		self.__procedure = procedure
 
 		#assert (assoc_list is None or isinstance(assoc_list, list)
 		#	or isinstance(assoc_list, dict)), \
-		#	type(assoc_list)
+		#	do_type_assert_psconcat(assoc_list)
 		assert isinstance(assoc_list, ast.AssocList), \
-			type(assoc_list)
+			do_type_assert_psconcat(assoc_list)
 		self.__assoc_list = assoc_list
 		#--------
 	#--------
@@ -115,7 +161,7 @@ class While(BehavStmt):
 		self.__expr = ast.BasicLiteral.cast_opt(expr)
 
 		assert isinstance(body, ast.NamedObjList), \
-			type(body)
+			do_type_assert_psconcat(body)
 		self.__body = body
 		#--------
 	#--------
@@ -135,15 +181,15 @@ class For(BehavStmt):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(var_name, ast.SmplName), \
-			type(var_name)
+			do_type_assert_psconcat(var_name)
 		self.__var_name = var_name
 
 		assert isinstance(rang, ast.ConRangeBase), \
-			type(rang)
+			do_type_assert_psconcat(rang)
 		self.__rang = rang
 
 		assert isinstance(body, ast.NamedObjList), \
-			type(body)
+			do_type_assert_psconcat(body)
 		self.__body = body
 		#--------
 	#--------
@@ -165,7 +211,7 @@ class Next(BehavStmt):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(loop_label, ast.SmplName), \
-			type(loop_label)
+			do_type_assert_psconcat(loop_label)
 		self.__loop_label = loop_label
 
 		if cond is not None:
@@ -191,7 +237,7 @@ class Exit(BehavStmt):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(loop_label, ast.SmplName), \
-			type(loop_label)
+			do_type_assert_psconcat(loop_label)
 		self.__loop_label = loop_label
 
 		if cond is not None:
@@ -215,7 +261,7 @@ class If(BehavStmt):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 
 		assert isinstance(nodes, list), \
-			type(nodes)
+			do_type_assert_psconcat(nodes)
 		self.__nodes = nodes
 	def nodes(self):
 		return self.__nodes
@@ -234,7 +280,7 @@ class NodeIf(ast.Base):
 		self.__cond = ast.BasicLiteral.cast_opt(cond)
 
 		assert isinstance(body, ast.NamedObjList), \
-			type(body)
+			do_type_assert_psconcat(body)
 		self.__body = body
 		#--------
 	#--------
@@ -257,7 +303,7 @@ class NodeElsif(ast.Base):
 		self.__cond = ast.BasicLiteral.cast_opt(cond)
 
 		assert isinstance(body, ast.NamedObjList), \
-			type(body)
+			do_type_assert_psconcat(body)
 		self.__body = body
 		#--------
 	#--------
@@ -274,7 +320,7 @@ class NodeElse(ast.Base):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		assert isinstance(body, ast.NamedObjList), \
-			type(body)
+			do_type_assert_psconcat(body)
 		self.__body = body
 	def body(self):
 		return self.__body
@@ -290,7 +336,7 @@ class Case(BehavStmt):
 		self.__is_qmark = is_qmark
 
 		assert isinstance(nodes, list), \
-			type(nodes)
+			do_type_assert_psconcat(nodes)
 		self.__nodes = nodes
 		#--------
 	#--------
@@ -312,11 +358,11 @@ class NodeCaseWhen(ast.Base):
 		#--------
 		# One of the choices can be `Others`.
 		assert isinstance(choices, list), \
-			type(choices)
+			do_type_assert_psconcat(choices)
 		self.__choices = choices
 
 		assert isinstance(body, ast.NamedObjList), \
-			type(body)
+			do_type_assert_psconcat(body)
 		self.__body = body
 		#--------
 	#--------

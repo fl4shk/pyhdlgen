@@ -23,7 +23,7 @@ from enum import Enum, auto
 #		#--------
 #		Kind = Generic.Kind
 #		assert (isinstance(kind, Kind) or isinstance(kind, str)), \
-#			type(kind)
+#			do_type_assert_psconcat(kind)
 #
 #		if isinstance(kind, Kind):
 #			self.__kind = kind
@@ -38,23 +38,23 @@ from enum import Enum, auto
 #				}
 #
 #			assert (kind in STR_KIND_MAP), \
-#				kind
+#				do_type_assert_psconcat(kind)
 #
 #			self.__kind = STR_KIND_MAP[kind]
 #
 #
 #		if (self.kind() == Kind.Null) or (self.kind() == Kind.Constant):
 #			assert isinstance(typ, ast.InstableTypeBase), \
-#				type(typ)
+#				do_type_assert_psconcat(typ)
 #		elif self.kind() == Kind.Type:
 #			assert (typ == None), \
-#				type(typ)
+#				do_type_assert_psconcat(typ)
 #		elif self.kind() == Kind.Function:
 #			assert isinstance(typ, ast.Function), \
-#				type(typ)
+#				do_type_assert_psconcat(typ)
 #		elif self.kind() == Kind.Procedure:
 #			assert isinstance(typ, ast.Procedure), \
-#				typ(typ)
+#				do_typ_(typ)
 #		self.__typ = typ
 #
 #		self.__def_val = def_val

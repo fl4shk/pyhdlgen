@@ -16,11 +16,11 @@ class NamedValBase(ast.Expr, ast.HasNameBase):
 		ast.HasNameBase.__init__(self, name=name)
 		#--------
 		assert isinstance(typ, ast.InstableTypeBase), \
-			type(typ)
+			do_type_assert_psconcat(typ)
 		self.__typ = typ
 
 		assert ((def_val is None) or isinstance(def_val, ast.Expr)), \
-			type(def_val)
+			do_type_assert_psconcat(def_val)
 		self.__def_val = def_val
 		#--------
 	#--------
@@ -92,7 +92,7 @@ class Variable(NamedValBase):
 			src_loc_at=src_loc_at + 1)
 
 		assert isinstance(is_shared, bool), \
-			type(is_shared)
+			do_type_assert_psconcat(is_shared)
 		self.__is_shared = is_shared
 	#--------
 	def is_shared(self):

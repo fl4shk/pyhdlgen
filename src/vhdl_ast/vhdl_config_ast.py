@@ -18,11 +18,11 @@ class ConfigDecl(ast.Base, ast.HasNameBase):
 		self.__decls = decls
 
 		assert isinstance(block_config, BlockConfig), \
-			type(block_config)
+			do_type_assert_psconcat(block_config)
 		self.__block_config = block_config
 
 		assert isinstance(entity, ast.Entity), \
-			type(entity)
+			do_type_assert_psconcat(entity)
 		self.__entity = entity
 		#--------
 	#--------
@@ -44,11 +44,11 @@ class BlockConfig(ast.Base):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(use_clause_lst, list), \
-			type(use_clause_lst)
+			do_type_assert_psconcat(use_clause_lst)
 		self.__use_clause_lst = use_clause_lst
 
 		assert isinstance(config_item_lst, list), \
-			type(config_item_lst)
+			do_type_assert_psconcat(config_item_lst)
 		self.__config_item_lst = config_item_lst
 		#--------
 	#--------
@@ -69,12 +69,12 @@ class ComponentConfig(ast.Base):
 		#--------
 		assert ((binding_indic is None)
 			or isinstance(binding_indic, BindingIndic)), \
-			type(binding_indic)
+			do_type_assert_psconcat(binding_indic)
 		self.__binding_indic = binding_indic
 
 		assert ((block_config is None)
 			or isinstance(block_config, BlockConfig)), \
-			type(block_config)
+			do_type_assert_psconcat(block_config)
 		self.__block_config = block_config
 		#--------
 	#--------
@@ -97,17 +97,17 @@ class BindingIndic(ast.Base):
 		assert ((obj is None) or isinstance(obj, ast.Entity)
 			or isinstance(obj, ast.Arch) or isinstance(obj, ConfigDecl)
 			or isinstance(obj, ast.Open)), \
-			type(obj)
+			do_type_assert_psconcat(obj)
 		self.__obj = obj
 
 		assert ((generic_map is None)
 			or isinstance(generic_map, ast.GenericMap)), \
-			type(generic_map)
+			do_type_assert_psconcat(generic_map)
 		self.__generic_map = generic_map
 
 		assert ((port_map is None)
 			or isinstance(port_map, ast.PortMap)), \
-			type(port_map)
+			do_type_assert_psconcat(port_map)
 		self.__port_map = port_map
 		#--------
 	#--------
@@ -129,11 +129,11 @@ class ConfigSpecBase(ast.Base):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(component_spec, ComponentSpec), \
-			type(component_spec)
+			do_type_assert_psconcat(component_spec)
 		self.__component_spec = component_spec
 
 		assert isinstance(binding_indic, BindingIndic), \
-			type(binding_indic)
+			do_type_assert_psconcat(binding_indic)
 		self.__binding_indic = binding_indic
 		#--------
 	#--------
@@ -160,7 +160,7 @@ class ComponentSpec(ast.Base):
 		assert (isinstance(inst_lst, list)
 			or isinstance(inst_lst, ast.Others)
 			or isinstance(inst_lst, ast.All)), \
-			type(inst_lst)
+			do_type_assert_psconcat(inst_lst)
 
 		if isinstance(inst_lst, list):
 			for i in range(len(inst_lst)):
@@ -173,7 +173,7 @@ class ComponentSpec(ast.Base):
 		self.__inst_lst = inst_lst
 
 		assert isinstance(component, ast.Component), \
-			type(component)
+			do_type_assert_psconcat(component)
 		self.__component = component
 		#--------
 	#--------

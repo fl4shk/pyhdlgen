@@ -12,7 +12,7 @@ class AssocList(ast.Base):
 
 		assert (data is None or isinstance(data, list)
 			or isinstance(data, dict)), \
-			type(data)
+			do_type_assert_psconcat(data)
 		self.__data = data
 	def data(self):
 		return self.__data
@@ -24,7 +24,7 @@ class GenericMap(ast.Base):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		assert isinstance(assoc_list, AssocList), \
-			type(assoc_list)
+			do_type_assert_psconcat(assoc_list)
 		self.__assoc_list = assoc_list
 	def assoc_list(self):
 		return self.__assoc_list
@@ -35,7 +35,7 @@ class PortMap(ast.Base):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		assert isinstance(assoc_list, AssocList), \
-			type(assoc_list)
+			do_type_assert_psconcat(assoc_list)
 		self.__assoc_list = assoc_list
 	def assoc_list(self):
 		return self.__assoc_list

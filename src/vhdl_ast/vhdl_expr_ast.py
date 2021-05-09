@@ -19,12 +19,12 @@ class Expr(ast.Base):
 		return False
 	def assert_lvalue(self):
 		assert self.is_lvalue(), \
-			type(self)
+			do_type_assert_psconcat(self)
 	def is_const(self):
 		return False 
 	def assert_const(self):
 		assert self.is_const(), \
-			type(self)
+			do_type_assert_psconcat(self)
 
 	@classmethod
 	def is_basic_literal(other):
@@ -33,7 +33,7 @@ class Expr(ast.Base):
 	@classmethod
 	def assert_basic_literal(other):
 		assert Expr.is_basic_literal(other), \
-			type(other)
+			do_type_assert_psconcat(other)
 
 	@classmethod
 	def is_literal(other):
@@ -43,7 +43,7 @@ class Expr(ast.Base):
 	@classmethod
 	def assert_literal(other):
 		assert Expr.is_literal(other), \
-			type(other)
+			do_type_assert_psconcat(other)
 
 	# check to see if this is a valid `Expr` (or convertable to one)
 	@classmethod
@@ -54,7 +54,7 @@ class Expr(ast.Base):
 	@classmethod
 	def assert_valid(other):
 		assert Expr.is_valid(other), \
-			type(other)
+			do_type_assert_psconcat(other)
 	#--------
 	def eq(self, other, *, name=""):
 		return ast.Assign(self, other, name=name)
@@ -265,12 +265,12 @@ class Agg(Expr):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(layout, dict), \
-			type(layout)
+			do_type_assert_psconcat(layout)
 
 		for key in layout:
 			assert Expr.is_valid(layout[key]), \
 				psconcat("{}: {}; type(val): {}".format(key, layout[key],
-					type(layout[key])))
+					do_type_assert_psconcat(layout[key])))
 		self.__layout = layout
 		#--------
 	#--------
@@ -303,7 +303,7 @@ class Qualified(Expr):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(typ, ast.InstableTypeBase), \
-			type(typ)
+			do_type_assert_psconcat(typ)
 		self.__typ = typ
 
 		Expr.assert_valid(expr)
@@ -335,7 +335,7 @@ class Cast(Expr):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(typ, ast.InstableTypeBase), \
-			type(typ)
+			do_type_assert_psconcat(typ)
 		self.__typ = typ
 
 		Expr.assert_valid(expr)
@@ -498,14 +498,14 @@ class PartSel(Expr):
 		# Object to part-select
 		assert (isinstance(val, ast.NamedValBase)
 			or isinstance(val, PartSel) or isinstance(val, MembSel)), \
-			type(val)
+			do_type_assert_psconcat(val)
 		self.__val = val
 
 		# Index, range, or slice
 		assert (Expr.is_valid(ind_rang)
 			or isinstance(ind_rang, ast.ConRangeBase)
 			or isinstance(ind_rang, slice)), \
-			type(ind_rang)
+			do_type_assert_psconcat(ind_rang)
 
 		if not isinstance(ind_rang, slice):
 			self.__ind_rang = BasicLiteral.cast_opt(ind_rang)
@@ -522,7 +522,7 @@ class PartSel(Expr):
 			cond_1 = isinstance(ind_rang, int) \
 				and ((ind_rang.step == 1) or (ind_rang.step == -1))
 			assert cond_0 or cond_1, \
-				ind_rang.step
+				do_type_assert_psconcat(ind_rang.step)
 
 			cond_2 = isinstance(ind_rang.step, int) \
 				and (ind_rang.step == -1)
@@ -557,11 +557,11 @@ class MembSel(Expr):
 		#--------
 		assert (isinstance(val, ast.NamedValBase)
 			or isinstance(val, PartSel) or isinstance(val, MembSel)), \
-			type(val)
+			do_type_assert_psconcat(val)
 		self.__val = val
 
 		assert isinstance(name, str), \
-			type(name)
+			do_type_assert_psconcat(name)
 		self.__name = name
 		#--------
 	#--------
@@ -608,14 +608,14 @@ class CallFunction(Expr):
 		assert (isinstance(function, ast.SmplName)
 			or isinstance(function, ast.SelName)
 			or isinstance(function, ast.Function)), \
-			type(function)
+			do_type_assert_psconcat(function)
 		self.__function = function
 
 		#assert (assoc_list is None or isinstance(assoc_list, list)
 		#	or isinstance(assoc_list, dict)), \
-		#	type(assoc_list)
+		#	do_type_assert_psconcat(assoc_list)
 		assert isinstance(assoc_list, ast.AssocList), \
-			type(assoc_list)
+			do_type_assert_psconcat(assoc_list)
 		self.__assoc_list = assoc_list
 		#--------
 	#--------
@@ -634,19 +634,19 @@ class AttrExprBase(Expr):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		#assert isinstance(obj, ast.Base), \
-		#	type(obj)
+		#	do_type_assert_psconcat(obj)
 		#assert isinstance(obj, ast.HasNameBase), \
-		#	type(obj)
+		#	do_type_assert_psconcat(obj)
 		assert (isinstance(obj, ast.NamedValBase)
 			or isinstance(obj, ast.NamedTypeBase)), \
-			type(obj)
+			do_type_assert_psconcat(obj)
 		self.__obj = obj
 
 		assert (isinstance(inner_obj, ast.SmplName)
 			or Expr.is_valid(inner_obj)
 			or isinstance(inner_obj, ast.ConRangeBase)
 			or (inner_obj is None)), \
-			type(inner_obj)
+			do_type_assert_psconcat(inner_obj)
 		self.__inner_obj = inner_obj
 		#--------
 	#--------
@@ -660,7 +660,6 @@ class AttrExprBase(Expr):
 	#--------
 class AttrExprLeft(AttrExprBase):
 	def __init__(self, obj, inner_obj, *, src_loc_at=1):
-		assert isinstance
 		super().__init__(obj, inner_obj, src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitAttrExprLeft(self)
@@ -763,7 +762,7 @@ class RisingEdge(Expr):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		assert isinstance(obj, ast.NamedValBase), \
-			type(obj)
+			do_type_assert_psconcat(obj)
 		self.__obj = obj
 	def obj(self):
 		return self.__obj
@@ -774,7 +773,7 @@ class FallingEdge(Expr):
 		super().__init__(src_loc_at=src_loc_at + 1)
 
 		assert isinstance(obj, ast.NamedValBase), \
-			type(obj)
+			do_type_assert_psconcat(obj)
 		self.__obj = obj
 	def obj(self):
 		return self.__obj

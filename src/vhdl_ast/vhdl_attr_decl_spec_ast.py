@@ -15,7 +15,7 @@ class AttrDecl(ast.Base, ast.HasNameBase):
 		ast.HasNameBase.__init__(self, name=name)
 		#--------
 		assert isinstance(typ, InstableTypeBase), \
-			type(typ)
+			do_type_assert_psconcat(typ)
 		self.__typ = typ
 		#--------
 	#--------
@@ -33,11 +33,11 @@ class AttrSpec(ast.Base):
 		super().__init__(src_loc_at=src_loc_at + 1)
 		#--------
 		assert isinstance(attr, AttrDecl), \
-			type(attr)
+			do_type_assert_psconcat(attr)
 		self.__attr = attr
 
 		assert isinstance(obj_lst, list), \
-			type(obj_lst)
+			do_type_assert_psconcat(obj_lst)
 		for i in range(len(obj_lst)):
 			obj = obj_lst[i]
 			assert isinstance(obj, AttrDecl), \

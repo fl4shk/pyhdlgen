@@ -59,8 +59,8 @@ class TypeDecl(NamedTypeBase):
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
 		assert (isinstance(typ, Array) or isinstance(typ, Record)
-			or isinstance(typ, Range)), \
-			type(typ)
+			or isinstance(EnumDecl) or isinstance(typ, IntTypeDecl)), \
+			do_type_assert_psconcat(typ)
 		self.__typ = typ
 		#--------
 	#--------
@@ -77,17 +77,11 @@ class SubtypeDecl(NamedTypeBase):
 		#--------
 		super().__init__(name=name, src_loc_at=src_loc_at + 1)
 		#--------
-		assert isinstance(typ, TypeBase) \
-			and (not isinstance(typ, SubtypeDecl)), \
-			type(typ)
-		#assert typ.is_unconstrained(), \
-		#	type(typ)
+		assert isinstance(typ, TypeBase), \
+			do_type_assert_psconcat(typ)
 		self.__typ = typ
 
-		assert isinstance(layout, list), \
-			type(layout)
-		for i in range(len(layout)):
-			item = layout[i]
+		SubtypeDecl.assert_valid_layout(layout)
 		self.__layout = layout
 		#--------
 	#--------
@@ -98,6 +92,36 @@ class SubtypeDecl(NamedTypeBase):
 	#--------
 	def visit(self, visitor):
 		visitor.visitDeclDeclSubtype(self)
+	#--------
+	@staticmethod
+	def assert_valid_layout(layout)
+		def do_psconcat(layout, item):
+			return psconcat("{}, {}, {}".format(layout, item, type(item)))
+
+		assert isinstance(layout, list), \
+			do_type_assert_psconcat(layout)
+
+		for i in range(len(layout)):
+			item = layout[i]
+
+			assert (isinstance(item, tuple)
+				or isinstance(item, ast.ConRangeBase)), \
+				do_psconcat(layout, item)
+
+			if isinstance(item, tuple):
+				assert (len(item) == 2), \
+					do_psconcat(layout, item)
+
+				# Check that we have a record element ident
+				assert isinstance(item[0], str), \
+					do_psconcat(layout, item)
+
+				assert (isinstance(item[1], list)
+					or isinstance(item[1], ast.ConRangeBase)), \
+					do_psconcat(layout, item)
+
+				if isinstance(item[1], list):
+					SubtypeDecl.assert_valid_layout(item[1])
 	#--------
 #--------
 class Bit(InstableTypeBase):
@@ -344,7 +368,7 @@ class Record(TypeBase):
 		# `layout` is expected to be a `dict` mapping element names to
 		# types
 		assert isinstance(layout, dict), \
-			type(layout)
+			do_type_assert_psconcat(layout)
 		#for key in layout.keys()
 		self.__layout = layout
 	#--------
@@ -356,6 +380,42 @@ class Record(TypeBase):
 	#--------
 	#def is_unconstrained(self):
 	#	pass
+	#--------
+
+class EnumDecl(TypeBase):
+	#--------
+	def __init__(self, data, *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
+
+		assert (isinstance(data, dict) or isinstance(data, set)), \
+			do_type_assert_psconcat(data)
+		self.__data = data
+	#--------
+	def data(self):
+		return self.__data
+	#--------
+	def visit(self, visitor):
+		visitor.visitEnumDecl(self)
+	#--------
+	def __getattr__(self, key):
+		return self[key]
+	def __getitem__(self, key):
+		if isinstance(key, str) and (len(key) > 0) and (key[0] != "_"):
+			if key in self.data():
+				if isinstance(self.data(), dict):
+					return self.data()[key]
+				else: # if isinstance(self.data(), set):
+					True
+			else:
+				return None
+		else:
+			return self.__dict__[key]
+	#--------
+class IntTypeDecl(TypeBase):
+	#--------
+	def __init__(self, rang, *, src_loc_at=1):
+		super().__init__(src_loc_at=src_loc_at + 1)
+	#--------
 	#--------
 
 # ast.Base class for a constrained range, used for 
@@ -414,7 +474,7 @@ class AttrTypeRange(ConRangeBase):
 		# unconstrained
 		assert (isinstance(obj, ast.NamedValBase)
 			or isinstance(obj, NamedTypeBase)), \
-			type(obj)
+			do_type_assert_psconcat(obj)
 		self.__obj = obj
 	def obj(self):
 		return self.__obj
@@ -428,7 +488,7 @@ class AttrTypeReverseRange(ConRangeBase):
 		# unconstrained
 		assert (isinstance(obj, ast.NamedValBase)
 			or isinstance(obj, NamedTypeBase)), \
-			type(obj)
+			do_type_assert_psconcat(obj)
 		self.__obj = obj
 	def obj(self):
 		return self.__obj
@@ -437,11 +497,22 @@ class AttrTypeReverseRange(ConRangeBase):
 
 # An unconstrained range, such as `natural range <>`
 class UnconRange(ast.Base):
-	def __init__(self, is_natural=True, *, src_loc_at=1):
+	def __init__(self, scalar_type=Natural, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
-		self.__is_natural = is_natural
-	def is_natural(self):
-		return self.__is_natural
+
+		assert isinstance(scalar_type, InstableTypeBase), \
+			do_type_assert_psconcat(scalar_type)
+		assert not isinstance(scalar_type, VectorBase), \
+			do_type_assert_psconcat(scalar_type)
+		assert not isinstance(scalar_type, SubtypeDecl), \
+			do_type_assert_psconcat(scalar_type)
+		if isinstance(scalar_type, NamedTypeBase):
+			assert (isinstance(scalar_type.typ(), EnumDecl)
+				or isinstance(scalar_type.typ(), IntTypeDecl)), \
+				do_type_assert_psconcat(scalar_type.typ())
+		self.__scalar_type = scalar_type
+	def scalar_type(self):
+		return self.__scalar_type
 	def visit(self, visitor):
 		visitor.visitUnconRange(self)
 #--------
