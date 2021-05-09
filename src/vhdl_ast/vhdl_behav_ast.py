@@ -55,22 +55,22 @@ class DslBehavBase:
 		else: # if isinstance(val, BehavStmt):
 			self.append(val)
 	#--------
-	#class _ScopeCtxMgr:
-	#	def __init__(self, nodes):
-	#		self.__nodes = nodes
-	#	def __enter__(self):
-	#		return self.__nodes[-1]
-	#	def __exit__(self, type, value, traceback):
-	#		node = self.__nodes[-1]
-	#		if isinstance(node, NodeIf):
+	class _ScopeCtxMgr:
+		def __init__(self, nodes):
+			self.__nodes = nodes
+		def __enter__(self):
+			return self.__nodes[-1]
+		def __exit__(self, type, value, traceback):
+			node = self.__nodes[-1]
+			if isinstance(node, NodeIf):
 
-	#def If(self, cond, *, name=""):
-	#	self.__nodes.append(If(name=name))
-	#	self.__nodes.append(NodeIf(cond))
-	#	self.__nodes[-1]._set_parent(self.__nodes[-2])
-	#	self.__nodes[-2].nodes() += self.__nodes[-1]
-	#	return DslBehavBase._ScopeCtxMgr(self.__nodes)
-	#def Elsif(self, cond):
+	def If(self, cond, *, name=""):
+		self.__nodes.append(If(name=name))
+		self.__nodes.append(NodeIf(cond))
+		self.__nodes[-1]._set_parent(self.__nodes[-2])
+		self.__nodes[-2].nodes() += self.__nodes[-1]
+		return DslBehavBase._ScopeCtxMgr(self.__nodes)
+	def Elsif(self, cond):
 	#--------
 #--------
 class Assign(BehavStmt):

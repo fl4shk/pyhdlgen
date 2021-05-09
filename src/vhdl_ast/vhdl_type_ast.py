@@ -412,11 +412,16 @@ class EnumDecl(TypeBase):
 			return self.__dict__[key]
 	#--------
 class IntTypeDecl(TypeBase):
-	#--------
 	def __init__(self, rang, *, src_loc_at=1):
 		super().__init__(src_loc_at=src_loc_at + 1)
-	#--------
-	#--------
+
+		assert isinstance(rang, ConRangeBase), \
+			do_type_assert_psconcat(rang)
+		self.__rang = rang
+	def rang(self):
+		return self.__rang
+	def visit(self, visitor):
+		visitor.visitIntTypeDecl(self)
 
 # ast.Base class for a constrained range, used for 
 # `isinstance(obj, ConRangeBase)`

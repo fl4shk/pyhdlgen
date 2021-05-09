@@ -54,7 +54,7 @@ from enum import Enum, auto
 #				do_type_assert_psconcat(typ)
 #		elif self.kind() == Kind.Procedure:
 #			assert isinstance(typ, ast.Procedure), \
-#				do_typ_(typ)
+#				do_type_assert_psconcat(typ)
 #		self.__typ = typ
 #
 #		self.__def_val = def_val
