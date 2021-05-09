@@ -24,6 +24,7 @@ class DslConcurBase:
 	#--------
 	#class 
 	#--------
+	pass
 #--------
 class ConcurAssign(ConcurStmtBase):
 	#--------
