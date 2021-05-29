@@ -122,6 +122,18 @@ class IfGenerate(GenerateStmtBase):
 
 		assert isinstance(nodes, list), \
 			do_type_assert_psconcat(nodes)
+		for i in range(len(nodes)):
+			node = nodes[i]
+
+			if i == 0:
+				assert isinstance(node, ast.NodeIf), \
+					do_type_assert_psconcat(node, i, nodes)
+			elif (i > 0) and (i < (len(nodes) - 1)):
+				assert isinstance(node, ast.NodeElsif), \
+					do_type_assert_psconcat(node, i, nodes)
+			else:
+				assert isinstance(node, ast.NodeElse), \
+					do_type_assert_psconcat(node, i, nodes)
 		self.__nodes = nodes
 	def nodes(self):
 		return self.__nodes
@@ -133,6 +145,10 @@ class CaseGenerate(GenerateStmtBase):
 
 		assert isinstance(nodes, list), \
 			do_type_assert_psconcat(nodes)
+		for i in range(len(nodes)):
+			node = nodes[i]
+			assert isinstance(node, ast.NodeCaseWhen), \
+				do_type_assert_psconcat(node, i, nodes)
 		self.__nodes = nodes
 	def nodes(self):
 		return self.__nodes
@@ -199,6 +215,19 @@ class Process(ConcurStmtBase, ast.DslBehavBase):
 		#--------
 		assert (isinstance(sens_lst, list) or isinstance(sens_lst, All)), \
 			do_type_assert_psconcat(sens_lst)
+
+		if isinstance(sens_lst, list):
+			for i in range(len(sens_lst)):
+				elem = sens_lst[elem]
+				assert (isinstance(elem, ast.Signal)
+					or isinstance(elem, ast.Port)), \
+					psconcat("{}, {}, {}, {}", sens_lst, i, elem,
+						type(elem))
+				if isinstance(elem, ast.Port):
+					assert (elem.has_typical_direction()), \
+						psconcat("{}, {}, {}, {}", sens_lst, i,
+							elem.direction(), type(elem.direction()))
+
 		self.__sens_lst = sens_lst
 
 		assert isinstance(decls, ast.NamedObjList), \

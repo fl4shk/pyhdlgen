@@ -31,12 +31,12 @@ class DslBehavBase:
 		self.__nodes = []
 		#--------
 	#--------
-	def body(self):
-		return self.__body
+	#def body(self):
+	#	return self.__body
 	def curr_scope_body(self)
 		if len(self.__nodes) == 0:
-			ret = self.body()
-		else:
+			ret = self.__body
+		else: # if len(self.__nodes) > 0:
 			ret = self.__nodes[-1].body()
 		return ret
 	#--------
@@ -55,22 +55,22 @@ class DslBehavBase:
 		else: # if isinstance(val, BehavStmt):
 			self.append(val)
 	#--------
-	class _ScopeCtxMgr:
-		def __init__(self, nodes):
-			self.__nodes = nodes
-		def __enter__(self):
-			return self.__nodes[-1]
-		def __exit__(self, type, value, traceback):
-			node = self.__nodes[-1]
-			if isinstance(node, NodeIf):
+	#class _ScopeCtxMgr:
+	#	def __init__(self, nodes):
+	#		self.__nodes = nodes
+	#	def __enter__(self):
+	#		return self.__nodes[-1]
+	#	def __exit__(self, type, value, traceback):
+	#		node = self.__nodes[-1]
+	#		if isinstance(node, NodeIf):
 
-	def If(self, cond, *, name=""):
-		self.__nodes.append(If(name=name))
-		self.__nodes.append(NodeIf(cond))
-		self.__nodes[-1]._set_parent(self.__nodes[-2])
-		self.__nodes[-2].nodes() += self.__nodes[-1]
-		return DslBehavBase._ScopeCtxMgr(self.__nodes)
-	def Elsif(self, cond):
+	#def If(self, cond, *, name=""):
+	#	self.__nodes.append(If(name=name))
+	#	self.__nodes.append(NodeIf(cond))
+	#	self.__nodes[-1]._set_parent(self.__nodes[-2])
+	#	self.__nodes[-2].nodes() += self.__nodes[-1]
+	#	return DslBehavBase._ScopeCtxMgr(self.__nodes)
+	#def Elsif(self, cond):
 	#--------
 #--------
 class Assign(BehavStmt):
@@ -269,6 +269,19 @@ class If(BehavStmt):
 
 		assert isinstance(nodes, list), \
 			do_type_assert_psconcat(nodes)
+		for i in range(len(nodes)):
+			node = nodes[i]
+
+			if i == 0:
+				assert isinstance(node, ast.NodeIf), \
+					do_type_assert_psconcat(node, i, nodes)
+			elif (i > 0) and (i < (len(nodes) - 1)):
+				assert isinstance(node, ast.NodeElsif), \
+					do_type_assert_psconcat(node, i, nodes)
+			else:
+				assert isinstance(node, ast.NodeElse), \
+					do_type_assert_psconcat(node, i, nodes)
+
 		self.__nodes = nodes
 	def nodes(self):
 		return self.__nodes
@@ -344,6 +357,10 @@ class Case(BehavStmt):
 
 		assert isinstance(nodes, list), \
 			do_type_assert_psconcat(nodes)
+		for i in range(len(nodes)):
+			node = nodes[i]
+			assert isinstance(node, ast.NodeCaseWhen), \
+				do_type_assert_psconcat(node, i, nodes)
 		self.__nodes = nodes
 		#--------
 	#--------

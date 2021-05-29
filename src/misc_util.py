@@ -35,8 +35,20 @@ def convert_str_to_enum_opt(to_conv, EnumT, STR_ENUM_MAP):
 			to_conv
 		return STR_DIRECTION_MAP[to_conv]
 
-def do_type_assert_psconcat(obj):
-	return psconcat("{}, {}".format(obj, type(obj)))
+def do_type_assert_psconcat(obj, i=None, lst=None):
+	if i is None:
+		return psconcat("{}, {}".format(obj, type(obj)))
+	else:
+		assert isinstance(i, int), \
+			do_type_assert_psconcat(i)
+		assert ((lst is None) or isinstance(lst, list)), \
+			do_type_assert_psconcat(lst)
+
+		if lst is None:
+			return psconcat("{}, {}, {}".format(i, obj, type(obj))
+		else: # if isinstance(lst, list):
+			return psconcat("{}, {}".format(lst, do_type_assert_psconcat
+				(obj, i, None)))
 #--------
 class NameDict:
 	#--------

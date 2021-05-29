@@ -7,6 +7,7 @@ import vhdl_ast.vhdl_ast as ast
 
 from enum import Enum, auto
 #--------
+# configuration_declaration
 class ConfigDecl(ast.Base, ast.HasNameBase):
 	#--------
 	def __init__(self, decls=ast.NamedObjList(),
@@ -36,6 +37,7 @@ class ConfigDecl(ast.Base, ast.HasNameBase):
 	def visit(self, visitor):
 		visitor.visitConfigDecl(self)
 	#--------
+# block_configuration
 class BlockConfig(ast.Base):
 	#--------
 	def __init__(self, use_clause_lst=[], config_item_lst=[], *,
@@ -45,10 +47,19 @@ class BlockConfig(ast.Base):
 		#--------
 		assert isinstance(use_clause_lst, list), \
 			do_type_assert_psconcat(use_clause_lst)
+		for i in range(len(use_clause_lst)):
+			elem = use_clause_lst[i]
+			assert isinstance(elem, ast.UseClause), \
+				do_type_assert_psconcat(elem)
 		self.__use_clause_lst = use_clause_lst
 
 		assert isinstance(config_item_lst, list), \
 			do_type_assert_psconcat(config_item_lst)
+		for i in range(len(config_item_lst)):
+			elem = config_item_lst[i]
+			assert (isinstance(elem, BlockConfig)
+				or isinstance(elem, ComponentConfig)), \
+				do_type_assert_psconcat(elem)
 		self.__config_item_lst = config_item_lst
 		#--------
 	#--------
@@ -60,6 +71,7 @@ class BlockConfig(ast.Base):
 	def visit(self, visitor):
 		visitor.visitBlockConfig(self)
 	#--------
+# component_configuration
 class ComponentConfig(ast.Base):
 	#--------
 	def __init__(self, binding_indic=None, block_config=None, *,
