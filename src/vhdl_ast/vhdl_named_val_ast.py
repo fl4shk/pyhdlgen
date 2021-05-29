@@ -182,8 +182,8 @@ class PortBase(NamedValBase):
 	#--------
 	def has_typical_direction(self):
 		return ((self.direction() == PortBase.Direction.In)
-				or (self.direction() == PortBase.Direction.Out)
-				or (self.direction() == PortBase.Direction.Inout))
+			or (self.direction() == PortBase.Direction.Out)
+			or (self.direction() == PortBase.Direction.Inout))
 	#--------
 class Port(PortBase):
 	def __init__(self, direction, typ, def_val=None, *, name="",

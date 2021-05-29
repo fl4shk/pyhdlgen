@@ -157,12 +157,14 @@ class ConfigSpecBase(ast.Base):
 	def visit(self, visitor):
 		visitor.visitConfigSpecBase(self)
 	#--------
+# simple_configuration_specification
 class SmplConfigSpec(ConfigSpecBase):
 	def __init__(self, component_spec, binding_indic, *, src_loc_at=1):
 		super().__init__(component_spec, binding_indic,
 			src_loc_at=src_loc_at + 1)
 	def visit(self, visitor):
 		visitor.visitSmplConfigSpec(self)
+# component_specification
 class ComponentSpec(ast.Base):
 	#--------
 	def __init__(self, inst_lst, component, *, src_loc_at=1):
@@ -181,7 +183,7 @@ class ComponentSpec(ast.Base):
 					or isinstance(inst, ast.Entity)
 					or isinstance(inst, ast.Arch)
 					or isinstance(inst, ast.ConfigDecl)), \
-					psconcat("{}, {}, {}".format(i, inst, type(inst)))
+					do_type_assert_psconcat(inst, i, inst_lst)
 		self.__inst_lst = inst_lst
 
 		assert isinstance(component, ast.Component), \
